@@ -669,7 +669,6 @@ internal fun TextReaderScreen(
     if (showSettings) {
         ReaderSettingsSheet(
             preferences = preferences,
-            showPdfNote = false,
             onBookNoteClick = onOpenBookNote,
             onDismiss = { showSettings = false },
             onPreferencesChange = onPreferencesChange,

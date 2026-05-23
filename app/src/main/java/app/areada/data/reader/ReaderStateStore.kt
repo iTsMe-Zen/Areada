@@ -73,6 +73,7 @@ object ReaderStateStore {
                         "readingRulerPosition",
                         item.optDouble("readingRulerStrength", ReaderRulerPositionDefault.toDouble()),
                     ).toFloat(),
+                    showGuideIcon = item.optBoolean("showGuideIcon", ReaderPreferences().showGuideIcon),
                 ),
             )
         }.getOrDefault(ReaderPreferences())
@@ -92,6 +93,7 @@ object ReaderStateStore {
             put("invertVolumeButtons", preferences.invertVolumeButtons)
             put("readingRuler", preferences.readingRuler)
             put("readingRulerPosition", preferences.readingRulerPosition.toDouble())
+            put("showGuideIcon", preferences.showGuideIcon)
         }
 
         prefs(context)

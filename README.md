@@ -10,11 +10,11 @@
   A minimal offline Android reader focused on lightweight local reading.
 </p>
 
-Areada supports EPUB, PDF, TXT, FB2, FBZ, FB2 ZIP, and a wide range of archive formats including ZIP, 7z, RAR, tar, and more. It provides a clean monochrome interface, local folder-based reading, saved progress, bookmarks, search, filters, sectioned notes, and simple reader-focused controls.
+Areada supports EPUB, PDF, TXT, FB2, FBZ, FB2 ZIP, and a wide range of archive formats including ZIP, 7z, tar, and more. It provides a clean monochrome interface, local folder-based reading, saved progress, bookmarks, search, filters, sectioned notes, and simple reader-focused controls.
 
 ## Latest Release
 
-Latest version: **v1.1.0**
+Latest version: **v1.1.1**
 
 <p>
   <a href="https://github.com/iTsMe-Zen/Areada/releases/latest">
@@ -35,7 +35,7 @@ Latest version: **v1.1.0**
 - FB2
 - FBZ
 - FB2 ZIP
-- ZIP, 7z, RAR, gz, bz2, xz, tar, tar.gz / tgz, tar.bz2 / tbz2, and tar.xz / txz archives containing EPUB, PDF, TXT, or FB2
+- ZIP, 7z, gz, bz2, xz, tar, tar.gz / tgz, tar.bz2 / tbz2, and tar.xz / txz archives containing EPUB, PDF, TXT, or FB2
 
 FB2 support includes:
 
@@ -43,7 +43,7 @@ FB2 support includes:
 - `.fb2.zip`
 - `.fbz`
 
-Areada can open `.zip`, `.7z`, `.rar`, `.gz`, `.bz2`, `.xz`, `.tar`, `.tar.gz` / `.tgz`, `.tar.bz2` / `.tbz2`, and `.tar.xz` / `.txz` archives containing supported book files such as EPUB, PDF, TXT, or FB2. If an archive contains multiple supported books, Areada shows a chooser.
+Areada can open `.zip`, `.7z`, `.gz`, `.bz2`, `.xz`, `.tar`, `.tar.gz` / `.tgz`, `.tar.bz2` / `.tbz2`, and `.tar.xz` / `.txz` archives containing supported book files such as EPUB, PDF, TXT, or FB2. If an archive contains multiple supported books, Areada shows a chooser.
 
 Encrypted, split, and nested archives are not supported.
 

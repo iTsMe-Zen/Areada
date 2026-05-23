@@ -9,6 +9,7 @@
     <string name="font_size">फन्ट आकार</string>
     <string name="line_spacing">लाइन दूरी</string>
     <string name="reading_ruler">पढ्ने रुलर</string>
+    <string name="guide_icon">गाइड आइकन</string>
     <string name="ruler_position">रुलर स्थिति</string>
     <string name="keep_screen_on">स्क्रिन अन राख्नुहोस्</string>
     <string name="volume_buttons_turn_pages">भोल्युम बटनले पाना फेरोस्</string>
@@ -20,7 +21,6 @@
     <string name="on">ON</string>
     <string name="off">OFF</string>
     <string name="version_areada">संस्करण: Areada-%1$s</string>
-    <string name="pdf_font_note">फन्ट सेटिङ EPUB र TXT मा लागू हुन्छ। PDF ले कागजातकै फन्ट राख्छ।</string>
     <string name="language">भाषा</string>
     <string name="language_system">प्रणाली</string>
     <string name="language_english">English</string>

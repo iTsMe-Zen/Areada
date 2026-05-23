@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CreateNewFolder
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
@@ -293,9 +294,9 @@ internal fun HomeScreen(
     if (showSettings) {
         ReaderSettingsSheet(
             preferences = preferences,
-            showPdfNote = false,
             showReadingControls = false,
             showLanguageSelector = true,
+            showGuideIconToggle = true,
             onDismiss = { showSettings = false },
             onPreferencesChange = onPreferencesChange,
         )
@@ -667,7 +668,6 @@ internal fun HomeScreen(
                     ) {
                         Text(
                             text = stringResource(R.string.app_name),
-                            modifier = Modifier.clickable { showTutorialPrompt = true },
                             style = MaterialTheme.typography.displaySmall,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onBackground,
@@ -697,6 +697,16 @@ internal fun HomeScreen(
                                 maxLines = 1,
                             )
                             Spacer(modifier = Modifier.width(4.dp))
+                        }
+                        if (preferences.showGuideIcon) {
+                            HeaderIconButton(onClick = { showTutorialPrompt = true }) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Info,
+                                    contentDescription = stringResource(R.string.quick_guide_title),
+                                    modifier = Modifier.size(24.dp),
+                                    tint = headerActionColor,
+                                )
+                            }
                         }
                         HeaderIconButton(onClick = { showSettings = true }) {
                             Icon(

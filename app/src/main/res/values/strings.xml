@@ -8,6 +8,7 @@
     <string name="font_size">Font size</string>
     <string name="line_spacing">Line spacing</string>
     <string name="reading_ruler">Reading ruler</string>
+    <string name="guide_icon">Guide Icon</string>
     <string name="ruler_position">Ruler position</string>
     <string name="keep_screen_on">Keep screen on</string>
     <string name="volume_buttons_turn_pages">Volume buttons turn pages</string>
@@ -15,7 +16,6 @@
     <string name="on">ON</string>
     <string name="off">OFF</string>
     <string name="version_areada">Version: Areada-%1$s</string>
-    <string name="pdf_font_note">Font settings apply to EPUB and TXT. PDF keeps the document\'s embedded typography.</string>
     <string name="language">Language</string>
     <string name="language_system">System</string>
     <string name="language_english">English</string>

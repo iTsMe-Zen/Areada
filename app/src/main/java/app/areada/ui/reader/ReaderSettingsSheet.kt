@@ -48,9 +48,9 @@ import kotlin.math.roundToInt
 @Composable
 internal fun ReaderSettingsSheet(
     preferences: ReaderPreferences,
-    showPdfNote: Boolean,
     showReadingControls: Boolean = true,
     showLanguageSelector: Boolean = false,
+    showGuideIconToggle: Boolean = false,
     onBookNoteClick: (() -> Unit)? = null,
     onDismiss: () -> Unit,
     onPreferencesChange: (ReaderPreferences) -> Unit,
@@ -182,14 +182,6 @@ internal fun ReaderSettingsSheet(
                     valueRange = 1.2f..2.4f,
                     steps = 11,
                 )
-                if (showPdfNote) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = stringResource(R.string.pdf_font_note),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
                 SettingsControlSpacer()
                 SettingsSection(title = stringResource(R.string.page_navigation)) {
                     SegmentedSettingGrid(
@@ -251,6 +243,14 @@ internal fun ReaderSettingsSheet(
                         },
                     )
                 }
+            }
+            if (showGuideIconToggle) {
+                SettingsSectionSpacer()
+                SettingsBinaryRow(
+                    label = stringResource(R.string.guide_icon),
+                    checked = preferences.showGuideIcon,
+                    onCheckedChange = { checked -> onPreferencesChange(preferences.copy(showGuideIcon = checked)) },
+                )
             }
             Spacer(modifier = Modifier.height(22.dp))
             VersionLine()

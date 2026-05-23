@@ -67,6 +67,7 @@ data class ReaderPreferences(
     val invertVolumeButtons: Boolean = false,
     val readingRuler: Boolean = false,
     val readingRulerPosition: Float = ReaderRulerPositionDefault,
+    val showGuideIcon: Boolean = true,
 )
 
 fun sanitizeReaderPreferences(preferences: ReaderPreferences): ReaderPreferences =

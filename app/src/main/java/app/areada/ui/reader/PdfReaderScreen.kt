@@ -162,7 +162,6 @@ internal fun PdfReaderScreen(
     if (showSettings) {
         ReaderSettingsSheet(
             preferences = preferences,
-            showPdfNote = true,
             onBookNoteClick = onOpenBookNote,
             onDismiss = { showSettings = false },
             onPreferencesChange = onPreferencesChange,

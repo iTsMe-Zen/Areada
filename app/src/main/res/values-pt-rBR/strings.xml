@@ -8,6 +8,7 @@
     <string name="font_size">Tamanho da fonte</string>
     <string name="line_spacing">Espaçamento entre linhas</string>
     <string name="reading_ruler">Régua de leitura</string>
+    <string name="guide_icon">Ícone do Guia</string>
     <string name="ruler_position">Posição da régua</string>
     <string name="keep_screen_on">Manter tela ligada</string>
     <string name="volume_buttons_turn_pages">Botões de volume viram páginas</string>
@@ -15,7 +16,6 @@
     <string name="on">LIGADO</string>
     <string name="off">DESLIGADO</string>
     <string name="version_areada">Versão: Areada-%1$s</string>
-    <string name="pdf_font_note">As configurações de fonte se aplicam a EPUB e TXT. O PDF mantém a tipografia incorporada do documento.</string>
     <string name="language">Idioma</string>
     <string name="language_system">Sistema</string>
     <string name="language_english">Inglês</string>

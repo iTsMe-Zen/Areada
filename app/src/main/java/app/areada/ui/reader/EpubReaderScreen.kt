@@ -285,7 +285,6 @@ internal fun EpubReaderScreen(
     if (showSettings) {
         ReaderSettingsSheet(
             preferences = preferences,
-            showPdfNote = false,
             onBookNoteClick = onOpenBookNote,
             onDismiss = { showSettings = false },
             onPreferencesChange = onPreferencesChange,
