@@ -7,3 +7,4 @@ Fixed crash on rotation, gesture loss after page turns, pinch-zoom freezing, and
 PDF zoom no longer locks after pinch-zoom.
 
 Added Nepali and Brazilian Portuguese localization groundwork.
+Added info icon that is toggleable from settings.
