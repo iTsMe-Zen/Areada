@@ -3,6 +3,8 @@ package app.areada.reader.fb2
 import android.content.Context
 import android.net.Uri
 import org.w3c.dom.Node
+import java.util.Locale
+
 import java.io.BufferedInputStream
 import java.io.InputStream
 import java.util.zip.ZipInputStream
@@ -95,7 +97,7 @@ object LocalTextExtractor {
                 return
             }
             val child = children.item(index)
-            val tag = child.nodeName.substringAfter(':').lowercase()
+            val tag = child.nodeName.substringAfter(':').lowercase(Locale.ROOT)
             when (tag) {
                 "binary", "description" -> Unit
                 "title", "subtitle", "p", "v" -> appendBlock(builder, child.textContent.orEmpty())

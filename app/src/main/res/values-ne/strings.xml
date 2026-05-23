@@ -13,6 +13,10 @@
     <string name="keep_screen_on">स्क्रिन अन राख्नुहोस्</string>
     <string name="volume_buttons_turn_pages">भोल्युम बटनले पाना फेरोस्</string>
     <string name="invert_volume_buttons">भोल्युम बटन उल्टाउनुहोस्</string>
+    <string name="page_navigation">Page Navigation</string>
+    <string name="navigation_swipe">Swipe</string>
+    <string name="navigation_tap">Tap</string>
+    <string name="navigation_buttons">Buttons</string>
     <string name="on">ON</string>
     <string name="off">OFF</string>
     <string name="version_areada">संस्करण: Areada-%1$s</string>
@@ -21,6 +25,7 @@
     <string name="language_system">प्रणाली</string>
     <string name="language_english">English</string>
     <string name="language_nepali">नेपाली</string>
+    <string name="language_portuguese_brazil">Português</string>
 
     <string name="theme_day">दिन</string>
     <string name="theme_sepia">सेपिया</string>
@@ -67,19 +72,20 @@
     <string name="no_matches">मिल्दो नतिजा छैन।</string>
     <string name="searching_selected_folders">छानिएका फोल्डर खोजिँदै...</string>
     <string name="showing_first_40_results">पहिलो ४० नतिजा देखाइँदै।</string>
-    <string name="empty_library_all">यहाँ EPUB, PDF, TXT, FB2, वा ZIP फाइल छैन।</string>
+    <string name="empty_library_all">यहाँ EPUB, PDF, TXT, FB2, वा archive फाइल छैन।</string>
     <string name="empty_library_epub">EPUB फाइल भेटिएन।</string>
     <string name="empty_library_pdf">PDF फाइल भेटिएन।</string>
     <string name="empty_library_txt">TXT फाइल भेटिएन।</string>
     <string name="empty_library_fb2">FB2 फाइल भेटिएन।</string>
-    <string name="empty_library_zip">ZIP फाइल भेटिएन।</string>
+
+    <string name="empty_library_archive">archive फाइल भेटिएन।</string>
     <string name="choose_folder_note">कृपया [Choose Folder] बाट फोल्डर छान्नुहोस्</string>
 
     <string name="choose_file">फाइल छान्नुहोस्</string>
     <string name="cancel">रद्द</string>
     <string name="ok">OK</string>
-    <string name="yes">हो</string>
-    <string name="no">होइन</string>
+    <string name="prompt_yes">हो</string>
+    <string name="prompt_no">होइन</string>
     <string name="open_link_question">लिङ्क खोल्ने?</string>
     <string name="quit_question">बन्द गर्ने?</string>
     <string name="delete_permanently_question">स्थायी रूपमा मेट्ने?</string>
@@ -157,7 +163,7 @@
     <string name="insert_timestamp">समय थप्नुहोस्</string>
     <string name="write_note_hint">नोट लेख्नुहोस्...</string>
     <string name="quick_guide_title">मार्गदर्शन</string>
-    <string name="home_tutorial_note">यहाँ दायाँ स्वाइप गर्नुहोस्:\nChoose Folder: फाइल खोल्नुहोस्\nFolder menu: फोल्डर व्यवस्थापन\nHome का Folder/File: कार्यहरू</string>
+    <string name="home_tutorial_note">**दायाँ स्वाइप गर्नुहोस्** [फोल्डर छान्नुहोस्] अस्थायी रूपमा फाइल खोल्न।\n**दायाँ स्वाइप गर्नुहोस्** [फोल्डर व्यवस्थापन] फोल्डर व्यवस्थापन गर्न।\n**दायाँ स्वाइप गर्नुहोस्** [पुस्तकहरू/फोल्डरहरू] सङ्ग्रहबाट [कार्य] मेनु खोल्न।\n**बाँया स्वाइप गर्नुहोस्** [पुस्तकहरू/फोल्डरहरू] सङ्ग्रहबाट चयन गर्न।</string>
     <string name="no_folder_selected_title">फोल्डर छानिएको छैन</string>
     <string name="no_folder_selected_body">लाइब्रेरी सुरु गर्न फोल्डर छान्नुहोस्।</string>
     <string name="no_books_found_title">पुस्तक भेटिएन</string>
@@ -179,7 +185,7 @@
     <string name="zip_no_supported_books_body">ZIP मा EPUB, PDF, TXT, वा FB2 फाइल हुन सक्छ।</string>
     <string name="could_not_open_file">यो फाइल खोल्न सकिएन।</string>
     <string name="could_not_open_file_body">फाइल बिग्रिएको वा असमर्थित हुन सक्छ।</string>
-    <string name="unsupported_file_type">EPUB, PDF, TXT, FB2, र ZIP फाइल मात्र समर्थित छन्।</string>
+    <string name="unsupported_file_type">EPUB, PDF, TXT, FB2, र archive फाइल मात्र समर्थित छन्।</string>
     <string name="could_not_save_note">नोट सेभ गर्न सकिएन।</string>
     <string name="could_not_save_note_body">फोल्डर अनुमति जाँचेर फेरि प्रयास गर्नुहोस्।</string>
     <string name="could_not_create_note">त्यो नोट बनाउन सकिएन।</string>

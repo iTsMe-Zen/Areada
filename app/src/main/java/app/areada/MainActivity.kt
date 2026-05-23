@@ -1,5 +1,6 @@
 package app.areada
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
@@ -11,11 +12,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.view.WindowCompat
-import app.areada.data.ReaderStateStore
-import app.areada.data.ReaderThemeMode
+import app.areada.data.reader.ReaderStateStore
+import app.areada.data.reader.ReaderThemeMode
 import androidx.compose.runtime.mutableStateOf
 import app.areada.ui.AreadaApp
-import app.areada.ui.VolumePageTurnHost
+import app.areada.ui.reader.VolumePageTurnHost
 
 class MainActivity : ComponentActivity(), VolumePageTurnHost {
     private val externalOpenUri = mutableStateOf<Uri?>(null)
@@ -40,6 +41,7 @@ class MainActivity : ComponentActivity(), VolumePageTurnHost {
         externalOpenUri.value = viewUriFrom(intent)
     }
 
+    @SuppressLint("RestrictedApi")
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         val handler = volumePageTurnHandler
         if (
@@ -91,6 +93,7 @@ class MainActivity : ComponentActivity(), VolumePageTurnHost {
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun applyLaunchWindowColors() {
         val themeMode = ReaderStateStore.loadPreferences(this).themeMode
         val dark = themeMode == ReaderThemeMode.DARK ||

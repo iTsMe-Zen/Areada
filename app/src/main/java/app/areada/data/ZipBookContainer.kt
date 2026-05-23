@@ -1,5 +1,7 @@
 package app.areada.data
 
+import app.areada.data.reader.DocumentType
+import app.areada.data.reader.ReaderDocument
 import android.content.Context
 import android.net.Uri
 import java.io.File
@@ -16,8 +18,13 @@ data class ZipBookEntry(
     val entryName: String,
     val displayName: String,
     val type: DocumentType,
+    val isArchiveEntry: Boolean = false,
 ) {
-    val uriString: String = zipBookUriString(archiveUriString, entryName)
+    val uriString: String = if (isArchiveEntry) {
+        archiveBookUriString(archiveUriString, entryName)
+    } else {
+        zipBookUriString(archiveUriString, entryName)
+    }
     val title: String = displayName
         .substringAfterLast('/')
         .substringBeforeLast('.', displayName.substringAfterLast('/'))
@@ -167,4 +174,27 @@ private fun stableFileName(value: String): String {
         .getInstance("SHA-256")
         .digest(value.toByteArray(Charsets.UTF_8))
     return digest.joinToString(separator = "") { byte -> "%02x".format(byte) }.take(24)
+}
+
+private const val ArchiveEntryUriSeparator = "#areadaArchiveEntry="
+
+fun archiveBookUriString(
+    archiveUriString: String,
+    entryName: String,
+): String = archiveUriString + ArchiveEntryUriSeparator + URLEncoder.encode(entryName, Charsets.UTF_8.name())
+
+fun parseArchiveBookUriString(uriString: String): ZipBookReference? {
+    val separatorIndex = uriString.lastIndexOf(ArchiveEntryUriSeparator)
+    if (separatorIndex < 0) {
+        return null
+    }
+    val archiveUriString = uriString.substring(0, separatorIndex)
+    val entryName = URLDecoder.decode(
+        uriString.substring(separatorIndex + ArchiveEntryUriSeparator.length),
+        Charsets.UTF_8.name(),
+    )
+    if (archiveUriString.isBlank() || entryName.isBlank()) {
+        return null
+    }
+    return ZipBookReference(archiveUriString, entryName)
 }

@@ -37,10 +37,27 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.areada.R
-import app.areada.data.ReaderLanguageMode
-import app.areada.data.ReaderPreferences
-import app.areada.data.ReaderStateStore
+import app.areada.data.BookStatus
+import app.areada.data.ZipBookEntry
+import app.areada.data.reader.ReaderLanguageMode
+import app.areada.data.reader.ReaderPreferences
+import app.areada.data.reader.ReaderStateStore
+import app.areada.ui.home.HomeScreen
+import app.areada.ui.reader.AppWindowBackgroundEffect
+import app.areada.ui.reader.EpubReaderScreen
+import app.areada.ui.reader.ErrorBanner
+import app.areada.ui.reader.ExitPromptDialog
+import app.areada.ui.reader.LibraryScrollPosition
+import app.areada.ui.reader.LoadingOverlay
+import app.areada.ui.reader.PdfReaderScreen
+import app.areada.ui.reader.ReaderComfortOverlay
+import app.areada.ui.reader.ReaderOrientationEffect
+import app.areada.ui.reader.ReaderScreen
+import app.areada.ui.reader.ReaderViewModel
+import app.areada.ui.reader.TextReaderScreen
+import app.areada.ui.reader.ZipEntryPickerDialog
 import app.areada.ui.theme.ReaderTheme
+import app.areada.ui.reader.findActivity
 import java.util.Locale
 
 @Composable
@@ -385,19 +402,28 @@ private val SupportedOpenFileMimeTypes = arrayOf(
     "application/fb2+xml",
     "application/zip",
     "application/x-zip-compressed",
+    "application/x-7z-compressed",
+    "application/x-tar",
+    "application/x-rar-compressed",
+    "application/gzip",
     "*/*",
 )
 
-private fun Context.withLanguage(mode: ReaderLanguageMode): Context {
+private fun Context.withLanguage(
+    mode: ReaderLanguageMode,
+): Context {
     val localeTag = mode.localeTag ?: return this
+
     val locale = Locale.forLanguageTag(localeTag)
+
     val configuration = Configuration(resources.configuration)
+
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         configuration.setLocales(LocaleList(locale))
-    } else {
-        @Suppress("DEPRECATION")
-        configuration.setLocale(locale)
     }
+
+    configuration.setLocale(locale)
+    configuration.setLayoutDirection(locale)
+
     return createConfigurationContext(configuration)
 }
-

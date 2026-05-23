@@ -1,5 +1,6 @@
 package app.areada.reader.pdf
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -12,6 +13,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.ext.SdkExtensions
 import android.util.Log
+import androidx.annotation.ChecksSdkIntAtLeast
+import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresExtension
 import java.io.ByteArrayOutputStream
 import java.io.Closeable
 import java.nio.charset.StandardCharsets
@@ -137,6 +141,7 @@ private data class PdfPageSize(
     val height: Int,
 )
 
+@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 private class ModernPdfRenderBackend(
     private val renderer: PdfRenderer,
 ) : PdfRenderBackend {
@@ -185,6 +190,7 @@ private class ModernPdfRenderBackend(
     }
 }
 
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = PdfExtensionRenderParamsVersion)
 private class ExtensionPdfRenderBackend(
     private val renderer: PdfRendererPreV,
 ) : PdfRenderBackend {
@@ -273,6 +279,7 @@ private class LegacyPdfRenderBackend(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 private fun PdfRenderer.Page.toPdfLinkLayer(): PdfLinkLayer {
     val externalLinks = runCatching {
         getLinkContents().mapNotNull { link ->
@@ -309,6 +316,7 @@ private fun PdfRenderer.Page.toPdfLinkLayer(): PdfLinkLayer {
     )
 }
 
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = PdfExtensionRenderParamsVersion)
 private fun PdfRendererPreV.Page.toPdfLinkLayer(): PdfLinkLayer {
     val externalLinks = runCatching {
         getLinkContents().mapNotNull { link ->
@@ -533,6 +541,7 @@ private data class PdfBitmapTarget(
     val destination: Rect,
 )
 
+@SuppressLint("NewApi")
 private fun createPdfRenderBackend(
     fileDescriptor: android.os.ParcelFileDescriptor,
 ): PdfRenderBackend =
@@ -573,13 +582,15 @@ private fun createPdfBitmapTarget(
     )
 }
 
+@SuppressLint("NewApi")
 private fun createPdfRenderParams(): RenderParams {
     val flags = supportedAnnotationRenderFlags()
     val builder = RenderParams.Builder(RenderParams.RENDER_MODE_FOR_DISPLAY)
     runCatching {
         builder.setRenderFlags(flags, flags)
     }.getOrElse { error ->
-        val fallbackFlags = PdfTextAnnotationFlag or PdfHighlightAnnotationFlag
+        val fallbackFlags = RenderParams.FLAG_RENDER_TEXT_ANNOTATIONS or
+            RenderParams.FLAG_RENDER_HIGHLIGHT_ANNOTATIONS
         Log.w(PdfRendererLogTag, "Full annotation flags unavailable; falling back to text/highlight.", error)
         runCatching {
             builder.setRenderFlags(fallbackFlags, fallbackFlags)
@@ -599,6 +610,7 @@ private fun supportedAnnotationRenderFlags(): Int {
     return flags
 }
 
+@SuppressLint("NewApi")
 private fun enablePdfFormContentIfAvailable(builder: RenderParams.Builder): Boolean {
     if (pdfExtensionVersion() < PdfExtensionFormContentVersion && Build.VERSION.SDK_INT <= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
         return false
@@ -613,6 +625,7 @@ private fun enablePdfFormContentIfAvailable(builder: RenderParams.Builder): Bool
     }
 }
 
+@ChecksSdkIntAtLeast(extension = Build.VERSION_CODES.S, api = PdfExtensionRenderParamsVersion)
 private fun supportsPdfRendererPreV(): Boolean =
     Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
         Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM &&

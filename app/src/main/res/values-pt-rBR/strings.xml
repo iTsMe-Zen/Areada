@@ -20,6 +20,8 @@
     <string name="language_system">Sistema</string>
     <string name="language_english">Inglês</string>
     <string name="language_nepali">नेपाली</string>
+    <string name="language_portuguese_brazil">Português</string>
+
 
     <string name="theme_day">Dia</string>
     <string name="theme_sepia">Sépia</string>
@@ -33,7 +35,10 @@
     <string name="orientation_portrait">Retrato</string>
     <string name="orientation_landscape">Paisagem</string>
     <string name="orientation_follow_system">Seguir sistema</string>
-
+    <string name="page_navigation">Navegação de Página</string>
+    <string name="navigation_swipe">Deslizar</string>
+    <string name="navigation_tap">Toque</string>
+    <string name="navigation_buttons">Botões</string>
     <string name="choose_folder">Escolher pasta</string>
     <string name="open_file">Abrir arquivo</string>
     <string name="add_note">Adicionar nota</string>
@@ -118,15 +123,16 @@
     <string name="no_matches">Nenhuma correspondência.</string>
     <string name="searching_selected_folders">Pesquisando nas pastas selecionadas...</string>
     <string name="showing_first_40_results">Mostrando os primeiros 40 resultados.</string>
-    <string name="empty_library_all">Nenhum arquivo EPUB, PDF, TXT, FB2 ou ZIP encontrado aqui.</string>
+    <string name="empty_library_all">Nenhum arquivo EPUB, PDF, TXT, FB2 ou archive encontrado aqui.</string>
     <string name="empty_library_epub">Nenhum arquivo EPUB encontrado.</string>
     <string name="empty_library_pdf">Nenhum arquivo PDF encontrado.</string>
     <string name="empty_library_txt">Nenhum arquivo TXT encontrado.</string>
     <string name="empty_library_fb2">Nenhum arquivo FB2 encontrado.</string>
-    <string name="empty_library_zip">Nenhum arquivo ZIP encontrado.</string>
+
+    <string name="empty_library_archive">Nenhum arquivo archive encontrado.</string>
     <string name="choose_folder_note">Escolha uma pasta em [Escolher pasta]</string>
     <string name="quick_guide_title">Guia</string>
-    <string name="home_tutorial_note">Deslize para a direita:\nEscolher pasta: Abrir arquivo\nMenu de pastas: Gerenciar pastas\nPastas e arquivos na tela inicial: Ações</string>
+    <string name="home_tutorial_note">**Swipe right** [Choose Folder] to Open a file temporarily.\n**Swipe right** [Folder Selection] to Manage folders.\n**Swipe right** [Books/Folders] from collection to open [Action] Menu.\n**Swipe left** [Books/Folders] from collection to make selection.</string>
     <string name="no_folder_selected_title">Nenhuma pasta selecionada</string>
     <string name="no_folder_selected_body">Escolha uma pasta para começar a montar sua biblioteca.</string>
     <string name="no_books_found_title">Nenhum livro encontrado</string>
@@ -147,8 +153,8 @@
     <string name="choose_file">Escolher arquivo</string>
     <string name="cancel">Cancelar</string>
     <string name="ok">OK</string>
-    <string name="yes">Sim</string>
-    <string name="no">Não</string>
+    <string name="prompt_yes">Sim</string>
+    <string name="prompt_no">Não</string>
     <string name="save_changes_title">Salvar alterações?</string>
     <string name="save_changes_body">Salvar esta nota antes de sair?</string>
     <string name="open_link_question">Abrir link?</string>
@@ -178,7 +184,7 @@
     <string name="zip_could_not_open_selected">Não foi possível abrir o arquivo selecionado do ZIP.</string>
     <string name="could_not_open_file">Não foi possível abrir este arquivo.</string>
     <string name="could_not_open_file_body">O arquivo pode estar corrompido ou não ser compatível.</string>
-    <string name="unsupported_file_type">Somente arquivos EPUB, PDF, TXT, FB2 e ZIP são compatíveis.</string>
+    <string name="unsupported_file_type">Somente arquivos EPUB, PDF, TXT, FB2 e archive são compatíveis.</string>
     <string name="could_not_save_note">Não foi possível salvar a nota.</string>
     <string name="could_not_save_note_body">Verifique a permissão da pasta e tente novamente.</string>
     <string name="could_not_create_note">Não foi possível criar essa nota.</string>

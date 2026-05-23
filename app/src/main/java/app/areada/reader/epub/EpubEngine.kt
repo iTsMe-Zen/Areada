@@ -4,10 +4,10 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import app.areada.data.AreadaCacheManager
-import app.areada.data.ReaderPreferences
-import app.areada.data.ReaderRenderPalette
-import app.areada.data.ReaderThemeMode
-import app.areada.data.renderPalette
+import app.areada.data.reader.ReaderPreferences
+import app.areada.data.reader.ReaderRenderPalette
+import app.areada.data.reader.ReaderThemeMode
+import app.areada.data.reader.renderPalette
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
@@ -387,7 +387,7 @@ object EpubEngine {
                 val title = cleanTocTitle(link.text())
                 val archivePath = archiveReferenceFrom(navDirectory, link.attr("href")) ?: return@forEach
                 if (title.isNotBlank()) {
-                    titles.putIfAbsent(archivePath, title)
+                    titles.putIfAbsentCompat(archivePath, title)
                 }
             }
         }
@@ -413,7 +413,7 @@ object EpubEngine {
                         .orEmpty(),
                 )
                 if (title.isNotBlank()) {
-                    titles.putIfAbsent(archivePath, title)
+                    titles.putIfAbsentCompat(archivePath, title)
                 }
             }
         }
@@ -729,10 +729,20 @@ object EpubEngine {
     }
 
     private fun resolveInside(root: File, archivePath: String): File {
-        val rootPath = root.canonicalFile.toPath()
-        val candidate = File(root, archivePath.replace('/', File.separatorChar)).canonicalFile
-        require(candidate.toPath().startsWith(rootPath)) { "Unsafe EPUB path detected." }
+        val rootFile = root.canonicalFile
+        val candidate = File(rootFile, archivePath.replace('/', File.separatorChar)).canonicalFile
+        val rootPath = rootFile.path
+        val candidatePath = candidate.path
+        require(candidatePath == rootPath || candidatePath.startsWith(rootPath + File.separator)) {
+            "Unsafe EPUB path detected."
+        }
         return candidate
+    }
+
+    private fun <K, V> MutableMap<K, V>.putIfAbsentCompat(key: K, value: V) {
+        if (!containsKey(key)) {
+            put(key, value)
+        }
     }
 
     private fun normalizeArchivePath(basePath: String, relativePath: String): String {
