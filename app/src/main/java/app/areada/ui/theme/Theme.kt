@@ -20,11 +20,13 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
-import app.areada.data.ReaderThemeMode
+import app.areada.data.reader.ReaderThemeMode
 
 private val LightReaderColors = lightColorScheme(
     primary = Color(0xFF111111),
     onPrimary = Color(0xFFF4F2EB),
+    primaryContainer = Color(0xFFDDD9D2),
+    onPrimaryContainer = Color(0xFF111111),
     secondary = Color(0xFF59564E),
     onSecondary = Color(0xFFF7F4EC),
     background = Color(0xFFF4F2EB),
@@ -39,6 +41,8 @@ private val LightReaderColors = lightColorScheme(
 private val SepiaReaderColors = lightColorScheme(
     primary = Color(0xFF2C241B),
     onPrimary = Color(0xFFFBF2E2),
+    primaryContainer = Color(0xFFE7D8BD),
+    onPrimaryContainer = Color(0xFF2C241B),
     secondary = Color(0xFF6B5A46),
     onSecondary = Color(0xFFFBF2E2),
     background = Color(0xFFF3E7CF),
@@ -53,6 +57,8 @@ private val SepiaReaderColors = lightColorScheme(
 private val DarkReaderColors = darkColorScheme(
     primary = Color(0xFFF5F1E6),
     onPrimary = Color(0xFF0F0F10),
+    primaryContainer = Color(0xFF34343A),
+    onPrimaryContainer = Color(0xFFF5F1E6),
     secondary = Color(0xFFCFC8BA),
     onSecondary = Color(0xFF111111),
     background = Color(0xFF0F0F10),
@@ -67,6 +73,8 @@ private val DarkReaderColors = darkColorScheme(
 private val SageReaderColors = lightColorScheme(
     primary = Color(0xFF315E3B),
     onPrimary = Color(0xFFFAFFF6),
+    primaryContainer = Color(0xFFDDE9D6),
+    onPrimaryContainer = Color(0xFF172014),
     secondary = Color(0xFF52614B),
     onSecondary = Color(0xFFFAFFF6),
     background = Color(0xFFEEF4EA),
@@ -81,6 +89,8 @@ private val SageReaderColors = lightColorScheme(
 private val BlushReaderColors = lightColorScheme(
     primary = Color(0xFF8A3E4D),
     onPrimary = Color(0xFFFFF8FA),
+    primaryContainer = Color(0xFFF0DDE2),
+    onPrimaryContainer = Color(0xFF241719),
     secondary = Color(0xFF72565C),
     onSecondary = Color(0xFFFFF8FA),
     background = Color(0xFFF8EEF1),
@@ -127,6 +137,7 @@ fun ReaderTheme(
     val useDarkSystemBarIcons = colors.background.luminance() > 0.5f
 
     if (!view.isInEditMode) {
+        @Suppress("DEPRECATION")
         SideEffect {
             val activity = context as? Activity ?: return@SideEffect
             val window = activity.window
@@ -151,7 +162,9 @@ fun ReaderTheme(
                 } else {
                     flags and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
                 }
+            }
 
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 window.navigationBarDividerColor = backgroundArgb
             }
 

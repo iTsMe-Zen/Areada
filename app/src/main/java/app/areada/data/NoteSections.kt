@@ -1,5 +1,7 @@
 package app.areada.data
 
+import java.util.Locale
+
 data class NoteSection(
     val title: String,
     val content: String,
@@ -142,16 +144,16 @@ fun uniqueNoteSectionTitle(
         .ifBlank { DefaultNoteSectionTitle }
     val existingTitles = sections
         .filterIndexed { index, _ -> excludingIndex == null || index != excludingIndex }
-        .map { section -> section.title.lowercase() }
+        .map { section -> section.title.lowercase(Locale.ROOT) }
         .toSet()
-    if (baseTitle.lowercase() !in existingTitles) {
+    if (baseTitle.lowercase(Locale.ROOT) !in existingTitles) {
         return baseTitle
     }
 
     var suffix = 2
     while (true) {
         val candidate = "$baseTitle $suffix"
-        if (candidate.lowercase() !in existingTitles) {
+        if (candidate.lowercase(Locale.ROOT) !in existingTitles) {
             return candidate
         }
         suffix += 1

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application
         android:allowBackup="false"
@@ -11,10 +13,12 @@
         android:usesCleartextTraffic="false">
         <activity
             android:name=".MainActivity"
+            android:configChanges="orientation|screenSize"
             android:documentLaunchMode="never"
             android:exported="true"
             android:launchMode="singleTask"
-            android:theme="@style/Theme.Areada">
+            android:theme="@style/Theme.Areada"
+            tools:ignore="AppLinkUrlError">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

@@ -36,7 +36,7 @@ object AreadaCacheManager {
             .sortedBy { candidate -> candidate.lastModified }
 
         withCacheLock {
-            var remainingBytes = controlledCacheRoots(context).sumOf { root -> root.sizeBytes() }
+            var remainingBytes = totalBytes
             candidates.forEach { candidate ->
                 if (remainingBytes <= TargetInactiveCacheBytes) {
                     return@withCacheLock

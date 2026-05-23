@@ -5,11 +5,15 @@ import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
 import app.areada.R
+import app.areada.data.reader.ReaderDocument
+import app.areada.data.reader.DocumentType
+import java.util.Locale
 
 object DocumentResolver {
     fun resolve(context: Context, uri: Uri): ReaderDocument {
         val contentResolver = context.contentResolver
         val displayName = runCatching { queryDisplayName(contentResolver, uri) }.getOrNull()
+            ?.takeIf { it.isNotBlank() }
             ?: uri.lastPathSegment
             ?: "Untitled"
         val documentType = detectSupportedType(null, displayName)
@@ -29,8 +33,8 @@ object DocumentResolver {
         val normalizedMime = mimeType
             ?.substringBefore(';')
             ?.trim()
-            ?.lowercase()
-        val lowerName = name.lowercase()
+            ?.lowercase(Locale.ROOT)
+        val lowerName = name.lowercase(Locale.ROOT)
         return when {
             normalizedMime == "application/epub+zip" ||
                 normalizedMime == "application/x-epub" ||
@@ -46,6 +50,24 @@ object DocumentResolver {
             normalizedMime == "application/zip" ||
                 normalizedMime == "application/x-zip-compressed" ||
                 lowerName.endsWith(".zip") -> DocumentType.ZIP
+            normalizedMime == "application/x-7z-compressed" ||
+                normalizedMime == "application/x-tar" ||
+                normalizedMime == "application/x-bzip2" ||
+                normalizedMime == "application/x-xz" ||
+                normalizedMime == "application/x-rar-compressed" ||
+                normalizedMime == "application/gzip" ||
+                lowerName.endsWith(".7z") ||
+                lowerName.endsWith(".tar") ||
+                lowerName.endsWith(".tar.gz") ||
+                lowerName.endsWith(".tgz") ||
+                lowerName.endsWith(".tar.bz2") ||
+                lowerName.endsWith(".tbz2") ||
+                lowerName.endsWith(".tar.xz") ||
+                lowerName.endsWith(".txz") ||
+                lowerName.endsWith(".rar") ||
+                lowerName.endsWith(".gz") ||
+                lowerName.endsWith(".bz2") ||
+                lowerName.endsWith(".xz") -> DocumentType.ARCHIVE
             else -> null
         }
     }

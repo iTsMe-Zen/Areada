@@ -1,5 +1,7 @@
 package app.areada.data
 
+import app.areada.data.reader.DocumentType
+import app.areada.data.reader.ReadingProgress
 import kotlin.math.roundToInt
 
 enum class BookStatus(val label: String) {
@@ -37,7 +39,8 @@ fun readingProgressPercent(progress: ReadingProgress?): Int? {
         DocumentType.TXT,
         DocumentType.FB2 -> progress.txtScrollFraction.coerceIn(0f, 1f)
 
-        DocumentType.ZIP -> return null
+        DocumentType.ZIP,
+        DocumentType.ARCHIVE -> return null
     }
 
     return (fraction.coerceIn(0f, 1f) * 100f).roundToInt().coerceIn(0, 100)

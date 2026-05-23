@@ -1,0 +1,9 @@
+Added 7z, RAR, tar, tar.gz, tar.bz2, tar.xz, gz, bz2, and xz archive support. 
+Can now open these formats directly and show supported book files inside them.
+
+Added Swipe, Tap, and Buttons page navigation modes, selectable from reader controls.
+
+Fixed crash on rotation, gesture loss after page turns, pinch-zoom freezing, and false swipe triggers on Android 6.0+. 
+PDF zoom no longer locks after pinch-zoom.
+
+Added Nepali and Brazilian Portuguese localization groundwork.
