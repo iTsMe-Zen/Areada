@@ -10,7 +10,7 @@
   A minimal offline Android reader focused on lightweight local reading.
 </p>
 
-Areada supports EPUB, PDF, TXT, FB2, FBZ, FB2 ZIP, and ZIP containers with supported book files. It provides a clean monochrome interface, local folder-based reading, saved progress, bookmarks, search, filters, sectioned notes, and simple reader-focused controls.
+Areada supports EPUB, PDF, TXT, FB2, FBZ, FB2 ZIP, and a wide range of archive formats including ZIP, 7z, RAR, tar, and more.. It provides a clean monochrome interface, local folder-based reading, saved progress, bookmarks, search, filters, sectioned notes, and simple reader-focused controls.
 
 ## Latest Release
 
