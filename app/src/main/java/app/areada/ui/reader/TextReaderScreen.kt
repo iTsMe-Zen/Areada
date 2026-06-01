@@ -7,9 +7,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
@@ -34,9 +37,11 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -49,6 +54,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import app.areada.R
 import app.areada.data.reader.DocumentType
 import app.areada.data.NoteSection
@@ -85,6 +91,7 @@ import app.areada.ui.replaceTimestampRanges
 import app.areada.ui.trimNoteHistories
 import app.areada.ui.updateTimestampRangesAfterEdit
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -185,6 +192,9 @@ internal fun TextReaderScreen(
     var showNoteSearch by rememberSaveable(screen.document.uriString) {
         mutableStateOf(false)
     }
+    var lastTimestampInsertMs by remember(screen.document.uriString) {
+        mutableStateOf(0L)
+    }
     var noteSearchQuery by rememberSaveable(screen.document.uriString) {
         mutableStateOf("")
     }
@@ -202,6 +212,7 @@ internal fun TextReaderScreen(
         mutableStateOf(false)
     }
     val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
     var editorHeightPx by remember(screen.document.uriString) {
         mutableIntStateOf(0)
     }
@@ -368,17 +379,6 @@ internal fun TextReaderScreen(
                 newText = nextValue.text,
             )
             noteEditedSinceOpen = true
-            val now = SystemClock.uptimeMillis()
-            val nextPersistedText = persistedTextFor(nextValue.text)
-            if (
-                nextPersistedText != lastAutosavedText &&
-                now - lastAutosaveAt >= NoteAutosaveMinIntervalMs &&
-                abs(nextPersistedText.length - lastAutosavedText.length) >= NoteAutosaveCharacterBatch
-            ) {
-                lastAutosaveAt = now
-                lastAutosavedText = nextPersistedText
-                onSaveText(nextPersistedText)
-            }
         }
         noteValue = nextValue
     }
@@ -566,6 +566,11 @@ internal fun TextReaderScreen(
         if (!isEditable) {
             return
         }
+        val now = SystemClock.uptimeMillis()
+        if (now - lastTimestampInsertMs < 200L) {
+            return
+        }
+        lastTimestampInsertMs = now
         val timestamp = formatNoteTimestamp()
         val selectionStart = minOf(noteValue.selection.start, noteValue.selection.end)
             .coerceIn(0, noteValue.text.length)
@@ -589,11 +594,7 @@ internal fun TextReaderScreen(
             ),
             forceUndoCheckpoint = true,
         )
-        replaceTimestampRanges(
-            activeTimestampRanges,
-            activeTimestampRanges + NoteStyledRange(timestampStart, timestampEnd),
-            nextText.length,
-        )
+        activeTimestampRanges.add(NoteStyledRange(timestampStart, timestampEnd))
     }
 
     BackHandler {
@@ -709,11 +710,28 @@ internal fun TextReaderScreen(
         )
     }
     KeepReaderScreenAwake(enabled = preferences.keepScreenOn)
+    VolumePageTurnEffect(
+        enabled = preferences.volumeButtonsTurnPages && !showSettings && !showNoteSearch,
+        inverted = preferences.invertVolumeButtons,
+        onPrevious = {
+            coroutineScope.launch {
+                scrollState.scrollTo((scrollState.value - editorHeightPx).coerceAtLeast(0))
+            }
+        },
+        onNext = {
+            coroutineScope.launch {
+                scrollState.scrollTo((scrollState.value + editorHeightPx).coerceAtMost(scrollState.maxValue))
+            }
+        },
+    )
+
+    val keyboardHeightDp = rememberKeyboardHeightDp()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(backgroundColor),
+            .background(backgroundColor)
+            .padding(bottom = keyboardHeightDp),
     ) {
         TopAppBar(
             colors = TopAppBarDefaults.topAppBarColors(
@@ -829,7 +847,8 @@ internal fun TextReaderScreen(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .padding(horizontal = 22.dp, vertical = 18.dp),
+                .padding(horizontal = 22.dp, vertical = 18.dp)
+                .widthIn(max = 700.dp),
         ) {
             BasicTextField(
                 value = noteValue,
@@ -862,6 +881,18 @@ internal fun TextReaderScreen(
                         fontSize = preferences.fontSizeSp.sp,
                         lineHeight = (preferences.fontSizeSp * preferences.lineSpacing.coerceIn(1.2f, 2.4f)).sp,
                     ),
+                )
+            }
+            if (scrollState.maxValue > 0) {
+                EpubSectionScrollThumb(
+                    progressFraction = currentScrollFraction,
+                    thumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .zIndex(2f)
+                        .fillMaxHeight()
+                        .width(18.dp)
+                        .padding(end = 4.dp),
                 )
             }
         }

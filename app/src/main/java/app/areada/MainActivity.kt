@@ -57,21 +57,49 @@ class MainActivity : ComponentActivity(), VolumePageTurnHost {
         return super.dispatchKeyEvent(event)
     }
 
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        val handler = volumePageTurnHandler
+        if (handler != null && event?.repeatCount == 0) {
+            when (keyCode) {
+                KeyEvent.KEYCODE_VOLUME_UP -> if (handler(true)) return true
+                KeyEvent.KEYCODE_VOLUME_DOWN -> if (handler(false)) return true
+            }
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
     override fun setVolumePageTurnHandler(handler: ((volumeUp: Boolean) -> Boolean)?) {
         volumePageTurnHandler = handler
     }
 
     private fun viewUriFrom(intent: Intent?): Uri? {
-        if (intent?.action != Intent.ACTION_VIEW) {
-            return null
-        }
-        val uri = intent.data ?: return null
-        return when (uri.scheme?.lowercase()) {
-            "content", "file" -> {
-                persistIncomingReadPermission(intent, uri)
-                uri
+        when (intent?.action) {
+            Intent.ACTION_VIEW -> {
+                val uri = intent.data ?: return null
+                return when (uri.scheme?.lowercase()) {
+                    "content", "file" -> {
+                        persistIncomingReadPermission(intent, uri)
+                        uri
+                    }
+                    else -> null
+                }
             }
-            else -> null
+            Intent.ACTION_SEND -> {
+                val uri = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                    intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+                } else {
+                    @Suppress("DEPRECATION")
+                    intent.getParcelableExtra(Intent.EXTRA_STREAM)
+                } ?: return null
+                return when (uri.scheme?.lowercase()) {
+                    "content", "file" -> {
+                        persistIncomingReadPermission(intent, uri)
+                        uri
+                    }
+                    else -> null
+                }
+            }
+            else -> return null
         }
     }
 

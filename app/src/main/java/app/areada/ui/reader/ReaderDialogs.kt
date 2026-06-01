@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -82,7 +83,9 @@ internal fun ZipEntryPickerDialog(
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
-            modifier = Modifier.fillMaxWidth(0.88f),
+            modifier = Modifier
+                .fillMaxWidth(0.88f)
+                .widthIn(max = 420.dp),
             shape = RectangleShape,
             color = MaterialTheme.colorScheme.background,
             tonalElevation = 0.dp,
@@ -171,7 +174,9 @@ internal fun CompactTwoButtonDialog(
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Surface(
-            modifier = Modifier.fillMaxWidth(0.82f),
+            modifier = Modifier
+                .fillMaxWidth(0.82f)
+                .widthIn(max = 420.dp),
             shape = RectangleShape,
             color = MaterialTheme.colorScheme.background,
             tonalElevation = 0.dp,
@@ -234,7 +239,9 @@ internal fun GoToPositionDialog(
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth(0.82f)
+                .widthIn(max = 420.dp),
             shape = RectangleShape,
             color = MaterialTheme.colorScheme.background,
             tonalElevation = 0.dp,
@@ -309,7 +316,9 @@ internal fun CompactChoiceDialog(
     val noLabel = stringResource(R.string.prompt_no)
     Dialog(onDismissRequest = onDismiss) {
         Surface(
-            modifier = Modifier.fillMaxWidth(0.82f),
+            modifier = Modifier
+                .fillMaxWidth(0.82f)
+                .widthIn(max = 420.dp),
             shape = RectangleShape,
             color = MaterialTheme.colorScheme.background,
             tonalElevation = 0.dp,

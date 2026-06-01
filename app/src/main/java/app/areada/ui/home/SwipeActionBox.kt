@@ -1,5 +1,6 @@
 package app.areada.ui.home
 
+import android.os.SystemClock
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,7 +12,11 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,13 +41,26 @@ internal fun SwipeActionBox(
     val endToStartEnabled = onSwipeEndToStart != null
     val currentOnSwipe = rememberUpdatedState(onSwipe)
     val currentOnSwipeEndToStart = rememberUpdatedState(onSwipeEndToStart)
+    var lastEndToStartFiredAt by remember { mutableLongStateOf(0L) }
+    var lastStartToEndFiredAt by remember { mutableLongStateOf(0L) }
     @Suppress("DEPRECATION")
     val dismissState = rememberSwipeToDismissBoxState(
         positionalThreshold = { totalDistance -> totalDistance * 0.45f },
         confirmValueChange = { value ->
+            val now = SystemClock.uptimeMillis()
             when (value) {
-                SwipeToDismissBoxValue.StartToEnd -> currentOnSwipe.value()
-                SwipeToDismissBoxValue.EndToStart -> currentOnSwipeEndToStart.value?.invoke()
+                SwipeToDismissBoxValue.StartToEnd -> {
+                    if (now - lastStartToEndFiredAt >= 400L) {
+                        lastStartToEndFiredAt = now
+                        currentOnSwipe.value()
+                    }
+                }
+                SwipeToDismissBoxValue.EndToStart -> {
+                    if (now - lastEndToStartFiredAt >= 400L) {
+                        lastEndToStartFiredAt = now
+                        currentOnSwipeEndToStart.value?.invoke()
+                    }
+                }
                 SwipeToDismissBoxValue.Settled -> {}
             }
             false

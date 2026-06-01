@@ -7,6 +7,7 @@ internal fun ReaderScreen.withLatestProgress(
 ): ReaderScreen {
     val progress = when (this) {
         is ReaderScreen.Epub -> progressByUri[document.uriString]
+        is ReaderScreen.Fb2 -> progressByUri[document.uriString]
         is ReaderScreen.Pdf -> progressByUri[document.uriString]
         is ReaderScreen.Text -> progressByUri[document.uriString]
         ReaderScreen.Home -> null
@@ -14,6 +15,10 @@ internal fun ReaderScreen.withLatestProgress(
 
     return when (this) {
         is ReaderScreen.Epub -> copy(
+            initialChapterIndex = progress.epubChapterIndex.coerceIn(0, (book.chapters.size - 1).coerceAtLeast(0)),
+            initialScrollFraction = progress.epubScrollFraction.coerceIn(0f, 1f),
+        )
+        is ReaderScreen.Fb2 -> copy(
             initialChapterIndex = progress.epubChapterIndex.coerceIn(0, (book.chapters.size - 1).coerceAtLeast(0)),
             initialScrollFraction = progress.epubScrollFraction.coerceIn(0f, 1f),
         )

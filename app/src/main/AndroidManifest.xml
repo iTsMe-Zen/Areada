@@ -18,6 +18,7 @@
             android:exported="true"
             android:launchMode="singleTask"
             android:theme="@style/Theme.Areada"
+            android:windowSoftInputMode="adjustResize"
             tools:ignore="AppLinkUrlError">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,11 +35,26 @@
                 <data android:mimeType="application/pdf" />
                 <data android:mimeType="application/epub+zip" />
                 <data android:mimeType="application/x-epub" />
+                <data android:mimeType="application/epub" />
                 <data android:mimeType="text/plain" />
                 <data android:mimeType="application/x-fictionbook+xml" />
                 <data android:mimeType="application/fb2+xml" />
                 <data android:mimeType="application/zip" />
                 <data android:mimeType="application/x-zip-compressed" />
+                <data android:mimeType="application/x-tar" />
+                <data android:mimeType="application/tar" />
+                <data android:mimeType="application/gzip" />
+                <data android:mimeType="application/x-gzip" />
+                <data android:mimeType="application/x-gunzip" />
+                <data android:mimeType="application/x-bzip2" />
+                <data android:mimeType="application/x-bzip" />
+                <data android:mimeType="application/x-xz" />
+                <data android:mimeType="application/x-lzma" />
+                <data android:mimeType="application/x-7z-compressed" />
+                <data android:mimeType="application/x-7z" />
+                <data android:mimeType="application/x-rar-compressed" />
+                <data android:mimeType="application/vnd.rar" />
+                <data android:mimeType="application/octet-stream" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -46,54 +62,126 @@
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data
+                    android:host="*"
                     android:pathPattern=".*\\.pdf"
                     android:scheme="file" />
                 <data
+                    android:host="*"
                     android:pathPattern=".*\\.epub"
                     android:scheme="file" />
                 <data
+                    android:host="*"
                     android:pathPattern=".*\\.txt"
                     android:scheme="file" />
                 <data
+                    android:host="*"
                     android:pathPattern=".*\\.fb2"
                     android:scheme="file" />
                 <data
+                    android:host="*"
                     android:pathPattern=".*\\.fb2\\.zip"
                     android:scheme="file" />
                 <data
+                    android:host="*"
                     android:pathPattern=".*\\.fbz"
                     android:scheme="file" />
                 <data
+                    android:host="*"
                     android:pathPattern=".*\\.zip"
+                    android:scheme="file" />
+                <data
+                    android:host="*"
+                    android:pathPattern=".*\\.tar"
+                    android:scheme="file" />
+                <data
+                    android:host="*"
+                    android:pathPattern=".*\\.tar\\.gz"
+                    android:scheme="file" />
+                <data
+                    android:host="*"
+                    android:pathPattern=".*\\.tgz"
+                    android:scheme="file" />
+                <data
+                    android:host="*"
+                    android:pathPattern=".*\\.tar\\.bz2"
+                    android:scheme="file" />
+                <data
+                    android:host="*"
+                    android:pathPattern=".*\\.tbz2"
+                    android:scheme="file" />
+                <data
+                    android:host="*"
+                    android:pathPattern=".*\\.tar\\.xz"
+                    android:scheme="file" />
+                <data
+                    android:host="*"
+                    android:pathPattern=".*\\.txz"
+                    android:scheme="file" />
+                <data
+                    android:host="*"
+                    android:pathPattern=".*\\.gz"
+                    android:scheme="file" />
+                <data
+                    android:host="*"
+                    android:pathPattern=".*\\.bz2"
+                    android:scheme="file" />
+                <data
+                    android:host="*"
+                    android:pathPattern=".*\\.xz"
+                    android:scheme="file" />
+                <data
+                    android:host="*"
+                    android:pathPattern=".*\\.7z"
+                    android:scheme="file" />
+                <data
+                    android:host="*"
+                    android:pathPattern=".*\\.epub\\.xz"
+                    android:scheme="file" />
+                <data
+                    android:host="*"
+                    android:pathPattern=".*\\.rar"
+                    android:scheme="file" />
+                <data
+                    android:host="*"
+                    android:pathPattern=".*\\.epub\\.gz"
                     android:scheme="file" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.GET_CONTENT" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.OPENABLE" />
 
-                <data
-                    android:pathPattern=".*\\.pdf"
-                    android:scheme="content" />
-                <data
-                    android:pathPattern=".*\\.epub"
-                    android:scheme="content" />
-                <data
-                    android:pathPattern=".*\\.txt"
-                    android:scheme="content" />
-                <data
-                    android:pathPattern=".*\\.fb2"
-                    android:scheme="content" />
-                <data
-                    android:pathPattern=".*\\.fb2\\.zip"
-                    android:scheme="content" />
-                <data
-                    android:pathPattern=".*\\.fbz"
-                    android:scheme="content" />
-                <data
-                    android:pathPattern=".*\\.zip"
-                    android:scheme="content" />
+                <data android:mimeType="application/pdf" />
+                <data android:mimeType="application/epub+zip" />
+                <data android:mimeType="application/x-epub" />
+                <data android:mimeType="application/epub" />
+                <data android:mimeType="text/plain" />
+                <data android:mimeType="application/x-fictionbook+xml" />
+                <data android:mimeType="application/fb2+xml" />
+                <data android:mimeType="application/zip" />
+                <data android:mimeType="application/x-zip-compressed" />
+                <data android:mimeType="application/x-tar" />
+                <data android:mimeType="application/tar" />
+                <data android:mimeType="application/gzip" />
+                <data android:mimeType="application/x-gzip" />
+                <data android:mimeType="application/x-gunzip" />
+                <data android:mimeType="application/x-bzip2" />
+                <data android:mimeType="application/x-bzip" />
+                <data android:mimeType="application/x-xz" />
+                <data android:mimeType="application/x-lzma" />
+                <data android:mimeType="application/x-7z-compressed" />
+                <data android:mimeType="application/x-7z" />
+                <data android:mimeType="application/x-rar-compressed" />
+                <data android:mimeType="application/vnd.rar" />
+                <data android:mimeType="application/octet-stream" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
     </application>

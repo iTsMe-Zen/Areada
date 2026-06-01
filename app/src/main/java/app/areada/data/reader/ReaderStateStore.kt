@@ -74,6 +74,14 @@ object ReaderStateStore {
                         item.optDouble("readingRulerStrength", ReaderRulerPositionDefault.toDouble()),
                     ).toFloat(),
                     showGuideIcon = item.optBoolean("showGuideIcon", ReaderPreferences().showGuideIcon),
+                    openPreviousChapterAtEnd = item.optBoolean(
+                        "openPreviousChapterAtEnd",
+                        ReaderPreferences().openPreviousChapterAtEnd,
+                    ),
+                    vibrateOnPageTurn = item.optBoolean(
+                        "vibrateOnPageTurn",
+                        ReaderPreferences().vibrateOnPageTurn,
+                    ),
                 ),
             )
         }.getOrDefault(ReaderPreferences())
@@ -94,6 +102,8 @@ object ReaderStateStore {
             put("readingRuler", preferences.readingRuler)
             put("readingRulerPosition", preferences.readingRulerPosition.toDouble())
             put("showGuideIcon", preferences.showGuideIcon)
+            put("openPreviousChapterAtEnd", preferences.openPreviousChapterAtEnd)
+            put("vibrateOnPageTurn", preferences.vibrateOnPageTurn)
         }
 
         prefs(context)

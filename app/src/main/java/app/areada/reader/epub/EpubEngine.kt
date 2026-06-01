@@ -6,7 +6,6 @@ import android.util.Log
 import app.areada.data.AreadaCacheManager
 import app.areada.data.reader.ReaderPreferences
 import app.areada.data.reader.ReaderRenderPalette
-import app.areada.data.reader.ReaderThemeMode
 import app.areada.data.reader.renderPalette
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -30,6 +29,7 @@ private const val EpubLogTag = "AreadaEpub"
 private const val EpubReadyMarkerName = ".areada_epub_ready_v2"
 private const val EpubArchiveFileName = "book.epub"
 private val CssUrlRegex = Regex("""url\(\s*(['"]?)(.*?)\1\s*\)""", RegexOption.IGNORE_CASE)
+private val CssImportRegex = Regex("""@import\s+(?:url\(\s*)?['"](.*?)['"](?:\s*\))?\s*;?""", RegexOption.IGNORE_CASE)
 
 data class EpubBook(
     val title: String,
@@ -52,7 +52,7 @@ data class RenderedChapter(
 
 object EpubEngine {
     suspend fun parse(context: Context, uri: Uri, fallbackTitle: String): EpubBook =
-        withContext(Dispatchers.IO) {
+        withContext(Dispatchers.Default) {
             parseBlocking(context, uri, fallbackTitle)
         }
 
@@ -61,10 +61,11 @@ object EpubEngine {
         chapterIndex: Int,
         preferences: ReaderPreferences,
         paletteOverride: ReaderRenderPalette? = null,
+        scrollToEnd: Boolean = false,
     ): RenderedChapter =
-        withContext(Dispatchers.IO) {
+        withContext(Dispatchers.Default) {
             runCatching {
-                renderBlocking(book, chapterIndex, preferences, paletteOverride)
+                renderBlocking(book, chapterIndex, preferences, paletteOverride, scrollToEnd)
             }.onFailure { throwable ->
                 logRenderFailure(book, chapterIndex, throwable)
             }.getOrThrow()
@@ -143,6 +144,7 @@ object EpubEngine {
         chapterIndex: Int,
         preferences: ReaderPreferences,
         paletteOverride: ReaderRenderPalette?,
+        scrollToEnd: Boolean = false,
     ): RenderedChapter {
         val chapter = book.chapters.getOrNull(chapterIndex) ?: error("Chapter not found.")
         AreadaCacheManager.withCacheLock {
@@ -152,12 +154,7 @@ object EpubEngine {
         val palette = paletteOverride ?: preferences.themeMode.renderPalette()
         val fontSize = preferences.fontSizeSp.coerceIn(14, 30)
         val lineSpacing = preferences.lineSpacing.coerceIn(1.2f, 2.4f)
-        val colorScheme = if (preferences.themeMode == ReaderThemeMode.DARK) "dark" else "light"
-        val scrollThumbColor = if (preferences.themeMode == ReaderThemeMode.DARK) {
-            "#F5F1E866"
-        } else {
-            "#2B231A66"
-        }
+        val scrollThumbColor = palette.onSurfaceVariantHex
         val normalizedDocument = parseChapterDocument(chapter.file, baseUrl)
         AreadaCacheManager.withCacheLock {
             ensureReferencedAssets(book, chapter, normalizedDocument)
@@ -181,9 +178,6 @@ object EpubEngine {
             .attr("charset", "utf-8")
         head.appendElement("style").appendText(
             """
-            :root {
-              color-scheme: $colorScheme;
-            }
             html {
               -webkit-text-size-adjust: none !important;
               text-size-adjust: none !important;
@@ -198,9 +192,11 @@ object EpubEngine {
               line-height: $lineSpacing !important;
             }
             body {
-              padding: 76px 18px 132px;
+              padding: 76px max(18px, 5vw) 132px;
               word-break: break-word;
+              overflow-wrap: break-word;
               overflow-wrap: anywhere;
+              word-wrap: break-word;
             }
             ::-webkit-scrollbar {
               width: 6px;
@@ -213,9 +209,11 @@ object EpubEngine {
               background-color: $scrollThumbColor;
               border-radius: 999px;
             }
-            body * {
+            body img, body table, body video, body picture, body figure {
               box-sizing: border-box;
               max-width: 100%;
+            }
+            body * {
               text-decoration: none !important;
               text-decoration-line: none !important;
             }
@@ -244,7 +242,6 @@ object EpubEngine {
               max-width: 100% !important;
               height: auto !important;
               margin: 1.25rem auto;
-              object-fit: contain;
               image-rendering: auto;
             }
             a, a:link, a:visited {
@@ -281,6 +278,11 @@ object EpubEngine {
             }
             """.trimIndent(),
         )
+        if (scrollToEnd) {
+            renderedDocument.body().appendElement("script").appendText(
+                "window.scrollTo(0,document.body.scrollHeight)",
+            )
+        }
         val html = renderedDocument.outerHtml()
 
         return RenderedChapter(
@@ -297,9 +299,9 @@ object EpubEngine {
         sourceDocument.select("script").remove()
 
         val renderedDocument = Jsoup.parse(
-            "<!doctype html><html><head></head><body></body></html>",
+            "<!DOCTYPE html><html xmlns=\"http://www.w3.org/1999/xhtml\"><head></head><body></body></html>",
             baseUrl,
-            Parser.htmlParser(),
+            Parser.xmlParser(),
         )
         val sourceHtml = sourceDocument.selectFirst("html")
         val sourceHead = sourceDocument.head()
@@ -309,7 +311,9 @@ object EpubEngine {
         val renderedHead = renderedDocument.head()
 
         sourceHtml?.attributes()?.forEach { attribute ->
-            renderedHtml?.attr(attribute.key, attribute.value)
+            if (attribute.key.lowercase(Locale.ROOT) != "xmlns") {
+                renderedHtml?.attr(attribute.key, attribute.value)
+            }
         }
         sourceBody.attributes().forEach { attribute ->
             renderedBody.attr(attribute.key, attribute.value)
@@ -327,7 +331,9 @@ object EpubEngine {
                 renderedHead.appendChild(child.clone())
             }
 
-        renderedBody.html(sourceBody.html())
+        for (child in sourceBody.childNodesCopy()) {
+            renderedBody.appendChild(child.clone())
+        }
         return renderedDocument
     }
 
@@ -339,7 +345,7 @@ object EpubEngine {
             Jsoup.parse(file, null, baseUrl, Parser.xmlParser())
         }.getOrNull()
 
-        if (xmlDocument?.hasRenderableBody() == true) {
+        if (xmlDocument != null && xmlDocument.hasRenderableBody()) {
             return xmlDocument
         }
 
@@ -347,7 +353,7 @@ object EpubEngine {
     }
 
     private fun JsoupHtmlDocument.hasRenderableBody(): Boolean {
-        val body = selectFirst("body") ?: body()
+        val body = selectFirst("body") ?: selectFirst("xhtml\\:body") ?: body()
         return body.children().isNotEmpty() || body.text().isNotBlank()
     }
 
@@ -614,11 +620,18 @@ object EpubEngine {
         basePath: String,
         css: String,
     ): List<String> =
-        CssUrlRegex.findAll(css)
-            .mapNotNull { match -> match.groupValues.getOrNull(2) }
-            .mapNotNull { reference -> archiveReferenceFrom(basePath, reference) }
-            .distinct()
-            .toList()
+        buildList {
+            CssUrlRegex.findAll(css).forEach { match ->
+                match.groupValues.getOrNull(2)?.let { reference ->
+                    archiveReferenceFrom(basePath, reference)?.let { add(it) }
+                }
+            }
+            CssImportRegex.findAll(css).forEach { match ->
+                match.groupValues.getOrNull(1)?.let { reference ->
+                    archiveReferenceFrom(basePath, reference)?.let { add(it) }
+                }
+            }
+        }.distinct()
 
     private fun logRenderFailure(
         book: EpubBook,

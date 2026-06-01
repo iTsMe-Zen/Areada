@@ -11,10 +11,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -45,6 +46,7 @@ import app.areada.data.reader.ReaderStateStore
 import app.areada.ui.home.HomeScreen
 import app.areada.ui.reader.AppWindowBackgroundEffect
 import app.areada.ui.reader.EpubReaderScreen
+import app.areada.ui.reader.Fb2ReaderScreen
 import app.areada.ui.reader.ErrorBanner
 import app.areada.ui.reader.ExitPromptDialog
 import app.areada.ui.reader.LibraryScrollPosition
@@ -283,6 +285,36 @@ fun AreadaApp(
                         },
                     )
 
+                    is ReaderScreen.Fb2 -> Fb2ReaderScreen(
+                        screen = screen,
+                        preferences = uiState.preferences,
+                        bookmarks = uiState.bookmarks,
+                        onBack = viewModel::closeReader,
+                        onPreferencesChange = { preferences ->
+                            viewModel.updatePreferences(context, preferences)
+                        },
+                        onOpenBookNote = { viewModel.openBookNote(context, screen.document) },
+                        onToggleBookmark = { chapterIndex, chapterCount, scrollFraction, chapterTitle ->
+                            viewModel.toggleEpubBookmark(
+                                context = context,
+                                document = screen.document,
+                                chapterIndex = chapterIndex,
+                                chapterCount = chapterCount,
+                                scrollFraction = scrollFraction,
+                                chapterTitle = chapterTitle,
+                            )
+                        },
+                        onSaveProgress = { chapterIndex, chapterCount, scrollFraction ->
+                            viewModel.saveEpubProgress(
+                                context = context,
+                                document = screen.document,
+                                chapterIndex = chapterIndex,
+                                chapterCount = chapterCount,
+                                scrollFraction = scrollFraction,
+                            )
+                        },
+                    )
+
                     is ReaderScreen.Pdf -> PdfReaderScreen(
                         screen = screen,
                         preferences = uiState.preferences,
@@ -349,23 +381,40 @@ fun AreadaApp(
                     val localizedFolderAccessLost = stringResource(R.string.folder_access_lost_body)
                     val isFolderAccessLost = message == context.getString(R.string.folder_access_lost_body) ||
                         message == localizedFolderAccessLost
-                    ErrorBanner(
-                        message = message,
-                        onDismiss = viewModel::dismissError,
+                    Box(
                         modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .statusBarsPadding()
-                            .padding(horizontal = 16.dp, vertical = 12.dp),
-                        actionLabel = if (isFolderAccessLost) stringResource(R.string.choose_folder) else null,
-                        onAction = if (isFolderAccessLost) {
-                            {
-                                viewModel.dismissError()
-                                folderPicker.launch(null)
-                            }
-                        } else {
-                            null
-                        },
-                    )
+                            .fillMaxSize()
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick = viewModel::dismissError,
+                            ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null,
+                                    onClick = {},
+                                )
+                                .padding(horizontal = 16.dp),
+                        ) {
+                            ErrorBanner(
+                                message = message,
+                                onDismiss = viewModel::dismissError,
+                                actionLabel = if (isFolderAccessLost) stringResource(R.string.choose_folder) else null,
+                                onAction = if (isFolderAccessLost) {
+                                    {
+                                        viewModel.dismissError()
+                                        folderPicker.launch(null)
+                                    }
+                                } else {
+                                    null
+                                },
+                            )
+                        }
+                    }
                 }
 
                 if (uiState.isLoading) {

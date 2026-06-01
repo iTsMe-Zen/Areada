@@ -13,15 +13,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ChevronRight
@@ -30,6 +28,7 @@ import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.ImportContacts
 import androidx.compose.material.icons.automirrored.outlined.LibraryBooks
 import androidx.compose.material.icons.outlined.PictureAsPdf
+import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -38,6 +37,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -78,6 +80,10 @@ internal fun FolderRow(
     val context = LocalContext.current
     val nameCopied = stringResource(R.string.name_copied)
 
+    val surfaceColor by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
+        animationSpec = tween(150),
+    )
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -89,11 +95,7 @@ internal fun FolderRow(
                 },
             ),
         shape = RectangleShape,
-        color = when {
-            selected -> MaterialTheme.colorScheme.primaryContainer
-            pinned -> MaterialTheme.colorScheme.surfaceVariant
-            else -> MaterialTheme.colorScheme.surface
-        },
+        color = surfaceColor,
         tonalElevation = 0.dp,
         shadowElevation = 0.dp,
     ) {
@@ -106,14 +108,23 @@ internal fun FolderRow(
             Icon(
                 imageVector = Icons.Outlined.Folder,
                 contentDescription = stringResource(R.string.folder),
-                tint = if (pinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(modifier = Modifier.width(14.dp))
+            if (pinned) {
+                Icon(
+                    imageVector = Icons.Outlined.PushPin,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+            }
             Text(
                 text = name,
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.bodyLarge,
-                fontWeight = if (pinned) FontWeight.SemiBold else FontWeight.Medium,
+                fontWeight = FontWeight.Medium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -153,6 +164,10 @@ internal fun BookRow(
         }
     }.joinToString(" · ")
 
+    val surfaceColor by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
+        animationSpec = tween(150),
+    )
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -164,11 +179,7 @@ internal fun BookRow(
                 },
             ),
         shape = RectangleShape,
-        color = when {
-            selected -> MaterialTheme.colorScheme.primaryContainer
-            pinned -> MaterialTheme.colorScheme.surfaceVariant
-            else -> MaterialTheme.colorScheme.surface
-        },
+        color = surfaceColor,
         tonalElevation = 0.dp,
         shadowElevation = 0.dp,
     ) {
@@ -178,6 +189,15 @@ internal fun BookRow(
                 .padding(horizontal = 16.dp, vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            if (pinned) {
+                Icon(
+                    imageVector = Icons.Outlined.PushPin,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
             Column(
                 modifier = Modifier.weight(1f),
             ) {
@@ -231,9 +251,7 @@ internal fun NotePopup(
             shadowElevation = 6.dp,
         ) {
             Column(
-                modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -242,6 +260,8 @@ internal fun NotePopup(
                 ) {
                     Text(
                         text = title,
+                        modifier = Modifier.weight(1f),
+                        maxLines = 1,
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -259,7 +279,10 @@ internal fun NotePopup(
                     text = note,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 6.dp),
+                    modifier = Modifier
+                        .padding(top = 6.dp)
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
                     lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.15f,
                 )
             }
@@ -413,7 +436,10 @@ internal fun SettingToggleRow(
 }
 
 @Composable
-internal fun ReaderMessage(message: String) {
+internal fun ReaderMessage(
+    message: String,
+    onRetry: (() -> Unit)? = null,
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -426,11 +452,21 @@ internal fun ReaderMessage(message: String) {
             tonalElevation = 0.dp,
             shadowElevation = 0.dp,
         ) {
-            Text(
-                text = message,
-                modifier = Modifier.padding(20.dp),
-                style = MaterialTheme.typography.bodyLarge,
-            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = message,
+                    modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = if (onRetry != null) 8.dp else 20.dp),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+                if (onRetry != null) {
+                    PromptChoiceButton(
+                        label = stringResource(R.string.retry),
+                        highlighted = true,
+                        onClick = onRetry,
+                        modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 20.dp),
+                    )
+                }
+            }
         }
     }
 }
@@ -463,7 +499,10 @@ internal fun ErrorBanner(
             Spacer(modifier = Modifier.width(12.dp))
             if (actionLabel != null && onAction != null) {
                 TextButton(
-                    onClick = onAction,
+                    onClick = {
+                        onAction()
+                        onDismiss()
+                    },
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onPrimary),
                 ) {
                     Text(text = actionLabel)
@@ -531,6 +570,7 @@ internal fun LoadingState(label: String) {
     }
 }
 
+@Composable
 internal fun buildResumeLabel(
     progress: ReadingProgress?,
     type: DocumentType,
@@ -541,13 +581,15 @@ internal fun buildResumeLabel(
 
     return when (type) {
         DocumentType.EPUB -> {
-            val total = progress.epubChapterCount.takeIf { it > 0 } ?: return "Resume chapter ${progress.epubChapterIndex + 1}"
-            "Resume chapter ${progress.epubChapterIndex + 1} of $total"
+            val total = progress.epubChapterCount.takeIf { it > 0 }
+                ?: return stringResource(R.string.resume_chapter, progress.epubChapterIndex + 1)
+            stringResource(R.string.resume_chapter_of, progress.epubChapterIndex + 1, total)
         }
 
         DocumentType.PDF -> {
-            val total = progress.pdfPageCount.takeIf { it > 0 } ?: return "Resume page ${progress.pdfPageIndex + 1}"
-            "Resume page ${progress.pdfPageIndex + 1} of $total"
+            val total = progress.pdfPageCount.takeIf { it > 0 }
+                ?: return stringResource(R.string.resume_page, progress.pdfPageIndex + 1)
+            stringResource(R.string.resume_page_of, progress.pdfPageIndex + 1, total)
         }
 
         DocumentType.TXT,
@@ -556,7 +598,7 @@ internal fun buildResumeLabel(
 
         DocumentType.FB2 -> {
             val percent = (progress.txtScrollFraction.coerceIn(0f, 1f) * 100f).roundToInt()
-            if (percent <= 0) null else "Resume $percent%"
+            if (percent <= 0) null else stringResource(R.string.resume_percent, percent)
         }
     }
 }

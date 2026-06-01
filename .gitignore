@@ -26,3 +26,4 @@ keystore.properties
 Thumbs.db
 app/release/
 app/debug/
+/Test/

@@ -1,5 +1,8 @@
 package app.areada.data
 
+import app.areada.data.reader.epubBookmarkId
+import app.areada.data.reader.pdfBookmarkId
+import app.areada.data.reader.txtBookmarkId
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Areada</string>
     <string name="settings">Settings</string>
+    <string name="additional_settings">Additional settings</string>
     <string name="book_note">Book note</string>
     <string name="theme">Theme</string>
     <string name="orientation">Orientation</string>
@@ -9,6 +10,7 @@
     <string name="line_spacing">Line spacing</string>
     <string name="reading_ruler">Reading ruler</string>
     <string name="guide_icon">Guide Icon</string>
+    <string name="open_previous_chapter_at_end">Open previous chapter at end</string>
     <string name="ruler_position">Ruler position</string>
     <string name="keep_screen_on">Keep screen on</string>
     <string name="volume_buttons_turn_pages">Volume buttons turn pages</string>
@@ -58,13 +60,11 @@
     <string name="bookmarks">Bookmarks</string>
     <string name="all">All</string>
     <string name="selected">Selected</string>
-    <string name="sort_name_az">Name A-Z</string>
-    <string name="sort_name_za">Name Z-A</string>
-    <string name="sort_oldest_added">Oldest added</string>
-    <string name="sort_newest_added">Newest added</string>
     <string name="sort_recently_opened">Recently opened</string>
     <string name="sort_reading_progress">Reading progress</string>
     <string name="sort_file_type">File type</string>
+    <string name="sort_name_base">Name</string>
+    <string name="sort_date_added_base">Date added</string>
     <string name="actions">Actions</string>
     <string name="note">Note</string>
     <string name="close">Close</string>
@@ -179,7 +179,7 @@
     <string name="open_link_with">Open link with</string>
     <string name="no_app_can_open_link">No app can open this link</string>
 
-    <string name="zip_no_supported_books">No supported books found in this ZIP.</string>
+    <string name="zip_no_supported_books">No supported books found in this archive.</string>
     <string name="zip_no_supported_books_body">ZIP can contain EPUB, PDF, TXT, or FB2 files.</string>
     <string name="zip_could_not_open">Could not open ZIP file.</string>
     <string name="zip_could_not_open_selected">Could not open selected file from ZIP.</string>
@@ -189,6 +189,13 @@
     <string name="could_not_save_note">Could not save note.</string>
     <string name="could_not_save_note_body">Please check folder permission and try again.</string>
     <string name="could_not_create_note">Could not create that note.</string>
+    <string name="resume_chapter_of">Resume chapter %1$d of %2$d</string>
+    <string name="resume_chapter">Resume chapter %1$d</string>
+    <string name="resume_page_of">Resume page %1$d of %2$d</string>
+    <string name="resume_page">Resume page %1$d</string>
+    <string name="resume_percent">Resume %1$d%%</string>
+    <string name="vibrate_on_page_turn">Vibrate on page turn</string>
+    <string name="retry">Retry</string>
     <string name="could_not_create_book_note">Unable to create a Book Note.</string>
     <string name="could_not_open_book_note">Unable to open that Book Note.</string>
     <string name="choose_folder_before_book_note">Choose a folder before creating a Book Note.</string>

@@ -74,7 +74,7 @@ internal fun ZoomablePage(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
-            .padding(horizontal = 16.dp, vertical = 18.dp),
+            .padding(vertical = 18.dp),
     ) {
         val containerWidth = constraints.maxWidth.toFloat().coerceAtLeast(1f)
         val containerHeight = constraints.maxHeight.toFloat().coerceAtLeast(1f)

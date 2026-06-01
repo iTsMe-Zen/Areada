@@ -1,5 +1,7 @@
 package app.areada.ui
 
+import app.areada.ui.home.HomeTab
+import app.areada.ui.home.homeTabFromName
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

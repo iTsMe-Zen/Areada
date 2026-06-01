@@ -24,8 +24,46 @@ enum class LibrarySortMode(val label: String) {
     DATE_ADDED_ASC("Oldest added"),
     DATE_ADDED_DESC("Newest added"),
     RECENTLY_OPENED("Recently opened"),
+    RECENTLY_OPENED_ASC("Least recently opened"),
     READING_PROGRESS("Reading progress"),
+    READING_PROGRESS_ASC("Reading progress"),
     FILE_TYPE("File type"),
+    FILE_TYPE_DESC("File type Z-A"),
+    ;
+
+    val baseOption: LibrarySortMode get() = when (this) {
+        NAME_ASC, NAME_DESC -> NAME_ASC
+        DATE_ADDED_ASC, DATE_ADDED_DESC -> DATE_ADDED_ASC
+        RECENTLY_OPENED, RECENTLY_OPENED_ASC -> RECENTLY_OPENED
+        READING_PROGRESS, READING_PROGRESS_ASC -> READING_PROGRESS
+        FILE_TYPE, FILE_TYPE_DESC -> FILE_TYPE
+    }
+
+    val isDirectional: Boolean get() = true
+
+    fun toggled(): LibrarySortMode = when (this) {
+        NAME_ASC -> NAME_DESC
+        NAME_DESC -> NAME_ASC
+        DATE_ADDED_ASC -> DATE_ADDED_DESC
+        DATE_ADDED_DESC -> DATE_ADDED_ASC
+        READING_PROGRESS -> READING_PROGRESS_ASC
+        READING_PROGRESS_ASC -> READING_PROGRESS
+        FILE_TYPE -> FILE_TYPE_DESC
+        FILE_TYPE_DESC -> FILE_TYPE
+        RECENTLY_OPENED -> RECENTLY_OPENED_ASC
+        RECENTLY_OPENED_ASC -> RECENTLY_OPENED
+    }
+
+    val isAscending: Boolean get() = when (this) {
+        NAME_ASC, DATE_ADDED_ASC, READING_PROGRESS_ASC, FILE_TYPE, RECENTLY_OPENED_ASC -> true
+        else -> false
+    }
+
+    companion object {
+        val baseOptions = listOf(
+            NAME_ASC, DATE_ADDED_ASC, RECENTLY_OPENED, READING_PROGRESS, FILE_TYPE,
+        )
+    }
 }
 
 enum class LibraryFileFilter(

@@ -47,19 +47,13 @@ internal fun LibraryFileFilter.displayLabel(): String =
     }
 
 @Composable
-internal fun LibrarySortMode.displayLabel(): String =
-    when (this) {
-        LibrarySortMode.NAME_ASC -> stringResource(R.string.sort_name_az)
-        LibrarySortMode.NAME_DESC -> stringResource(R.string.sort_name_za)
-        LibrarySortMode.DATE_ADDED_ASC -> stringResource(R.string.sort_oldest_added)
-        LibrarySortMode.DATE_ADDED_DESC -> stringResource(R.string.sort_newest_added)
-        LibrarySortMode.RECENTLY_OPENED -> stringResource(R.string.sort_recently_opened)
-        LibrarySortMode.READING_PROGRESS -> stringResource(R.string.sort_reading_progress)
-        LibrarySortMode.FILE_TYPE -> stringResource(R.string.sort_file_type)
-    }
+internal fun LibrarySortMode.displayLabel(): String {
+    val arrow = if (isAscending) "\u2191" else "\u2193"
+    return "$arrow ${sortBaseLabel()}"
+}
 
-@Composable
-internal fun LibraryFileFilter.emptyLibraryMessage(): String =
+    @Composable
+    internal fun LibraryFileFilter.emptyLibraryMessage(): String =
     when (this) {
         LibraryFileFilter.ALL -> stringResource(R.string.empty_library_all)
         LibraryFileFilter.EPUB -> stringResource(R.string.empty_library_epub)
@@ -67,6 +61,16 @@ internal fun LibraryFileFilter.emptyLibraryMessage(): String =
         LibraryFileFilter.TXT -> stringResource(R.string.empty_library_txt)
         LibraryFileFilter.FB2 -> stringResource(R.string.empty_library_fb2)
         LibraryFileFilter.ARCHIVE -> stringResource(R.string.empty_library_archive)
+    }
+
+@Composable
+internal fun LibrarySortMode.sortBaseLabel(): String =
+    when (this) {
+        LibrarySortMode.NAME_ASC, LibrarySortMode.NAME_DESC -> stringResource(R.string.sort_name_base)
+        LibrarySortMode.DATE_ADDED_ASC, LibrarySortMode.DATE_ADDED_DESC -> stringResource(R.string.sort_date_added_base)
+        LibrarySortMode.RECENTLY_OPENED, LibrarySortMode.RECENTLY_OPENED_ASC -> stringResource(R.string.sort_recently_opened)
+        LibrarySortMode.READING_PROGRESS, LibrarySortMode.READING_PROGRESS_ASC -> stringResource(R.string.sort_reading_progress)
+        LibrarySortMode.FILE_TYPE, LibrarySortMode.FILE_TYPE_DESC -> stringResource(R.string.sort_file_type)
     }
 
 @Composable
@@ -116,12 +120,19 @@ internal fun LibrarySortInlinePanel(
                 .fillMaxWidth()
                 .padding(vertical = 6.dp),
         ) {
-            LibrarySortMode.entries.forEach { sortMode ->
-                val selected = sortMode == selectedSortMode
+            LibrarySortMode.baseOptions.forEach { baseOption ->
+                val isBaseOfActive = baseOption == selectedSortMode.baseOption
+                val selected = isBaseOfActive
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onSelectSortMode(sortMode) }
+                        .clickable {
+                            if (isBaseOfActive && selectedSortMode.isDirectional) {
+                                onSelectSortMode(selectedSortMode.toggled())
+                            } else {
+                                onSelectSortMode(baseOption)
+                            }
+                        }
                         .background(
                             if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.14f) else Color.Transparent,
                             RectangleShape,
@@ -130,15 +141,20 @@ internal fun LibrarySortInlinePanel(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = sortMode.displayLabel(),
+                        text = baseOption.sortBaseLabel(),
                         modifier = Modifier.weight(1f),
                         fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
                     )
-                    if (selected) {
-                        Text(
-                            text = stringResource(R.string.selected),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    if (selected && selectedSortMode.isDirectional) {
+                        Icon(
+                            imageVector = Icons.Outlined.ArrowDropDown,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(18.dp)
+                                .graphicsLayer {
+                                    rotationZ = if (selectedSortMode.isAscending) 180f else 0f
+                                },
+                            tint = MaterialTheme.colorScheme.primary,
                         )
                     }
                 }

@@ -35,18 +35,40 @@ object LocalTextExtractor {
 
     private fun parseFb2OrZip(input: InputStream): LocalFb2Document {
         val buffered = BufferedInputStream(input)
-        buffered.mark(4)
+        buffered.mark(16)
         val first = buffered.read()
         val second = buffered.read()
         buffered.reset()
         if (first == 'P'.code && second == 'K'.code) {
+            var fb2Entry: InputStream? = null
+            var firstNonDirEntry: InputStream? = null
             ZipInputStream(buffered).use { zip ->
                 while (true) {
                     val entry = zip.nextEntry ?: break
-                    if (!entry.isDirectory && entry.name.endsWith(".fb2", ignoreCase = true)) {
-                        return parseFb2(zip)
+                    if (entry.isDirectory) {
+                        zip.closeEntry()
+                        continue
                     }
-                    zip.closeEntry()
+                    val name = entry.name?.lowercase(Locale.ROOT).orEmpty()
+                    val looksFb2 = name.endsWith(".fb2") ||
+                        name.endsWith(".fb2.xml") ||
+                        name.endsWith(".fbz") ||
+                        (name.contains("fb2") && name.endsWith(".xml"))
+                    if (looksFb2 && fb2Entry == null) {
+                        fb2Entry = zip
+                    } else if (firstNonDirEntry == null) {
+                        firstNonDirEntry = zip
+                    }
+                    if (fb2Entry == null) {
+                        zip.closeEntry()
+                    } else {
+                        break
+                    }
+                }
+                val stream = fb2Entry ?: firstNonDirEntry
+                if (stream != null) {
+                    return runCatching { parseFb2(stream) }
+                        .getOrDefault(LocalFb2Document())
                 }
             }
             return LocalFb2Document()
@@ -99,8 +121,15 @@ object LocalTextExtractor {
             val child = children.item(index)
             val tag = child.nodeName.substringAfter(':').lowercase(Locale.ROOT)
             when (tag) {
-                "binary", "description" -> Unit
-                "title", "subtitle", "p", "v" -> appendBlock(builder, child.textContent.orEmpty())
+                "binary", "description", "stylesheet",
+                "coverpage", "isbn", "id", "version", "output",
+                "program-used", "sequence", "lang", "src-lang",
+                "translator", "annotation", "keywords", "genre",
+                "first-name", "middle-name", "last-name",
+                "nickname", "image" -> Unit
+                "title", "subtitle", "p", "v",
+                "strong", "emphasis", "a", "style" ->
+                    appendBlock(builder, child.textContent.orEmpty())
                 "empty-line" -> appendNewline(builder)
                 else -> appendFb2Children(child, builder)
             }

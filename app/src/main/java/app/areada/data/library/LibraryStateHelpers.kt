@@ -2,6 +2,7 @@ package app.areada.data.library
 
 import app.areada.data.BookStatus
 import app.areada.data.reader.DocumentType
+import app.areada.data.reader.ReadingBookmark
 import app.areada.data.reader.ReadingProgress
 import app.areada.data.reader.RecentDocument
 import app.areada.data.readingProgressPercent
@@ -128,10 +129,16 @@ private fun <T> sortLibraryEntries(
         LibrarySortMode.DATE_ADDED_DESC -> items.sortedByDescending { addedAt(it) }
         LibrarySortMode.RECENTLY_OPENED -> items
             .sortedWith(compareByDescending<T> { recentlyOpenedAt(it) }.then(NaturalSort.comparator(title)))
+        LibrarySortMode.RECENTLY_OPENED_ASC -> items
+            .sortedWith(compareBy<T> { recentlyOpenedAt(it) }.then(NaturalSort.comparator(title)))
         LibrarySortMode.READING_PROGRESS -> items
             .sortedWith(compareByDescending<T> { progressPercent(it) }.then(NaturalSort.comparator(title)))
+        LibrarySortMode.READING_PROGRESS_ASC -> items
+            .sortedWith(compareBy<T> { progressPercent(it) }.then(NaturalSort.comparator(title)))
         LibrarySortMode.FILE_TYPE -> items
             .sortedWith(compareBy<T> { typeOrdinal(it) }.then(NaturalSort.comparator(title)))
+        LibrarySortMode.FILE_TYPE_DESC -> items
+            .sortedWith(compareByDescending<T> { typeOrdinal(it) }.then(NaturalSort.comparator(title)))
     }
 
     return sorted.sortedByDescending { pinned(it) }
@@ -154,3 +161,50 @@ internal fun isReadingProgressCompleted(progress: ReadingProgress): Boolean =
         DocumentType.ZIP,
         DocumentType.ARCHIVE -> false
     }
+
+internal fun sortRecentDocuments(
+    recents: List<RecentDocument>,
+    sortMode: LibrarySortMode,
+    progressByUri: Map<String, ReadingProgress> = emptyMap(),
+): List<RecentDocument> = when (sortMode) {
+    LibrarySortMode.NAME_ASC -> recents.sortedWith(NaturalSort.comparator<RecentDocument> { it.title })
+    LibrarySortMode.NAME_DESC -> recents.sortedWith(reverseComparator(NaturalSort.comparator { it.title }))
+    LibrarySortMode.DATE_ADDED_ASC,
+    LibrarySortMode.RECENTLY_OPENED_ASC -> recents.sortedBy { it.lastOpenedAt }
+    LibrarySortMode.DATE_ADDED_DESC,
+    LibrarySortMode.RECENTLY_OPENED -> recents.sortedByDescending { it.lastOpenedAt }
+    LibrarySortMode.READING_PROGRESS_ASC -> recents.sortedWith(
+        compareBy<RecentDocument> { readingProgressPercent(progressByUri[it.uriString]) ?: -1 }
+            .then(NaturalSort.comparator { it.title }),
+    )
+    LibrarySortMode.READING_PROGRESS -> recents.sortedWith(
+        compareByDescending<RecentDocument> { readingProgressPercent(progressByUri[it.uriString]) ?: -1 }
+            .then(NaturalSort.comparator { it.title }),
+    )
+    LibrarySortMode.FILE_TYPE -> recents.sortedWith(
+        compareBy<RecentDocument> { it.type.ordinal }.then(NaturalSort.comparator { it.title }),
+    )
+    LibrarySortMode.FILE_TYPE_DESC -> recents.sortedWith(
+        compareByDescending<RecentDocument> { it.type.ordinal }.then(NaturalSort.comparator { it.title }),
+    )
+}
+
+internal fun sortReadingBookmarks(
+    bookmarks: List<ReadingBookmark>,
+    sortMode: LibrarySortMode,
+): List<ReadingBookmark> = when (sortMode) {
+    LibrarySortMode.NAME_ASC -> bookmarks.sortedWith(NaturalSort.comparator<ReadingBookmark> { it.title })
+    LibrarySortMode.NAME_DESC -> bookmarks.sortedWith(reverseComparator(NaturalSort.comparator { it.title }))
+    LibrarySortMode.DATE_ADDED_ASC -> bookmarks.sortedBy { it.createdAt }
+    LibrarySortMode.DATE_ADDED_DESC -> bookmarks.sortedByDescending { it.createdAt }
+    LibrarySortMode.RECENTLY_OPENED,
+    LibrarySortMode.RECENTLY_OPENED_ASC -> bookmarks.sortedByDescending { it.updatedAt }
+    LibrarySortMode.READING_PROGRESS,
+    LibrarySortMode.READING_PROGRESS_ASC -> bookmarks.sortedWith(NaturalSort.comparator { it.title })
+    LibrarySortMode.FILE_TYPE -> bookmarks.sortedWith(
+        compareBy<ReadingBookmark> { it.type.ordinal }.then(NaturalSort.comparator { it.title }),
+    )
+    LibrarySortMode.FILE_TYPE_DESC -> bookmarks.sortedWith(
+        compareByDescending<ReadingBookmark> { it.type.ordinal }.then(NaturalSort.comparator { it.title }),
+    )
+}

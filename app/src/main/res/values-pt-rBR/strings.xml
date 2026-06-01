@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Areada</string>
     <string name="settings">Configurações</string>
+    <string name="additional_settings">Configurações adicionais</string>
     <string name="book_note">Nota do livro</string>
     <string name="theme">Tema</string>
     <string name="orientation">Orientação</string>
@@ -9,6 +10,7 @@
     <string name="line_spacing">Espaçamento entre linhas</string>
     <string name="reading_ruler">Régua de leitura</string>
     <string name="guide_icon">Ícone do Guia</string>
+    <string name="open_previous_chapter_at_end">Abrir capítulo anterior no final</string>
     <string name="ruler_position">Posição da régua</string>
     <string name="keep_screen_on">Manter tela ligada</string>
     <string name="volume_buttons_turn_pages">Botões de volume viram páginas</string>
@@ -59,13 +61,11 @@
     <string name="bookmarks">Favoritos</string>
     <string name="all">Todos</string>
     <string name="selected">Selecionado</string>
-    <string name="sort_name_az">Nome A-Z</string>
-    <string name="sort_name_za">Nome Z-A</string>
-    <string name="sort_oldest_added">Mais antigos adicionados</string>
-    <string name="sort_newest_added">Mais recentes adicionados</string>
     <string name="sort_recently_opened">Abertos recentemente</string>
     <string name="sort_reading_progress">Progresso da leitura</string>
     <string name="sort_file_type">Tipo de arquivo</string>
+    <string name="sort_name_base">Nome</string>
+    <string name="sort_date_added_base">Data adicionada</string>
     <string name="actions">Ações</string>
     <string name="note">Nota</string>
     <string name="close">Fechar</string>
@@ -178,7 +178,7 @@
     <string name="open_link_with">Abrir link com</string>
     <string name="no_app_can_open_link">Nenhum aplicativo pode abrir este link</string>
 
-    <string name="zip_no_supported_books">Nenhum livro compatível encontrado neste ZIP.</string>
+    <string name="zip_no_supported_books">Nenhum livro compatível encontrado neste arquivo.</string>
     <string name="zip_no_supported_books_body">O ZIP pode conter arquivos EPUB, PDF, TXT ou FB2.</string>
     <string name="zip_could_not_open">Não foi possível abrir o arquivo ZIP.</string>
     <string name="zip_could_not_open_selected">Não foi possível abrir o arquivo selecionado do ZIP.</string>

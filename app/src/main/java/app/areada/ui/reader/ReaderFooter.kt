@@ -184,12 +184,7 @@ internal fun ReaderFooterProgressTrack(
         }
 
         releaseHandler.removeCallbacksAndMessages(null)
-        releaseHandler.postDelayed(
-            {
-                dragProgress = null
-            },
-            220L,
-        )
+        dragProgress = null
     }
 
     BoxWithConstraints(

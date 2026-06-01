@@ -1,5 +1,16 @@
 package app.areada.data
 
+import app.areada.data.reader.ReaderLanguageMode
+import app.areada.data.reader.ReaderOrientationMode
+import app.areada.data.reader.ReaderPreferences
+import app.areada.data.reader.ReaderRulerPositionDefault
+import app.areada.data.reader.ReaderRulerPositionMax
+import app.areada.data.reader.ReaderRulerPositionMin
+import app.areada.data.reader.readerLanguageModeFromName
+import app.areada.data.reader.readerOrientationModeFromName
+import app.areada.data.reader.readingRulerPositionLabel
+import app.areada.data.reader.sanitizeReaderPreferences
+import app.areada.data.reader.sanitizeReadingRulerPosition
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -57,7 +68,7 @@ class ReaderPreferencesTest {
             ),
         )
 
-        assertEquals(30, sanitized.fontSizeSp)
+        assertEquals(40, sanitized.fontSizeSp)
         assertEquals(2.4f, sanitized.lineSpacing, 0.0001f)
         assertEquals(true, sanitized.readingRuler)
         assertEquals(ReaderRulerPositionMax, sanitized.readingRulerPosition, 0.0001f)

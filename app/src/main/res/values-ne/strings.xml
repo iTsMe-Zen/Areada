@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">Areada</string>
     <string name="settings">सेटिङहरू</string>
+    <string name="additional_settings">अतिरिक्त सेटिङहरू</string>
     <string name="book_note">पुस्तक नोट</string>
     <string name="theme">थिम</string>
     <string name="orientation">अभिमुखीकरण</string>
@@ -10,6 +11,7 @@
     <string name="line_spacing">लाइन दूरी</string>
     <string name="reading_ruler">पढ्ने रुलर</string>
     <string name="guide_icon">गाइड आइकन</string>
+    <string name="open_previous_chapter_at_end">अघिल्लो अध्याय अन्तमा खोल्नुहोस्</string>
     <string name="ruler_position">रुलर स्थिति</string>
     <string name="keep_screen_on">स्क्रिन अन राख्नुहोस्</string>
     <string name="volume_buttons_turn_pages">भोल्युम बटनले पाना फेरोस्</string>
@@ -107,18 +109,16 @@
     <string name="open_link_with">लिङ्क खोल्ने एप</string>
     <string name="no_app_can_open_link">यो लिङ्क खोल्ने एप छैन</string>
 
-    <string name="zip_no_supported_books">यो ZIP मा समर्थित पुस्तक भेटिएन।</string>
+    <string name="zip_no_supported_books">यो आर्काइभमा समर्थित पुस्तक भेटिएन।</string>
     <string name="zip_could_not_open">ZIP फाइल खोल्न सकिएन।</string>
     <string name="zip_could_not_open_selected">ZIP बाट छानिएको फाइल खोल्न सकिएन।</string>
     <string name="clear_search">खोज खाली गर्नुहोस्</string>
     <string name="discard_question">छोड्ने?</string>
-    <string name="sort_name_az">नाम A-Z</string>
-    <string name="sort_name_za">नाम Z-A</string>
-    <string name="sort_oldest_added">पुरानो थपिएको</string>
-    <string name="sort_newest_added">नयाँ थपिएको</string>
     <string name="sort_recently_opened">हालै खोलिएको</string>
     <string name="sort_reading_progress">पढाइ प्रगति</string>
     <string name="sort_file_type">फाइल प्रकार</string>
+    <string name="sort_name_base">नाम</string>
+    <string name="sort_date_added_base">थपिएको मिति</string>
     <string name="library">लाइब्रेरी</string>
     <string name="search_chapter">अध्याय खोज्नुहोस्</string>
     <string name="search_current_chapter">हालको अध्याय खोज्नुहोस्</string>

@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.statusBarsPadding
 import app.areada.R
 
 internal data class ReaderTocEntry(
@@ -46,7 +47,8 @@ internal fun ReaderChapterSearchOverlay(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = 92.dp, start = 16.dp, end = 16.dp),
+            .statusBarsPadding()
+            .padding(top = 100.dp, start = 16.dp, end = 16.dp),
         shape = RectangleShape,
         color = MaterialTheme.colorScheme.surface,
         tonalElevation = 0.dp,

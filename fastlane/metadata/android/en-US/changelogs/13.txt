@@ -1,0 +1,9 @@
+- Archive files (.tar, .xz, .7z, .epub.xz and others) can now be opened directly from file managers by using sharing function.
+- Added "Open previous chapter at end" option for easier navigation when moving backward through books.
+- Redesigned library sorting panel with 5 clearer sorting modes and tap-to-toggle sort direction.
+- Added reverse file type sorting.
+- Fixed flickering on some devices.
+- Fixed EPUB auto-rotate issues on older Android versions.
+- Fixed guide popup title row scrolling away on long content.
+- Improved F2B compatibility.
+- Various stability, performance and quality-of-life improvements.

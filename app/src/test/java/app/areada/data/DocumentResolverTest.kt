@@ -1,5 +1,6 @@
 package app.areada.data
 
+import app.areada.data.reader.DocumentType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test

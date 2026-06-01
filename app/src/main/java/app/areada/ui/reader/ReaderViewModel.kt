@@ -3,6 +3,7 @@ package app.areada.ui.reader
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.areada.R
@@ -46,6 +47,7 @@ import app.areada.data.library.sortLibraryBooks
 import app.areada.data.library.sortLibraryFolders
 import app.areada.reader.epub.EpubBook
 import app.areada.reader.epub.EpubEngine
+import app.areada.reader.fb2.Fb2Engine
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -85,6 +87,7 @@ class ReaderViewModel : ViewModel() {
     private var applicationContext: Context? = null
     private val textSaveMutex = Mutex()
     private val textSaveSequenceByUri = mutableMapOf<String, Long>()
+    private val lastTextSaveAtByUri = mutableMapOf<String, Long>()
     private val folderStateCacheLock = Any()
     private val folderStateCache = linkedMapOf<FolderCacheKey, CachedFolderState>()
     private val folderCacheFreshMillis = 60_000L
@@ -236,6 +239,7 @@ class ReaderViewModel : ViewModel() {
                     scheduleCacheCleanup(appContext)
                 }
                 externalOpenUri?.let { uri -> openExternalDocument(appContext, uri) }
+                cleanupOrphanedEntries(appContext)
             }
         }
     }
@@ -382,6 +386,9 @@ class ReaderViewModel : ViewModel() {
             useCache = !showLoading,
         )
         markSearchIndexDirty(context.applicationContext, state.libraryRoots)
+        viewModelScope.launch(Dispatchers.IO) {
+            cleanupOrphanedEntries(context.applicationContext)
+        }
     }
 
     fun updateSearchQuery(
@@ -742,22 +749,38 @@ class ReaderViewModel : ViewModel() {
                         initialZoomScale = savedProgress?.pdfZoomScale?.coerceIn(1f, 5f) ?: 1f,
                     )
 
-                    DocumentType.TXT,
-                    DocumentType.FB2 -> {
+                    DocumentType.TXT -> {
                         val content = withContext(Dispatchers.IO) {
                             LibraryRepository.readTextLikeDocumentContent(appContext, document)
                         }
                         ReaderScreen.Text(
                             document = content.title
-                                ?.takeIf { title -> document.type == DocumentType.FB2 && title.isNotBlank() }
+                                ?.takeIf { title -> title.isNotBlank() }
                                 ?.let { title -> document.copy(title = title) }
                                 ?: document,
                             initialText = content.text,
                             initialScrollFraction = savedProgress?.txtScrollFraction?.coerceIn(0f, 1f) ?: 0f,
-                            editable = document.type == DocumentType.TXT,
-                            sectionedNote = document.type == DocumentType.TXT &&
-                                document.uriString in noteDocumentIdsCache,
+                            editable = true,
+                            sectionedNote = document.uriString in noteDocumentIdsCache,
                             initialNoteSectionTitle = lastNoteSectionCache[document.uriString],
+                        )
+                    }
+
+                    DocumentType.FB2 -> {
+                        val fb2Book = withContext(Dispatchers.IO) {
+                            Fb2Engine.parse(appContext, document.uri, document.title)
+                        }
+                        val titledDoc = fb2Book.author
+                            ?.takeIf { it.isNotBlank() }
+                            ?.let { author -> document.copy(title = "$author - ${fb2Book.title}") }
+                            ?: fb2Book.title?.takeIf { it.isNotBlank() && it != document.title }
+                                ?.let { title -> document.copy(title = title) }
+                                ?: document
+                        ReaderScreen.Fb2(
+                            document = titledDoc,
+                            book = fb2Book,
+                            initialChapterIndex = savedProgress?.epubChapterIndex?.coerceIn(0, fb2Book.chapters.lastIndex) ?: 0,
+                            initialScrollFraction = savedProgress?.epubScrollFraction?.coerceIn(0f, 1f) ?: 0f,
                         )
                     }
 
@@ -789,20 +812,28 @@ class ReaderViewModel : ViewModel() {
                     return@launch
                 }
 
-                if (fromRecent) {
-                    val sanitizedState = RecentReadingActions.removed(
-                        recents = _uiState.value.recents,
-                        progressByUri = _uiState.value.progressByUri,
-                        uriString = uri.toString(),
-                    )
+                val currentUri = uri.toString()
+                val state = _uiState.value
+                val updatedRecents = state.recents.filterNot { it.uriString == currentUri }
+                val updatedProgress = state.progressByUri - currentUri
+                val updatedBookmarks = state.bookmarks.filterNot { it.uriString == currentUri }
+                val updatedBookStatuses = state.bookStatusByUri - currentUri
+                if (updatedRecents.size != state.recents.size ||
+                    updatedBookmarks.size != state.bookmarks.size ||
+                    updatedProgress.size != state.progressByUri.size
+                ) {
                     withContext(Dispatchers.IO) {
-                        RecentDocumentStore.save(appContext, sanitizedState.recents)
-                        ReaderStateStore.saveProgress(appContext, sanitizedState.progressByUri)
+                        RecentDocumentStore.save(appContext, updatedRecents)
+                        ReaderStateStore.saveProgress(appContext, updatedProgress)
+                        ReaderStateStore.saveBookmarks(appContext, updatedBookmarks)
+                        ReaderStateStore.saveBookStatuses(appContext, updatedBookStatuses)
                     }
-                    _uiState.update { state ->
-                        state.copy(
-                            recents = sanitizedState.recents,
-                            progressByUri = sanitizedState.progressByUri,
+                    _uiState.update {
+                        it.copy(
+                            recents = updatedRecents,
+                            progressByUri = updatedProgress,
+                            bookmarks = updatedBookmarks,
+                            bookStatusByUri = updatedBookStatuses,
                         )
                     }
                 }
@@ -1548,6 +1579,9 @@ class ReaderViewModel : ViewModel() {
         }
         viewModelScope.launch(Dispatchers.IO) {
             ReaderStateStore.saveHomeTabName(appContext, tabName)
+            if (tabName == "Reading") {
+                cleanupOrphanedEntries(appContext)
+            }
         }
     }
 
@@ -1595,6 +1629,41 @@ class ReaderViewModel : ViewModel() {
                     )
                 }
             }
+        }
+    }
+
+    private suspend fun cleanupOrphanedEntries(context: Context) {
+        val appContext = context.applicationContext
+        val state = _uiState.value
+        val allUris = linkedSetOf<String>()
+        allUris.addAll(state.recents.map { it.uriString })
+        allUris.addAll(state.bookmarks.map { it.uriString })
+        allUris.addAll(state.progressByUri.keys)
+        val missingUris = allUris.filter { uriString ->
+            if (uriString.startsWith("zip|") || uriString.startsWith("archive|")) return@filter false
+            val uri = try { Uri.parse(uriString) } catch (_: Exception) { null } ?: return@filter false
+            if (uri.scheme != "content") return@filter false
+            runCatching {
+                appContext.contentResolver.query(uri, null, null, null, null)?.close()
+            }.isFailure
+        }
+        if (missingUris.isEmpty()) return
+        val missingSet = missingUris.toSet()
+        val updatedRecents = state.recents.filterNot { it.uriString in missingSet }
+        val updatedProgress = state.progressByUri - missingSet
+        val updatedBookmarks = state.bookmarks.filterNot { it.uriString in missingSet }
+        val updatedBookStatuses = state.bookStatusByUri - missingSet
+        RecentDocumentStore.save(appContext, updatedRecents)
+        ReaderStateStore.saveProgress(appContext, updatedProgress)
+        ReaderStateStore.saveBookmarks(appContext, updatedBookmarks)
+        ReaderStateStore.saveBookStatuses(appContext, updatedBookStatuses)
+        _uiState.update {
+            it.copy(
+                recents = updatedRecents,
+                progressByUri = updatedProgress,
+                bookmarks = updatedBookmarks,
+                bookStatusByUri = updatedBookStatuses,
+            )
         }
     }
 
@@ -1799,13 +1868,24 @@ class ReaderViewModel : ViewModel() {
         }
         viewModelScope.launch(Dispatchers.IO) {
             val saved = textSaveMutex.withLock {
+                val now = SystemClock.uptimeMillis()
+                val lastSave = synchronized(lastTextSaveAtByUri) {
+                    lastTextSaveAtByUri[uriString] ?: 0L
+                }
+                if (now - lastSave < 1_500L) {
+                    return@withLock true
+                }
+                synchronized(lastTextSaveAtByUri) {
+                    lastTextSaveAtByUri[uriString] = now
+                }
                 val isLatestQueuedSave = synchronized(textSaveSequenceByUri) {
                     textSaveSequenceByUri[uriString] == saveSequence
                 }
                 if (!isLatestQueuedSave) {
                     return@withLock true
                 }
-                LibraryRepository.saveText(appContext, document.uri, text)
+                val result = LibraryRepository.saveText(appContext, document.uri, text)
+                result
             }
             if (!saved) {
                 _uiState.update { state ->

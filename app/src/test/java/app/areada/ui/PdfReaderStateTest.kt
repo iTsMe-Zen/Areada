@@ -1,5 +1,7 @@
 package app.areada.ui
 
+import app.areada.ui.reader.pdfRenderScaleBucket
+import app.areada.ui.reader.pdfRenderScaleForZoom
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

@@ -24,7 +24,8 @@ internal fun bookRowProgressLabel(
     if (status == BookStatus.Finished) {
         stringResource(R.string.finished)
     } else {
-        readingProgressPercent(progress)?.let { percent -> "$percent%" }
+        val percentLabel = readingProgressPercent(progress)?.let { percent -> "$percent%" }
+        percentLabel
     }
 
 internal fun List<LibraryBookEntry>.filterBooksByLibraryFileFilter(filter: LibraryFileFilter): List<LibraryBookEntry> =

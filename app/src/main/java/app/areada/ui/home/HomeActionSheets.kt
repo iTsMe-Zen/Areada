@@ -15,6 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bookmark
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -29,7 +30,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -246,23 +246,25 @@ internal fun BookInfoSheet(
             if (book.pinned) {
                 BookInfoRow(label = stringResource(R.string.pinned), value = stringResource(R.string.prompt_yes))
             }
-            Spacer(modifier = Modifier.height(10.dp))
-            ActionSheetItem(
-                label = if (status == BookStatus.Finished) {
-                    stringResource(R.string.mark_as_reading)
-                } else {
-                    stringResource(R.string.mark_as_finished)
-                },
-                onClick = {
-                    onMarkStatus(
-                        if (status == BookStatus.Finished) {
-                            BookStatus.Reading
-                        } else {
-                            BookStatus.Finished
-                        },
-                    )
-                },
-            )
+            if (book.type != DocumentType.ARCHIVE) {
+                Spacer(modifier = Modifier.height(10.dp))
+                ActionSheetItem(
+                    label = if (status == BookStatus.Finished) {
+                        stringResource(R.string.mark_as_reading)
+                    } else {
+                        stringResource(R.string.mark_as_finished)
+                    },
+                    onClick = {
+                        onMarkStatus(
+                            if (status == BookStatus.Finished) {
+                                BookStatus.Reading
+                            } else {
+                                BookStatus.Finished
+                            },
+                        )
+                    },
+                )
+            }
             Spacer(modifier = Modifier.height(12.dp))
         }
     }
@@ -344,11 +346,13 @@ internal fun BatchActionBar(
     onBatchPin: () -> Unit,
     onBatchRemove: (() -> Unit)? = null,
     onBatchDelete: (() -> Unit)? = null,
+    modifier: Modifier = Modifier,
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth(),
         shape = RectangleShape,
-        color = Color.Transparent,
+        color = MaterialTheme.colorScheme.primary,
         tonalElevation = 0.dp,
         shadowElevation = 0.dp,
     ) {
@@ -364,17 +368,16 @@ internal fun BatchActionBar(
                     text = "$selectedCount selected",
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = MaterialTheme.colorScheme.onPrimary,
                 )
                 Text(
                     text = stringResource(R.string.clear),
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.clickable(onClick = onClearSelection),
                 )
             }
-            androidx.compose.material3.HorizontalDivider()
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -383,49 +386,35 @@ internal fun BatchActionBar(
             ) {
                 if (onBatchRemove != null) {
                     BatchActionIcon(
-                        icon = { Icon(Icons.Outlined.Close, contentDescription = stringResource(R.string.remove), tint = MaterialTheme.colorScheme.primary) },
+                        icon = { Icon(Icons.Outlined.Close, contentDescription = stringResource(R.string.remove), tint = MaterialTheme.colorScheme.onPrimary) },
                         label = stringResource(R.string.remove),
                         onClick = onBatchRemove,
                     )
                 }
                 if (onBatchDelete != null) {
                     BatchActionIcon(
-                        icon = { Icon(Icons.Outlined.Close, contentDescription = stringResource(R.string.delete), tint = MaterialTheme.colorScheme.primary) },
+                        icon = { Icon(Icons.Outlined.Close, contentDescription = stringResource(R.string.delete), tint = MaterialTheme.colorScheme.onPrimary) },
                         label = stringResource(R.string.delete),
                         onClick = onBatchDelete,
                     )
                 }
                 if (onBatchMarkFinished != null) {
                     BatchActionIcon(
-                        icon = {
-                            Text(
-                                text = "\u2713",
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary,
-                            )
-                        },
+                        icon = { Icon(Icons.Outlined.Check, contentDescription = stringResource(R.string.mark_as_finished), tint = MaterialTheme.colorScheme.onPrimary) },
                         label = stringResource(R.string.mark_as_finished),
                         onClick = onBatchMarkFinished,
                     )
                 }
                 if (onBatchMarkReading != null) {
                     BatchActionIcon(
-                        icon = {
-                            Text(
-                                text = "\u2715",
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary,
-                            )
-                        },
+                        icon = { Icon(Icons.Outlined.Close, contentDescription = stringResource(R.string.mark_as_reading), tint = MaterialTheme.colorScheme.onPrimary) },
                         label = stringResource(R.string.mark_as_reading),
                         onClick = onBatchMarkReading,
                     )
                 }
                 BatchActionIcon(
-                    icon = { Icon(Icons.Outlined.Bookmark, contentDescription = stringResource(R.string.pin), tint = MaterialTheme.colorScheme.primary) },
-                    label = stringResource(R.string.pin),
+                    icon = { Icon(Icons.Outlined.Bookmark, contentDescription = stringResource(R.string.pin), tint = MaterialTheme.colorScheme.onPrimary) },
+                    label = "Pin/Unpin",
                     onClick = onBatchPin,
                 )
             }
@@ -448,7 +437,7 @@ private fun BatchActionIcon(
         }
         Text(
             text = label,
-            color = MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.onPrimary,
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.SemiBold,
             maxLines = 1,

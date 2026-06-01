@@ -9,6 +9,7 @@ import org.json.JSONObject
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
+@Suppress("DEPRECATION")
 internal fun restoreWebViewScroll(
     webView: WebView,
     fraction: Float,
@@ -18,7 +19,11 @@ internal fun restoreWebViewScroll(
     }
 
     val restore = {
-        scrollWebViewToProgress(webView, fraction)
+        val fullHeight = (webView.contentHeight * webView.scale).toInt()
+        val maxScroll = (fullHeight - webView.height).coerceAtLeast(0)
+        if (maxScroll > 0) {
+            scrollWebViewToProgress(webView, fraction)
+        }
     }
 
     webView.post(restore)

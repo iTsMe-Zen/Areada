@@ -1,7 +1,6 @@
 package app.areada.ui.reader
 
 import android.graphics.Color as AndroidColor
-import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.SystemClock
 import androidx.activity.compose.BackHandler
@@ -21,7 +20,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -30,8 +28,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -41,18 +37,14 @@ import app.areada.R
 import app.areada.data.reader.ReaderPreferences
 import app.areada.data.reader.ReadingBookmark
 import app.areada.data.reader.epubBookmarkId
-import app.areada.reader.epub.EpubEngine
+import app.areada.reader.fb2.Fb2Book
+import app.areada.reader.fb2.Fb2Engine
 import app.areada.reader.epub.RenderedChapter
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-internal fun EpubReaderScreen(
-    screen: ReaderScreen.Epub,
+internal fun Fb2ReaderScreen(
+    screen: ReaderScreen.Fb2,
     preferences: ReaderPreferences,
     bookmarks: List<ReadingBookmark>,
     onBack: () -> Unit,
@@ -61,7 +53,6 @@ internal fun EpubReaderScreen(
     onToggleBookmark: (chapterIndex: Int, chapterCount: Int, scrollFraction: Float, chapterTitle: String) -> Unit,
     onSaveProgress: (chapterIndex: Int, chapterCount: Int, scrollFraction: Float) -> Unit,
 ) {
-    val context = LocalContext.current.applicationContext
     val renderSectionErrorMessage = stringResource(R.string.unable_render_section)
     var showSettings by rememberSaveable(screen.document.uriString) {
         mutableStateOf(false)
@@ -78,28 +69,7 @@ internal fun EpubReaderScreen(
     var noteText by rememberSaveable(screen.document.uriString) {
         mutableStateOf<String?>(null)
     }
-    var pendingExternalLink by remember(screen.document.uriString) {
-        mutableStateOf<Uri?>(null)
-    }
     var showGoToChapter by rememberSaveable(screen.document.uriString) {
-        mutableStateOf(false)
-    }
-    var showChapterSearch by rememberSaveable(screen.document.uriString) {
-        mutableStateOf(false)
-    }
-    var chapterSearchQuery by rememberSaveable(screen.document.uriString) {
-        mutableStateOf("")
-    }
-    var chapterSearchCurrent by rememberSaveable(screen.document.uriString) {
-        mutableIntStateOf(0)
-    }
-    var chapterSearchCount by rememberSaveable(screen.document.uriString) {
-        mutableIntStateOf(0)
-    }
-    var chapterSearchRequest by rememberSaveable(screen.document.uriString) {
-        mutableIntStateOf(0)
-    }
-    var chapterSearchBackwards by rememberSaveable(screen.document.uriString) {
         mutableStateOf(false)
     }
     var chapterIndex by rememberSaveable(screen.document.uriString) {
@@ -108,6 +78,23 @@ internal fun EpubReaderScreen(
                 0,
                 screen.book.chapters.lastIndex.coerceAtLeast(0),
             ),
+        )
+    }
+    val renderCacheKey = remember(
+        chapterIndex,
+        preferences.themeMode,
+        preferences.fontChoice,
+        preferences.fontSizeSp,
+        preferences.lineSpacing,
+        preferences.openPreviousChapterAtEnd,
+    ) {
+        EpubRenderCacheKey(
+            chapterIndex = chapterIndex,
+            themeMode = preferences.themeMode,
+            fontChoice = preferences.fontChoice,
+            fontSizeSp = preferences.fontSizeSp,
+            lineSpacingBucket = (preferences.lineSpacing * 100f).roundToInt(),
+            scrollToEnd = preferences.openPreviousChapterAtEnd,
         )
     }
     var scrollFraction by rememberSaveable(screen.document.uriString) {
@@ -149,54 +136,21 @@ internal fun EpubReaderScreen(
     val latestChapterIndex by rememberUpdatedState(chapterIndex)
     val latestScrollFraction by rememberUpdatedState(scrollFraction)
     val latestSectionScrollable by rememberUpdatedState(sectionScrollable)
-    val renderedChapterCache = remember(screen.document.uriString) {
-        mutableStateMapOf<EpubRenderCacheKey, RenderedChapter>()
-    }
-    val renderCacheKey = remember(
-        chapterIndex,
-        preferences.themeMode,
-        preferences.fontChoice,
-        preferences.fontSizeSp,
-        preferences.lineSpacing,
-        preferences.openPreviousChapterAtEnd,
-    ) {
-        EpubRenderCacheKey(
-            chapterIndex = chapterIndex,
-            themeMode = preferences.themeMode,
-            fontChoice = preferences.fontChoice,
-            fontSizeSp = preferences.fontSizeSp,
-            lineSpacingBucket = (preferences.lineSpacing * 100f).roundToInt(),
-            scrollToEnd = preferences.openPreviousChapterAtEnd,
-        )
-    }
 
     fun switchToChapter(nextIndex: Int) {
-        if (nextIndex !in screen.book.chapters.indices || nextIndex == chapterIndex) {
-            return
-        }
-
+        if (nextIndex !in screen.book.chapters.indices || nextIndex == chapterIndex) return
         sectionScrollRequest = null
         sectionScrollable = false
-        val targetFraction = if (nextIndex < chapterIndex && preferences.openPreviousChapterAtEnd) {
-            1f
-        } else {
-            0f
-        }
+        val targetFraction = if (nextIndex < chapterIndex && preferences.openPreviousChapterAtEnd) 1f else 0f
         scrollFraction = targetFraction
         chapterIndex = nextIndex
-
-        chapterSearchQuery = ""
-        chapterSearchCurrent = 0
-        chapterSearchCount = 0
         onSaveProgress(nextIndex, screen.book.chapters.size, targetFraction)
     }
 
     val hapticFeedback = LocalHapticFeedback.current
 
     fun goToPreviousChapter() {
-        if (chapterIndex <= 0) {
-            return
-        }
+        if (chapterIndex <= 0) return
         if (preferences.vibrateOnPageTurn) {
             hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
         }
@@ -204,9 +158,7 @@ internal fun EpubReaderScreen(
     }
 
     fun goToNextChapter() {
-        if (chapterIndex >= screen.book.chapters.lastIndex) {
-            return
-        }
+        if (chapterIndex >= screen.book.chapters.lastIndex) return
         if (preferences.vibrateOnPageTurn) {
             hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
         }
@@ -215,26 +167,10 @@ internal fun EpubReaderScreen(
 
     fun scrubCurrentSection(progress: Float) {
         val cleanProgress = progress.coerceIn(0f, 1f)
-
         ignoreScrollCallbacksUntil = SystemClock.uptimeMillis() + 220L
         scrollFraction = cleanProgress
-
         scrollRequestId += 1
-        sectionScrollRequest = EpubScrollRequest(
-            id = scrollRequestId,
-            progress = cleanProgress,
-        )
-    }
-
-    fun openLocalChapterLink(urlString: String): Boolean {
-        val nextIndex = screen.book.chapters.indexOfFirst { chapter ->
-            chapter.matchesLocalHref(urlString)
-        }
-        if (nextIndex < 0) {
-            return false
-        }
-        switchToChapter(nextIndex)
-        return true
+        sectionScrollRequest = EpubScrollRequest(id = scrollRequestId, progress = cleanProgress)
     }
 
     DisposableEffect(screen.document.uriString) {
@@ -251,17 +187,10 @@ internal fun EpubReaderScreen(
 
     LaunchedEffect(screen.document.uriString, renderCacheKey, renderPalette) {
         ignoreScrollCallbacksUntil = SystemClock.uptimeMillis() + 650L
-
-        renderedChapterCache[renderCacheKey]?.let { cachedChapter ->
-            renderedChapter = cachedChapter
-            chapterError = null
-            return@LaunchedEffect
-        }
-
         renderedChapter = null
         chapterError = null
         runCatching {
-            EpubEngine.render(
+            Fb2Engine.render(
                 book = screen.book,
                 chapterIndex = chapterIndex,
                 preferences = preferences,
@@ -270,45 +199,11 @@ internal fun EpubReaderScreen(
             )
         }
             .onSuccess { chapter ->
-                renderedChapterCache[renderCacheKey] = chapter
-                trimEpubRenderCache(renderedChapterCache, renderCacheKey)
                 renderedChapter = chapter
             }
             .onFailure { throwable ->
                 chapterError = displayError(throwable, renderSectionErrorMessage)
             }
-    }
-
-    LaunchedEffect(screen.document.uriString, renderCacheKey, renderedChapter) {
-        if (renderedChapter == null) {
-            return@LaunchedEffect
-        }
-        delay(80)
-        coroutineScope {
-            listOf(chapterIndex + 1, chapterIndex - 1)
-                .filter { index -> index in screen.book.chapters.indices }
-                .map { neighborIndex ->
-                    val neighborKey = renderCacheKey.copy(chapterIndex = neighborIndex)
-                    if (renderedChapterCache[neighborKey] != null) {
-                        return@map null
-                    }
-                    async {
-                        runCatching {
-                            EpubEngine.render(
-                                book = screen.book,
-                                chapterIndex = neighborIndex,
-                                preferences = preferences,
-                                paletteOverride = renderPalette,
-                            )
-                        }.onSuccess { chapter ->
-                            renderedChapterCache[neighborKey] = chapter
-                            trimEpubRenderCache(renderedChapterCache, renderCacheKey)
-                        }
-                    }
-                }
-                .filterNotNull()
-                .awaitAll()
-        }
     }
 
     if (showSettings) {
@@ -333,28 +228,10 @@ internal fun EpubReaderScreen(
             },
         )
     }
-    pendingExternalLink?.let { uri ->
-        OpenLinkDialog(
-            onDismiss = { pendingExternalLink = null },
-            onOpen = {
-                pendingExternalLink = null
-                openExternalLinkWithChooser(context, uri)
-            },
-        )
-    }
-    BackHandler(enabled = showToc) {
-        showToc = false
-    }
-    BackHandler(enabled = showChapterSearch) {
-        showChapterSearch = false
-        chapterSearchQuery = ""
-    }
+    BackHandler(enabled = showToc) { showToc = false }
     KeepReaderScreenAwake(enabled = preferences.keepScreenOn)
     VolumePageTurnEffect(
-        enabled = preferences.volumeButtonsTurnPages &&
-            !showSettings &&
-            !showGoToChapter &&
-            !showChapterSearch,
+        enabled = preferences.volumeButtonsTurnPages && !showSettings && !showGoToChapter,
         inverted = preferences.invertVolumeButtons,
         onPrevious = ::goToPreviousChapter,
         onNext = ::goToNextChapter,
@@ -376,8 +253,6 @@ internal fun EpubReaderScreen(
                     ReaderMessage(
                         message = chapterError ?: "",
                         onRetry = {
-                            val cacheKey = renderCacheKey
-                            renderedChapterCache.remove(cacheKey)
                             chapterError = null
                         },
                     )
@@ -387,12 +262,12 @@ internal fun EpubReaderScreen(
                     val chapter = renderedChapter ?: return@Box
                     key(screen.document.uriString) {
                         val renderedIndex = chapterIndex
-                            EpubWebView(
-                                chapter = chapter,
-                                currentChapterFileUrl = screen.book.chapters[chapterIndex].file.toURI().toString(),
-                                preferences = preferences,
-                                navigationMode = preferences.navigationMode,
-                                renderPalette = renderPalette,
+                        EpubWebView(
+                            chapter = chapter,
+                            currentChapterFileUrl = "",
+                            preferences = preferences,
+                            navigationMode = preferences.navigationMode,
+                            renderPalette = renderPalette,
                             initialScrollFraction = scrollFraction,
                             scrollRequest = sectionScrollRequest,
                             modifier = Modifier
@@ -419,18 +294,13 @@ internal fun EpubReaderScreen(
                             },
                             onSwipePrevious = ::goToPreviousChapter,
                             onSwipeNext = ::goToNextChapter,
-                            onOpenLocalHref = ::openLocalChapterLink,
-                            onOpenExternalLink = { uri -> pendingExternalLink = uri },
-                            onNoteOpen = { note ->
-                                noteText = note
-                            },
-                            searchQuery = chapterSearchQuery,
-                            searchRequest = chapterSearchRequest,
-                            searchBackwards = chapterSearchBackwards,
-                            onSearchResult = { current, count ->
-                                chapterSearchCurrent = current
-                                chapterSearchCount = count
-                            },
+                            onOpenLocalHref = { false },
+                            onOpenExternalLink = {},
+                            onNoteOpen = { note -> noteText = note },
+                            searchQuery = "",
+                            searchRequest = 0,
+                            searchBackwards = false,
+                            onSearchResult = { _, _ -> },
                         )
                     }
                 }
@@ -465,7 +335,7 @@ internal fun EpubReaderScreen(
                         subtitle = topSubtitle,
                         onBack = onBack,
                         onSettings = { showSettings = true },
-                        onSearch = { showChapterSearch = !showChapterSearch },
+                        onSearch = {},
                         onTableOfContents = { showToc = !showToc },
                         onBookmarkToggle = {
                             onToggleBookmark(
@@ -492,9 +362,7 @@ internal fun EpubReaderScreen(
                             leftEnabled = chapterIndex > 0,
                             rightEnabled = chapterIndex < screen.book.chapters.lastIndex,
                             onLeft = ::goToPreviousChapter,
-                            onCenter = {
-                                showGoToChapter = true
-                            },
+                            onCenter = { showGoToChapter = true },
                             onRight = ::goToNextChapter,
                             progressFraction = scrollFraction,
                             progressPercentFraction = (
@@ -520,32 +388,6 @@ internal fun EpubReaderScreen(
                     onSelect = { nextIndex ->
                         switchToChapter(nextIndex)
                         showToc = false
-                    },
-                    modifier = Modifier.align(Alignment.TopCenter),
-                )
-            }
-
-            if (showReaderChrome && showChapterSearch) {
-                ReaderChapterSearchOverlay(
-                    query = chapterSearchQuery,
-                    current = chapterSearchCurrent,
-                    count = chapterSearchCount,
-                    onQueryChange = { query ->
-                        chapterSearchQuery = query.take(80)
-                        chapterSearchCurrent = 0
-                        chapterSearchCount = 0
-                    },
-                    onPrevious = {
-                        chapterSearchBackwards = true
-                        chapterSearchRequest += 1
-                    },
-                    onNext = {
-                        chapterSearchBackwards = false
-                        chapterSearchRequest += 1
-                    },
-                    onDismiss = {
-                        showChapterSearch = false
-                        chapterSearchQuery = ""
                     },
                     modifier = Modifier.align(Alignment.TopCenter),
                 )

@@ -7,7 +7,6 @@ import android.net.Uri
 import java.io.File
 import java.net.URLDecoder
 import java.net.URLEncoder
-import java.security.MessageDigest
 import java.util.Locale
 import java.util.zip.ZipInputStream
 
@@ -169,12 +168,8 @@ fun supportedZipEntryType(entryName: String): DocumentType? {
     }
 }
 
-private fun stableFileName(value: String): String {
-    val digest = MessageDigest
-        .getInstance("SHA-256")
-        .digest(value.toByteArray(Charsets.UTF_8))
-    return digest.joinToString(separator = "") { byte -> "%02x".format(byte) }.take(24)
-}
+private fun stableFileName(value: String): String =
+    value.hashCode().toUInt().toString(16)
 
 private const val ArchiveEntryUriSeparator = "#areadaArchiveEntry="
 

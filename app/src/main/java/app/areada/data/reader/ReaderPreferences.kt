@@ -68,11 +68,13 @@ data class ReaderPreferences(
     val readingRuler: Boolean = false,
     val readingRulerPosition: Float = ReaderRulerPositionDefault,
     val showGuideIcon: Boolean = true,
+    val openPreviousChapterAtEnd: Boolean = false,
+    val vibrateOnPageTurn: Boolean = false,
 )
 
 fun sanitizeReaderPreferences(preferences: ReaderPreferences): ReaderPreferences =
     preferences.copy(
-        fontSizeSp = preferences.fontSizeSp.coerceIn(14, 30),
+        fontSizeSp = preferences.fontSizeSp.coerceIn(12, 40),
         lineSpacing = preferences.lineSpacing.coerceIn(1.2f, 2.4f),
         readingRulerPosition = sanitizeReadingRulerPosition(preferences.readingRulerPosition),
     )
@@ -89,6 +91,7 @@ data class ReaderRenderPalette(
     val textHex: String,
     val mutedHex: String,
     val accentHex: String,
+    val onSurfaceVariantHex: String,
 )
 
 fun ReaderThemeMode.renderPalette(): ReaderRenderPalette = when (this) {
@@ -98,6 +101,7 @@ fun ReaderThemeMode.renderPalette(): ReaderRenderPalette = when (this) {
         textHex = "#111111",
         mutedHex = "#D6D1C6",
         accentHex = "#6F4BB8",
+        onSurfaceVariantHex = "#666157",
     )
 
     ReaderThemeMode.SEPIA -> ReaderRenderPalette(
@@ -106,6 +110,7 @@ fun ReaderThemeMode.renderPalette(): ReaderRenderPalette = when (this) {
         textHex = "#2C241B",
         mutedHex = "#D3BFA4",
         accentHex = "#744BA2",
+        onSurfaceVariantHex = "#6E5B46",
     )
 
     ReaderThemeMode.DARK -> ReaderRenderPalette(
@@ -114,6 +119,7 @@ fun ReaderThemeMode.renderPalette(): ReaderRenderPalette = when (this) {
         textHex = "#F5F1E6",
         mutedHex = "#34343A",
         accentHex = "#C4A7FF",
+        onSurfaceVariantHex = "#AAA79D",
     )
 
     ReaderThemeMode.SAGE -> ReaderRenderPalette(
@@ -122,6 +128,7 @@ fun ReaderThemeMode.renderPalette(): ReaderRenderPalette = when (this) {
         textHex = "#172014",
         mutedHex = "#C8D7C0",
         accentHex = "#6552A8",
+        onSurfaceVariantHex = "#5A6654",
     )
 
     ReaderThemeMode.BLUSH -> ReaderRenderPalette(
@@ -130,6 +137,7 @@ fun ReaderThemeMode.renderPalette(): ReaderRenderPalette = when (this) {
         textHex = "#241719",
         mutedHex = "#E0C7CD",
         accentHex = "#8B4BB3",
+        onSurfaceVariantHex = "#6E5960",
     )
 
     ReaderThemeMode.ANDROID -> ReaderRenderPalette(
@@ -138,5 +146,6 @@ fun ReaderThemeMode.renderPalette(): ReaderRenderPalette = when (this) {
         textHex = "#111111",
         mutedHex = "#D4CEC3",
         accentHex = "#6F4BB8",
+        onSurfaceVariantHex = "#666157",
     )
 }

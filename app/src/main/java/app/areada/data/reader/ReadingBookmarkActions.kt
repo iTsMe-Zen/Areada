@@ -117,10 +117,10 @@ internal object ReadingBookmarkActions {
         timestamp: Long = System.currentTimeMillis(),
     ): ReadingBookmark {
         val newId = when (bookmark.type) {
-            DocumentType.EPUB -> epubBookmarkId(document.uriString, bookmark.epubChapterIndex, bookmark.epubScrollFraction)
+            DocumentType.EPUB,
+            DocumentType.FB2 -> epubBookmarkId(document.uriString, bookmark.epubChapterIndex, bookmark.epubScrollFraction)
             DocumentType.PDF -> pdfBookmarkId(document.uriString, bookmark.pdfPageIndex)
             DocumentType.TXT,
-            DocumentType.FB2,
             DocumentType.ZIP,
             DocumentType.ARCHIVE -> txtBookmarkId(document.uriString, bookmark.txtScrollFraction)
         }

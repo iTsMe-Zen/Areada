@@ -11,10 +11,12 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.apache.commons.compress.compressors.xz.XZCompressorInputStream
 import java.io.File
 import java.io.FileInputStream
-import java.security.MessageDigest
 import java.util.Locale
 
 object ArchiveBookContainer {
+    private fun archiveCacheDir(context: Context) =
+        File(context.cacheDir, "archive-books").also { it.mkdirs() }
+
     fun listSupportedEntries(
         context: Context,
         archiveUri: Uri,
@@ -96,7 +98,7 @@ object ArchiveBookContainer {
         archiveUri: Uri,
         entry: ZipBookEntry,
     ): ReaderDocument {
-        val cacheDir = File(context.cacheDir, "archive-books").also { it.mkdirs() }
+        val cacheDir = archiveCacheDir(context)
         val extension = entry.displayName
             .substringAfterLast('.', "")
             .lowercase(Locale.ROOT)
@@ -169,7 +171,7 @@ object ArchiveBookContainer {
         archiveUri: Uri,
         entry: ZipBookEntry,
     ): ReaderDocument {
-        val cacheDir = File(context.cacheDir, "archive-books").also { it.mkdirs() }
+        val cacheDir = archiveCacheDir(context)
         val extension = entry.displayName
             .substringAfterLast('.', "")
             .lowercase(Locale.ROOT)
@@ -227,7 +229,7 @@ object ArchiveBookContainer {
         archiveUri: Uri,
         entry: ZipBookEntry,
     ): ReaderDocument {
-        val cacheDir = File(context.cacheDir, "archive-books").also { it.mkdirs() }
+        val cacheDir = archiveCacheDir(context)
         val extension = entry.displayName
             .substringAfterLast('.', "")
             .lowercase(Locale.ROOT)
@@ -275,7 +277,7 @@ object ArchiveBookContainer {
         archiveUri: Uri,
         entry: ZipBookEntry,
     ): ReaderDocument {
-        val cacheDir = File(context.cacheDir, "archive-books").also { it.mkdirs() }
+        val cacheDir = archiveCacheDir(context)
         val extension = entry.displayName
             .substringAfterLast('.', "")
             .lowercase(Locale.ROOT)
@@ -339,7 +341,7 @@ object ArchiveBookContainer {
         archiveUri: Uri,
         entry: ZipBookEntry,
     ): ReaderDocument {
-        val cacheDir = File(context.cacheDir, "archive-books").also { it.mkdirs() }
+        val cacheDir = archiveCacheDir(context)
         val extension = entry.displayName
             .substringAfterLast('.', "")
             .lowercase(Locale.ROOT)
@@ -395,7 +397,7 @@ object ArchiveBookContainer {
         archiveUri: Uri,
         entry: ZipBookEntry,
     ): ReaderDocument {
-        val cacheDir = File(context.cacheDir, "archive-books").also { it.mkdirs() }
+        val cacheDir = archiveCacheDir(context)
         val extension = entry.displayName
             .substringAfterLast('.', "")
             .lowercase(Locale.ROOT)
@@ -459,7 +461,7 @@ object ArchiveBookContainer {
         archiveUri: Uri,
         entry: ZipBookEntry,
     ): ReaderDocument {
-        val cacheDir = File(context.cacheDir, "archive-books").also { it.mkdirs() }
+        val cacheDir = archiveCacheDir(context)
         val extension = entry.displayName
             .substringAfterLast('.', "")
             .lowercase(Locale.ROOT)
@@ -536,7 +538,7 @@ object ArchiveBookContainer {
         archiveUri: Uri,
         entry: ZipBookEntry,
     ): ReaderDocument {
-        val cacheDir = File(context.cacheDir, "archive-books").also { it.mkdirs() }
+        val cacheDir = archiveCacheDir(context)
         val extension = entry.displayName
             .substringAfterLast('.', "")
             .lowercase(Locale.ROOT)
@@ -579,9 +581,5 @@ object ArchiveBookContainer {
     }
 }
 
-private fun archiveStableFileName(value: String): String {
-    val digest = MessageDigest
-        .getInstance("SHA-256")
-        .digest(value.toByteArray(Charsets.UTF_8))
-    return digest.joinToString(separator = "") { byte -> "%02x".format(byte) }.take(24)
-}
+private fun archiveStableFileName(value: String): String =
+    value.hashCode().toUInt().toString(16)

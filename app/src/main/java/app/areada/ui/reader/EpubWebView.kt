@@ -2,6 +2,7 @@ package app.areada.ui.reader
 
 import android.graphics.Color as AndroidColor
 import android.net.Uri
+import android.os.Build
 import android.os.SystemClock
 import android.view.GestureDetector
 import android.view.MotionEvent
@@ -52,6 +53,15 @@ internal fun EpubWebView(
     val backgroundColor = AndroidColor.parseColor(renderPalette.backgroundHex)
     val latestScrollRequest by rememberUpdatedState(scrollRequest)
     val latestNavigationMode by rememberUpdatedState(navigationMode)
+    val latestOnScrollProgressChange by rememberUpdatedState(onScrollProgressChange)
+    val latestOnScrollabilityChange by rememberUpdatedState(onScrollabilityChange)
+    val latestOnReaderTap by rememberUpdatedState(onReaderTap)
+    val latestOnSwipePrevious by rememberUpdatedState(onSwipePrevious)
+    val latestOnSwipeNext by rememberUpdatedState(onSwipeNext)
+    val latestOnNoteOpen by rememberUpdatedState(onNoteOpen)
+    val latestOnOpenExternalLink by rememberUpdatedState(onOpenExternalLink)
+    val latestOnOpenLocalHref by rememberUpdatedState(onOpenLocalHref)
+    val latestOnSearchResult by rememberUpdatedState(onSearchResult)
     val chapterSignature = "${chapter.baseUrl}#${chapter.html.hashCode()}"
 
     AndroidView(
@@ -63,7 +73,7 @@ internal fun EpubWebView(
                 var lastNoteOpenAt = 0L
                 val openNote: (String) -> Unit = { note ->
                     lastNoteOpenAt = SystemClock.uptimeMillis()
-                    onNoteOpen(note)
+                    latestOnNoteOpen(note)
                 }
                 fun publishScrollState(force: Boolean = false) {
                     val (progress, canScroll) = epubWebViewScrollState(this)
@@ -71,12 +81,17 @@ internal fun EpubWebView(
                     if (force || abs(progress - lastProgress) >= 0.002f || now - lastProgressAt >= 32L) {
                         lastProgress = progress
                         lastProgressAt = now
-                        onScrollProgressChange(progress)
+                        latestOnScrollProgressChange(progress)
                     }
                     if (force || lastCanScroll != canScroll) {
                         lastCanScroll = canScroll
-                        onScrollabilityChange(canScroll)
+                        latestOnScrollabilityChange(canScroll)
                     }
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    setLayerType(View.LAYER_TYPE_HARDWARE, null)
+                } else {
+                    setLayerType(View.LAYER_TYPE_NONE, null)
                 }
                 setBackgroundColor(backgroundColor)
                 isVerticalScrollBarEnabled = false
@@ -92,6 +107,7 @@ internal fun EpubWebView(
                 @Suppress("DEPRECATION")
                 settings.allowUniversalAccessFromFileURLs = false
                 settings.loadWithOverviewMode = true
+                settings.domStorageEnabled = true
                 settings.useWideViewPort = true
                 settings.builtInZoomControls = true
                 settings.displayZoomControls = false
@@ -99,7 +115,7 @@ internal fun EpubWebView(
                 addJavascriptInterface(NoteBridge(openNote), "AreadaNote")
                 setFindListener { activeMatchOrdinal, numberOfMatches, isDoneCounting ->
                     if (isDoneCounting) {
-                        onSearchResult(
+                        latestOnSearchResult(
                             if (numberOfMatches > 0) activeMatchOrdinal + 1 else 0,
                             numberOfMatches,
                         )
@@ -120,7 +136,7 @@ internal fun EpubWebView(
                             query = searchQuery,
                             request = searchRequest,
                             backwards = searchBackwards,
-                            onSearchResult = onSearchResult,
+                            onSearchResult = latestOnSearchResult,
                         )
                     }
 
@@ -131,7 +147,7 @@ internal fun EpubWebView(
                         val targetUrl = request?.url ?: return false
                         val scheme = targetUrl.scheme?.lowercase()
                         if (scheme == "http" || scheme == "https") {
-                            onOpenExternalLink(targetUrl)
+                            latestOnOpenExternalLink(targetUrl)
                             return true
                         }
 
@@ -140,7 +156,7 @@ internal fun EpubWebView(
                         val baseTarget = targetUrlString.substringBefore('#')
                         val currentBase = currentChapterFileUrl.substringBefore('#')
 
-                        if (baseTarget != currentBase && onOpenLocalHref(targetUrlString)) {
+                        if (baseTarget != currentBase && latestOnOpenLocalHref(targetUrlString)) {
                             return true
                         }
 
@@ -176,7 +192,9 @@ internal fun EpubWebView(
                 val gestureDetector = GestureDetector(
                     context,
                     object : GestureDetector.SimpleOnGestureListener() {
-                        override fun onSingleTapConfirmed(event: MotionEvent): Boolean {
+                        var handledByUp = false
+
+                        override fun onSingleTapUp(event: MotionEvent): Boolean {
                             if (SystemClock.uptimeMillis() - lastNoteOpenAt < 700L) {
                                 return true
                             }
@@ -185,16 +203,29 @@ internal fun EpubWebView(
                                 if (viewWidth > 0f) {
                                     val xRatio = event.x / viewWidth
                                     if (xRatio < 0.33f) {
-                                        onSwipePrevious()
+                                        latestOnSwipePrevious()
+                                        handledByUp = true
                                         return true
                                     }
                                     if (xRatio > 0.67f) {
-                                        onSwipeNext()
+                                        latestOnSwipeNext()
+                                        handledByUp = true
                                         return true
                                     }
                                 }
                             }
-                            onReaderTap()
+                            return false
+                        }
+
+                        override fun onSingleTapConfirmed(event: MotionEvent): Boolean {
+                            if (handledByUp) {
+                                handledByUp = false
+                                return true
+                            }
+                            if (SystemClock.uptimeMillis() - lastNoteOpenAt < 700L) {
+                                return true
+                            }
+                            latestOnReaderTap()
                             return false
                         }
 
@@ -223,9 +254,9 @@ internal fun EpubWebView(
                             }
 
                             if (deltaX < 0f) {
-                                onSwipeNext()
+                                latestOnSwipeNext()
                             } else {
-                                onSwipePrevious()
+                                latestOnSwipePrevious()
                             }
                             return true
                         }
@@ -304,6 +335,7 @@ internal data class EpubRenderCacheKey(
     val fontChoice: ReaderFontChoice,
     val fontSizeSp: Int,
     val lineSpacingBucket: Int,
+    val scrollToEnd: Boolean,
 )
 
 internal fun trimEpubRenderCache(

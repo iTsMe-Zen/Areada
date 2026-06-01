@@ -117,28 +117,7 @@ internal fun AppWindowBackgroundEffect() {
 
         window.setBackgroundDrawable(ColorDrawable(backgroundArgb))
         decorView.setBackgroundColor(backgroundArgb)
-
-        @Suppress("DEPRECATION")
-        window.statusBarColor = backgroundArgb
-
-        @Suppress("DEPRECATION")
-        window.navigationBarColor = backgroundArgb
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            @Suppress("DEPRECATION")
-            window.isStatusBarContrastEnforced = false
-
-            @Suppress("DEPRECATION")
-            window.isNavigationBarContrastEnforced = false
-
-            @Suppress("DEPRECATION")
-            window.navigationBarDividerColor = backgroundArgb
-        }
-
-        WindowCompat.getInsetsController(window, decorView).apply {
-            isAppearanceLightStatusBars = useLightBars
-            isAppearanceLightNavigationBars = useLightBars
-        }
+        applyWindowBarColors(window, decorView, backgroundArgb, useLightBars)
     }
 }
 
@@ -219,28 +198,7 @@ internal fun ReaderStatusBarHidden(hidden: Boolean) {
 
         window.setBackgroundDrawable(ColorDrawable(backgroundArgb))
         decorView.setBackgroundColor(backgroundArgb)
-
-        @Suppress("DEPRECATION")
-        window.statusBarColor = backgroundArgb
-
-        @Suppress("DEPRECATION")
-        window.navigationBarColor = backgroundArgb
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            @Suppress("DEPRECATION")
-            window.isStatusBarContrastEnforced = false
-
-            @Suppress("DEPRECATION")
-            window.isNavigationBarContrastEnforced = false
-
-            @Suppress("DEPRECATION")
-            window.navigationBarDividerColor = backgroundArgb
-        }
-
-        WindowCompat.getInsetsController(window, decorView).apply {
-            isAppearanceLightStatusBars = useLightBars
-            isAppearanceLightNavigationBars = useLightBars
-        }
+        applyWindowBarColors(window, decorView, backgroundArgb, useLightBars)
 
         onDispose {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -252,28 +210,7 @@ internal fun ReaderStatusBarHidden(hidden: Boolean) {
 
             window.setBackgroundDrawable(ColorDrawable(backgroundArgb))
             decorView.setBackgroundColor(backgroundArgb)
-
-            @Suppress("DEPRECATION")
-            window.statusBarColor = backgroundArgb
-
-            @Suppress("DEPRECATION")
-            window.navigationBarColor = backgroundArgb
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                @Suppress("DEPRECATION")
-                window.isStatusBarContrastEnforced = false
-
-                @Suppress("DEPRECATION")
-                window.isNavigationBarContrastEnforced = false
-
-                @Suppress("DEPRECATION")
-                window.navigationBarDividerColor = backgroundArgb
-            }
-
-            WindowCompat.getInsetsController(window, decorView).apply {
-                isAppearanceLightStatusBars = useLightBars
-                isAppearanceLightNavigationBars = useLightBars
-            }
+            applyWindowBarColors(window, decorView, backgroundArgb, useLightBars)
         }
     }
 }
@@ -302,6 +239,7 @@ internal fun rememberReaderRenderPalette(mode: ReaderThemeMode): ReaderRenderPal
             textHex = colors.onBackground.toCssHex(),
             mutedHex = colors.outline.toCssHex(),
             accentHex = colors.primary.toCssHex(),
+            onSurfaceVariantHex = colors.onSurfaceVariant.toCssHex(),
         )
     } else {
         mode.renderPalette()
@@ -376,5 +314,34 @@ internal fun openExternalLinkWithChooser(
         )
     }.onFailure {
         Toast.makeText(context, context.getString(R.string.no_app_can_open_link), Toast.LENGTH_SHORT).show()
+    }
+}
+
+private fun applyWindowBarColors(
+    window: android.view.Window,
+    decorView: View,
+    backgroundArgb: Int,
+    useLightBars: Boolean,
+) {
+    @Suppress("DEPRECATION")
+    window.statusBarColor = backgroundArgb
+
+    @Suppress("DEPRECATION")
+    window.navigationBarColor = backgroundArgb
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        @Suppress("DEPRECATION")
+        window.isStatusBarContrastEnforced = false
+
+        @Suppress("DEPRECATION")
+        window.isNavigationBarContrastEnforced = false
+
+        @Suppress("DEPRECATION")
+        window.navigationBarDividerColor = backgroundArgb
+    }
+
+    WindowCompat.getInsetsController(window, decorView).apply {
+        isAppearanceLightStatusBars = useLightBars
+        isAppearanceLightNavigationBars = useLightBars
     }
 }

@@ -24,9 +24,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -51,6 +56,7 @@ internal fun ReaderSettingsSheet(
     showReadingControls: Boolean = true,
     showLanguageSelector: Boolean = false,
     showGuideIconToggle: Boolean = false,
+    showOpenPreviousChapterAtEnd: Boolean = false,
     onBookNoteClick: (() -> Unit)? = null,
     onDismiss: () -> Unit,
     onPreferencesChange: (ReaderPreferences) -> Unit,
@@ -81,6 +87,14 @@ internal fun ReaderSettingsSheet(
     }
     val localizedContext = LocalContext.current
 
+    val consumeBottomOverScroll = remember {
+        object : NestedScrollConnection {
+            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+                return if (available.y > 0f) available else Offset.Zero
+            }
+        }
+    }
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
@@ -91,7 +105,8 @@ internal fun ReaderSettingsSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(max = maxSheetHeight)
-                .verticalScroll(rememberScrollState())
+                .nestedScroll(consumeBottomOverScroll)
+                .verticalScroll(rememberScrollState(), overscrollEffect = null)
                 .navigationBarsPadding()
                 .padding(horizontal = SettingsSheetHorizontalPadding, vertical = 10.dp),
         ) {
@@ -159,16 +174,16 @@ internal fun ReaderSettingsSheet(
                 SettingsSectionSpacer()
                 SettingsSlider(
                     label = stringResource(R.string.font_size),
-                    valueLabel = "${fontSizeDraft.roundToInt().coerceIn(14, 30)}sp",
+                    valueLabel = "${fontSizeDraft.roundToInt().coerceIn(12, 40)}sp",
                     value = fontSizeDraft,
                     onValueChange = { value -> fontSizeDraft = value },
                     onValueChangeFinished = {
                         onPreferencesChange(
-                            preferences.copy(fontSizeSp = fontSizeDraft.roundToInt().coerceIn(14, 30)),
+                            preferences.copy(fontSizeSp = fontSizeDraft.roundToInt().coerceIn(12, 40)),
                         )
                     },
-                    valueRange = 14f..30f,
-                    steps = 15,
+                        valueRange = 12f..40f,
+                        steps = 27,
                 )
                 SettingsControlSpacer()
                 SettingsSlider(
@@ -193,53 +208,79 @@ internal fun ReaderSettingsSheet(
                         },
                     )
                 }
-                SettingsControlSpacer()
-                SettingsBinaryRow(
-                    label = stringResource(R.string.reading_ruler),
-                    checked = preferences.readingRuler,
-                    onCheckedChange = { checked ->
-                        onPreferencesChange(
-                            preferences.copy(
-                                readingRuler = checked,
-                                readingRulerPosition = sanitizeReadingRulerPosition(rulerPositionDraft),
-                            ),
-                        )
-                    },
-                )
-                if (preferences.readingRuler) {
-                    SettingsControlSpacer()
-                    SettingsSlider(
-                        label = stringResource(R.string.ruler_position),
-                        valueLabel = readingRulerPositionLabel(rulerPositionDraft),
-                        value = rulerPositionDraft,
-                        onValueChange = { value -> rulerPositionDraft = value },
-                        onValueChangeFinished = {
-                            val sanitized = sanitizeReadingRulerPosition(rulerPositionDraft)
-                            rulerPositionDraft = sanitized
-                            onPreferencesChange(preferences.copy(readingRulerPosition = sanitized))
-                        },
-                        valueRange = ReaderRulerPositionMin..ReaderRulerPositionMax,
-                        steps = 13,
-                    )
-                }
-                SettingsBinaryRow(
-                    label = stringResource(R.string.keep_screen_on),
-                    checked = preferences.keepScreenOn,
-                    onCheckedChange = { checked -> onPreferencesChange(preferences.copy(keepScreenOn = checked)) },
-                )
-                SettingsBinaryRow(
-                    label = stringResource(R.string.volume_buttons_turn_pages),
-                    checked = preferences.volumeButtonsTurnPages,
-                    onCheckedChange = { checked ->
-                        onPreferencesChange(preferences.copy(volumeButtonsTurnPages = checked))
-                    },
-                )
-                if (preferences.volumeButtonsTurnPages) {
+                SettingsSectionSpacer()
+                CollapsibleSettingsSection(
+                    title = stringResource(R.string.additional_settings),
+                    initialExpanded = false,
+                ) {
                     SettingsBinaryRow(
-                        label = stringResource(R.string.invert_volume_buttons),
-                        checked = preferences.invertVolumeButtons,
+                        label = stringResource(R.string.reading_ruler),
+                        checked = preferences.readingRuler,
                         onCheckedChange = { checked ->
-                            onPreferencesChange(preferences.copy(invertVolumeButtons = checked))
+                            onPreferencesChange(
+                                preferences.copy(
+                                    readingRuler = checked,
+                                    readingRulerPosition = sanitizeReadingRulerPosition(rulerPositionDraft),
+                                ),
+                            )
+                        },
+                    )
+                    if (preferences.readingRuler) {
+                        SettingsControlSpacer()
+                        SettingsSlider(
+                            label = stringResource(R.string.ruler_position),
+                            valueLabel = readingRulerPositionLabel(rulerPositionDraft),
+                            value = rulerPositionDraft,
+                            onValueChange = { value -> rulerPositionDraft = value },
+                            onValueChangeFinished = {
+                                val sanitized = sanitizeReadingRulerPosition(rulerPositionDraft)
+                                rulerPositionDraft = sanitized
+                                onPreferencesChange(preferences.copy(readingRulerPosition = sanitized))
+                            },
+                            valueRange = ReaderRulerPositionMin..ReaderRulerPositionMax,
+                            steps = 13,
+                        )
+                    }
+                    SettingsControlSpacer()
+                    SettingsBinaryRow(
+                        label = stringResource(R.string.keep_screen_on),
+                        checked = preferences.keepScreenOn,
+                        onCheckedChange = { checked -> onPreferencesChange(preferences.copy(keepScreenOn = checked)) },
+                    )
+                    SettingsControlSpacer()
+                    SettingsBinaryRow(
+                        label = stringResource(R.string.volume_buttons_turn_pages),
+                        checked = preferences.volumeButtonsTurnPages,
+                        onCheckedChange = { checked ->
+                            onPreferencesChange(preferences.copy(volumeButtonsTurnPages = checked))
+                        },
+                    )
+                    if (preferences.volumeButtonsTurnPages) {
+                        SettingsControlSpacer()
+                        SettingsBinaryRow(
+                            label = stringResource(R.string.invert_volume_buttons),
+                            checked = preferences.invertVolumeButtons,
+                            onCheckedChange = { checked ->
+                                onPreferencesChange(preferences.copy(invertVolumeButtons = checked))
+                            },
+                        )
+                    }
+                    if (showOpenPreviousChapterAtEnd) {
+                        SettingsControlSpacer()
+                        SettingsBinaryRow(
+                            label = stringResource(R.string.open_previous_chapter_at_end),
+                            checked = preferences.openPreviousChapterAtEnd,
+                            onCheckedChange = { checked ->
+                                onPreferencesChange(preferences.copy(openPreviousChapterAtEnd = checked))
+                            },
+                        )
+                    }
+                    SettingsControlSpacer()
+                    SettingsBinaryRow(
+                        label = stringResource(R.string.vibrate_on_page_turn),
+                        checked = preferences.vibrateOnPageTurn,
+                        onCheckedChange = { checked ->
+                            onPreferencesChange(preferences.copy(vibrateOnPageTurn = checked))
                         },
                     )
                 }
@@ -258,4 +299,5 @@ internal fun ReaderSettingsSheet(
         }
         }
     }
+
 }

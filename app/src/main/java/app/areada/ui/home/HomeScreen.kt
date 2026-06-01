@@ -1,6 +1,11 @@
 package app.areada.ui.home
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -68,6 +73,8 @@ import app.areada.data.library.LibraryFolderPickerEntry
 import app.areada.data.library.LibraryRoot
 import app.areada.data.library.LibrarySearchResult
 import app.areada.data.library.LibrarySortMode
+import app.areada.data.library.sortReadingBookmarks
+import app.areada.data.library.sortRecentDocuments
 import app.areada.data.reader.ReaderPreferences
 import app.areada.data.reader.ReadingBookmark
 import app.areada.data.reader.ReadingProgress
@@ -514,14 +521,16 @@ internal fun HomeScreen(
     val visibleSearchResults = remember(searchResults, fileFilter, folderDocumentTypesById) {
         searchResults.filterSearchResultsByLibraryFileFilter(fileFilter, folderDocumentTypesById)
     }
-    val visibleBookmarks = remember(bookmarks, fileFilter, pinnedLibraryItemIds) {
+    val visibleBookmarks = remember(bookmarks, fileFilter, sortMode, pinnedLibraryItemIds) {
         bookmarks
             .filterBookmarksByLibraryFileFilter(fileFilter)
+            .let { sortReadingBookmarks(it, sortMode) }
             .sortedByDescending { it.uriString in pinnedLibraryItemIds }
     }
-    val visibleRecents = remember(recents, fileFilter, pinnedLibraryItemIds) {
+    val visibleRecents = remember(recents, fileFilter, sortMode, progressByUri, pinnedLibraryItemIds) {
         recents
             .filterRecentsByLibraryFileFilter(fileFilter)
+            .let { sortRecentDocuments(it, sortMode, progressByUri) }
             .sortedByDescending { it.uriString in pinnedLibraryItemIds }
     }
     LaunchedEffect(searchQuery) {
@@ -813,10 +822,25 @@ internal fun HomeScreen(
                         onFocusChanged = { focused -> searchFocused = focused },
                         modifier = Modifier.weight(1f),
                     )
+                    LibrarySortButton(
+                        sortMode = sortMode,
+                        expanded = showSortMenu,
+                        onClick = { showSortMenu = !showSortMenu },
+                    )
                     LibraryFilterButton(
                         filter = fileFilter,
                         expanded = showFileFilter,
                         onClick = { showFileFilter = !showFileFilter },
+                    )
+                }
+                if (showSortMenu) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LibrarySortInlinePanel(
+                        selectedSortMode = sortMode,
+                        onSelectSortMode = { selectedSortMode ->
+                            onSortModeChange(selectedSortMode)
+                            showSortMenu = false
+                        },
                     )
                 }
                 if (showFileFilter) {
@@ -944,40 +968,6 @@ internal fun HomeScreen(
             }
 
             if (selectedHomeTab == HomeTab.Collection) {
-                if (selectedRootUriString != null && roots.isNotEmpty()) {
-                    item {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = collectionTitle,
-                                modifier = Modifier.weight(1f),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                            LibrarySortButton(
-                                sortMode = sortMode,
-                                expanded = showSortMenu,
-                                onClick = { showSortMenu = !showSortMenu },
-                            )
-                        }
-                        if (showSortMenu) {
-                            Spacer(modifier = Modifier.height(8.dp))
-                            LibrarySortInlinePanel(
-                                selectedSortMode = sortMode,
-                                onSelectSortMode = { selectedSortMode ->
-                                    onSortModeChange(selectedSortMode)
-                                    showSortMenu = false
-                                },
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(10.dp))
-                    }
-                }
                 if (searchQuery.isNotBlank()) {
                     item {
                         SearchResults(
@@ -1137,36 +1127,48 @@ internal fun HomeScreen(
                         .padding(horizontal = 28.dp),
                 )
             }
-        }
-        if (isSelectionMode) {
-            val hasMarkableItems = selectedHomeTab != HomeTab.Collection ||
-                selectedItemIds.keys.any { key ->
-                    if (!key.startsWith("book:")) return@any false
-                    val bookId = key.removePrefix("book:")
-                    val book = books.firstOrNull { it.id == bookId }
-                    book != null && book.type != DocumentType.ZIP
+            AnimatedVisibility(
+                visible = isSelectionMode,
+                enter = fadeIn() + slideInVertically(initialOffsetY = { -it }),
+                exit = fadeOut() + slideOutVertically(targetOffsetY = { -it }),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .statusBarsPadding(),
+            ) {
+                val hasMarkableItems = when (selectedHomeTab) {
+                    HomeTab.Collection -> selectedItemIds.keys.all { key ->
+                        if (!key.startsWith("book:")) return@all false
+                        val bookId = key.removePrefix("book:")
+                        val book = books.firstOrNull { it.id == bookId }
+                        book != null && book.type != DocumentType.ZIP && book.type != DocumentType.ARCHIVE
+                    }
+                    HomeTab.Reading -> selectedItemIds.keys.any { key ->
+                        bookStatusByUri[key] != BookStatus.Finished
+                    }
+                    HomeTab.Bookmarks -> false
                 }
-            BatchActionBar(
-                selectedCount = selectedItemIds.size,
-                isCollectionTab = selectedHomeTab == HomeTab.Collection,
-                onClearSelection = { selectedItemIds.clear() },
-                onBatchMarkFinished = if (hasMarkableItems) {
-                    { batchUpdateBookStatus(BookStatus.Finished); selectedItemIds.clear() }
-                } else null,
-                onBatchMarkReading = if (hasMarkableItems) {
-                    { batchUpdateBookStatus(BookStatus.Reading); selectedItemIds.clear() }
-                } else null,
-                onBatchPin = {
-                    batchTogglePin()
-                    selectedItemIds.clear()
-                },
-                onBatchRemove = if (selectedHomeTab != HomeTab.Collection) {
-                    { batchConfirmAction = "remove" }
-                } else null,
-                onBatchDelete = if (selectedHomeTab == HomeTab.Collection) {
-                    { batchConfirmAction = "delete" }
-                } else null,
-            )
+                BatchActionBar(
+                    selectedCount = selectedItemIds.size,
+                    isCollectionTab = selectedHomeTab == HomeTab.Collection,
+                    onClearSelection = { selectedItemIds.clear() },
+                    onBatchMarkFinished = if (hasMarkableItems) {
+                        { batchUpdateBookStatus(BookStatus.Finished); selectedItemIds.clear() }
+                    } else null,
+                    onBatchMarkReading = if (hasMarkableItems && selectedHomeTab == HomeTab.Collection) {
+                        { batchUpdateBookStatus(BookStatus.Reading); selectedItemIds.clear() }
+                    } else null,
+                    onBatchPin = {
+                        batchTogglePin()
+                        selectedItemIds.clear()
+                    },
+                    onBatchRemove = if (selectedHomeTab != HomeTab.Collection) {
+                        { batchConfirmAction = "remove" }
+                    } else null,
+                    onBatchDelete = if (selectedHomeTab == HomeTab.Collection) {
+                        { batchConfirmAction = "delete" }
+                    } else null,
+                )
+            }
         }
         when (batchConfirmAction) {
             "delete" -> ConfirmDeleteDialog(

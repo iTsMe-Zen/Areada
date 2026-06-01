@@ -18,6 +18,7 @@ import app.areada.data.reader.ReadingProgress
 import app.areada.data.reader.RecentDocument
 import app.areada.data.ZipBookEntry
 import app.areada.reader.epub.EpubBook
+import app.areada.reader.fb2.Fb2Book
 
 data class ReaderUiState(
     val isLoading: Boolean = false,
@@ -55,6 +56,13 @@ sealed interface ReaderScreen {
     data class Epub(
         val document: ReaderDocument,
         val book: EpubBook,
+        val initialChapterIndex: Int,
+        val initialScrollFraction: Float,
+    ) : ReaderScreen
+
+    data class Fb2(
+        val document: ReaderDocument,
+        val book: Fb2Book,
         val initialChapterIndex: Int,
         val initialScrollFraction: Float,
     ) : ReaderScreen
