@@ -85,6 +85,8 @@ internal fun Fb2ReaderScreen(
         preferences.themeMode,
         preferences.fontChoice,
         preferences.fontSizeSp,
+        preferences.verticalMargin,
+        preferences.sideMargin,
         preferences.lineSpacing,
         preferences.openPreviousChapterAtEnd,
     ) {
@@ -93,6 +95,8 @@ internal fun Fb2ReaderScreen(
             themeMode = preferences.themeMode,
             fontChoice = preferences.fontChoice,
             fontSizeSp = preferences.fontSizeSp,
+            verticalMargin = preferences.verticalMargin,
+            sideMargin = preferences.sideMargin,
             lineSpacingBucket = (preferences.lineSpacing * 100f).roundToInt(),
             scrollToEnd = preferences.openPreviousChapterAtEnd,
         )

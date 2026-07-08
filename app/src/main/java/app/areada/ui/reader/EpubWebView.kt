@@ -334,6 +334,8 @@ internal data class EpubRenderCacheKey(
     val themeMode: ReaderThemeMode,
     val fontChoice: ReaderFontChoice,
     val fontSizeSp: Int,
+    val verticalMargin: Int,
+    val sideMargin: Int,
     val lineSpacingBucket: Int,
     val scrollToEnd: Boolean,
 )
