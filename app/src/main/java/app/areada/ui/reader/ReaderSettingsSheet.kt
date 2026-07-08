@@ -91,6 +91,12 @@ internal fun ReaderSettingsSheet(
     LaunchedEffect(preferences.readingRulerPosition) {
         rulerPositionDraft = preferences.readingRulerPosition
     }
+    LaunchedEffect(preferences.verticalMargin) {
+        pageMarginVerticalDraft = preferences.verticalMargin.toFloat()
+    }
+    LaunchedEffect(preferences.sideMargin) {
+        pageMarginSidesDraft = preferences.sideMargin.toFloat()
+    }
     val localizedContext = LocalContext.current
 
     val consumeBottomOverScroll = remember {
@@ -224,30 +230,30 @@ internal fun ReaderSettingsSheet(
                 SettingsSectionSpacer()
                 SettingsSlider(
                     label = stringResource(R.string.page_margin_vertical),
-                    valueLabel = "${pageMarginVerticalDraft.roundToInt().coerceIn(0, 50)}",
+                    valueLabel = "${pageMarginVerticalDraft.roundToInt().coerceIn(0, 25)}",
                     value = pageMarginVerticalDraft,
                     onValueChange = { value -> pageMarginVerticalDraft = value },
                     onValueChangeFinished = {
                         onPreferencesChange(
-                            preferences.copy(verticalMargin = pageMarginVerticalDraft.roundToInt().coerceIn(0, 50)),
+                            preferences.copy(verticalMargin = pageMarginVerticalDraft.roundToInt().coerceIn(0, 25)),
                         )
                     },
-                    valueRange = 0f..50f,
-                    steps = 50,
+                    valueRange = 0f..25f,
+                    steps = 10,
                 )
                 SettingsControlSpacer()
                 SettingsSlider(
                     label = stringResource(R.string.page_margin_sides),
-                    valueLabel = "${pageMarginSidesDraft.roundToInt().coerceIn(0, 50)}",
+                    valueLabel = "${pageMarginSidesDraft.roundToInt().coerceIn(0, 25)}",
                     value = pageMarginSidesDraft,
                     onValueChange = { value -> pageMarginSidesDraft = value },
                     onValueChangeFinished = {
                         onPreferencesChange(
-                            preferences.copy(sideMargin = pageMarginSidesDraft.roundToInt().coerceIn(0, 50)),
+                            preferences.copy(sideMargin = pageMarginSidesDraft.roundToInt().coerceIn(0, 25)),
                         )
                     },
-                    valueRange = 0f..50f,
-                    steps = 50,
+                    valueRange = 0f..25f,
+                    steps = 10,
                 )
 
                 // Additional

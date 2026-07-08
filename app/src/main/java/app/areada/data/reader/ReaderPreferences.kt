@@ -78,8 +78,8 @@ fun sanitizeReaderPreferences(preferences: ReaderPreferences): ReaderPreferences
     preferences.copy(
         fontSizeSp = preferences.fontSizeSp.coerceIn(12, 40),
         lineSpacing = preferences.lineSpacing.coerceIn(1.2f, 2.4f),
-        verticalMargin = preferences.verticalMargin.coerceIn(0, 50),
-        sideMargin = preferences.sideMargin.coerceIn(0, 50),
+        verticalMargin = preferences.verticalMargin.coerceIn(0, 25),
+        sideMargin = preferences.sideMargin.coerceIn(0, 25),
         readingRulerPosition = sanitizeReadingRulerPosition(preferences.readingRulerPosition),
     )
 

@@ -154,8 +154,8 @@ object EpubEngine {
         val palette = paletteOverride ?: preferences.themeMode.renderPalette()
         val fontSize = preferences.fontSizeSp.coerceIn(14, 30)
         val lineSpacing = preferences.lineSpacing.coerceIn(1.2f, 2.4f)
-        val verticalMargin = preferences.verticalMargin.coerceIn(0, 50)
-        val sideMargin = preferences.sideMargin.coerceIn(0, 50)
+        val verticalMargin = preferences.verticalMargin.coerceIn(0, 25)
+        val sideMargin = preferences.sideMargin.coerceIn(0, 25)
         val scrollThumbColor = palette.onSurfaceVariantHex
         val normalizedDocument = parseChapterDocument(chapter.file, baseUrl)
         AreadaCacheManager.withCacheLock {
@@ -194,7 +194,6 @@ object EpubEngine {
               line-height: $lineSpacing !important;
             }
             body {
-              padding: 0;
               background: red;
               word-break: break-word;
               overflow-wrap: break-word;
@@ -202,6 +201,7 @@ object EpubEngine {
               word-wrap: break-word;
             }
             #content {
+                background: green;
                 padding: 76px ${sideMargin}vw 132px;
             }
             ::-webkit-scrollbar {
@@ -222,7 +222,6 @@ object EpubEngine {
             body * {
               text-decoration: none !important;
               text-decoration-line: none !important;
-              background: green;
             }
             p, div, span, li, td, th, blockquote, pre, em, strong, i, b, u, a, font, small, sup, sub, ins, section, article {
               font-family: inherit !important;
