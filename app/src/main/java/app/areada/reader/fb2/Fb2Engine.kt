@@ -105,7 +105,6 @@ object Fb2Engine {
                         word-wrap: break-word;
                     }
                     #content {
-                        background: green;
                         padding: 76px ${pageMargin}vw 132px;
                     }
                     ::-webkit-scrollbar {
