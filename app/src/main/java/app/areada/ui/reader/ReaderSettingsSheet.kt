@@ -68,6 +68,12 @@ internal fun ReaderSettingsSheet(
     var lineSpacingDraft by rememberSaveable {
         mutableFloatStateOf(preferences.lineSpacing)
     }
+    var pageMarginVerticalDraft by rememberSaveable {
+        mutableFloatStateOf(preferences.verticalMargin.toFloat())
+    }
+    var pageMarginSidesDraft by rememberSaveable {
+        mutableFloatStateOf(preferences.sideMargin.toFloat())
+    }
     var rulerPositionDraft by rememberSaveable {
         mutableFloatStateOf(preferences.readingRulerPosition)
     }
@@ -162,6 +168,7 @@ internal fun ReaderSettingsSheet(
                 }
             }
             if (showReadingControls) {
+                // displayLabel
                 SettingsSectionSpacer()
                 SettingsSection(title = stringResource(R.string.font)) {
                     SegmentedSettingGrid(
@@ -171,6 +178,8 @@ internal fun ReaderSettingsSheet(
                         onSelect = { choice -> onPreferencesChange(preferences.copy(fontChoice = choice)) },
                     )
                 }
+
+                // Text
                 SettingsSectionSpacer()
                 SettingsSlider(
                     label = stringResource(R.string.font_size),
@@ -182,8 +191,8 @@ internal fun ReaderSettingsSheet(
                             preferences.copy(fontSizeSp = fontSizeDraft.roundToInt().coerceIn(12, 40)),
                         )
                     },
-                        valueRange = 12f..40f,
-                        steps = 27,
+                    valueRange = 12f..40f,
+                    steps = 27,
                 )
                 SettingsControlSpacer()
                 SettingsSlider(
@@ -197,6 +206,8 @@ internal fun ReaderSettingsSheet(
                     valueRange = 1.2f..2.4f,
                     steps = 11,
                 )
+
+                // Navigation
                 SettingsControlSpacer()
                 SettingsSection(title = stringResource(R.string.page_navigation)) {
                     SegmentedSettingGrid(
@@ -208,7 +219,39 @@ internal fun ReaderSettingsSheet(
                         },
                     )
                 }
+
+                // Margins
                 SettingsSectionSpacer()
+                SettingsSlider(
+                    label = stringResource(R.string.page_margin_vertical),
+                    valueLabel = "${pageMarginVerticalDraft.roundToInt().coerceIn(0, 50)}",
+                    value = pageMarginVerticalDraft,
+                    onValueChange = { value -> pageMarginVerticalDraft = value },
+                    onValueChangeFinished = {
+                        onPreferencesChange(
+                            preferences.copy(verticalMargin = pageMarginVerticalDraft.roundToInt().coerceIn(0, 50)),
+                        )
+                    },
+                    valueRange = 0f..50f,
+                    steps = 50,
+                )
+                SettingsControlSpacer()
+                SettingsSlider(
+                    label = stringResource(R.string.page_margin_sides),
+                    valueLabel = "${pageMarginSidesDraft.roundToInt().coerceIn(0, 50)}",
+                    value = pageMarginSidesDraft,
+                    onValueChange = { value -> pageMarginSidesDraft = value },
+                    onValueChangeFinished = {
+                        onPreferencesChange(
+                            preferences.copy(sideMargin = pageMarginSidesDraft.roundToInt().coerceIn(0, 50)),
+                        )
+                    },
+                    valueRange = 0f..50f,
+                    steps = 50,
+                )
+
+                // Additional
+                SettingsControlSpacer()
                 CollapsibleSettingsSection(
                     title = stringResource(R.string.additional_settings),
                     initialExpanded = false,
