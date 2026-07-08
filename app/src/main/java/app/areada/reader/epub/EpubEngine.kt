@@ -154,7 +154,6 @@ object EpubEngine {
         val palette = paletteOverride ?: preferences.themeMode.renderPalette()
         val fontSize = preferences.fontSizeSp.coerceIn(14, 30)
         val lineSpacing = preferences.lineSpacing.coerceIn(1.2f, 2.4f)
-        val verticalMargin = preferences.verticalMargin.coerceIn(0, 25)
         val sideMargin = preferences.sideMargin.coerceIn(0, 25)
         val scrollThumbColor = palette.onSurfaceVariantHex
         val normalizedDocument = parseChapterDocument(chapter.file, baseUrl)
@@ -194,14 +193,12 @@ object EpubEngine {
               line-height: $lineSpacing !important;
             }
             body {
-              background: red;
               word-break: break-word;
               overflow-wrap: break-word;
               overflow-wrap: anywhere;
               word-wrap: break-word;
             }
             #content {
-                background: green;
                 padding: 76px ${sideMargin}vw 132px;
             }
             ::-webkit-scrollbar {

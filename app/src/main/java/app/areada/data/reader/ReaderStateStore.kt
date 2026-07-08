@@ -56,7 +56,6 @@ object ReaderStateStore {
                     fontSizeSp = item.optInt("fontSizeSp", ReaderPreferences().fontSizeSp),
                     lineSpacing = item.optDouble("lineSpacing", ReaderPreferences().lineSpacing.toDouble())
                         .toFloat(),
-                    verticalMargin = item.optInt("verticalMargin", ReaderPreferences().verticalMargin),
                     sideMargin = item.optInt("sideMargin", ReaderPreferences().sideMargin),
                     keepScreenOn = item.optBoolean("keepScreenOn", ReaderPreferences().keepScreenOn),
                     volumeButtonsTurnPages = item.optBoolean(
@@ -98,7 +97,6 @@ object ReaderStateStore {
             put("navigationMode", preferences.navigationMode.name)
             put("fontSizeSp", preferences.fontSizeSp)
             put("lineSpacing", preferences.lineSpacing.toDouble())
-            put("verticalMargin", preferences.verticalMargin)
             put("sideMargin", preferences.sideMargin)
             put("keepScreenOn", preferences.keepScreenOn)
             put("volumeButtonsTurnPages", preferences.volumeButtonsTurnPages)

@@ -62,7 +62,6 @@ data class ReaderPreferences(
     val navigationMode: ReaderNavigationMode = ReaderNavigationMode.SWIPE,
     val fontSizeSp: Int = 18,
     val lineSpacing: Float = 1.7f,
-    val verticalMargin: Int = 0,
     val sideMargin: Int = 0,
     val keepScreenOn: Boolean = false,
     val volumeButtonsTurnPages: Boolean = false,
@@ -78,7 +77,6 @@ fun sanitizeReaderPreferences(preferences: ReaderPreferences): ReaderPreferences
     preferences.copy(
         fontSizeSp = preferences.fontSizeSp.coerceIn(12, 40),
         lineSpacing = preferences.lineSpacing.coerceIn(1.2f, 2.4f),
-        verticalMargin = preferences.verticalMargin.coerceIn(0, 25),
         sideMargin = preferences.sideMargin.coerceIn(0, 25),
         readingRulerPosition = sanitizeReadingRulerPosition(preferences.readingRulerPosition),
     )

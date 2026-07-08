@@ -68,9 +68,6 @@ internal fun ReaderSettingsSheet(
     var lineSpacingDraft by rememberSaveable {
         mutableFloatStateOf(preferences.lineSpacing)
     }
-    var pageMarginVerticalDraft by rememberSaveable {
-        mutableFloatStateOf(preferences.verticalMargin.toFloat())
-    }
     var pageMarginSidesDraft by rememberSaveable {
         mutableFloatStateOf(preferences.sideMargin.toFloat())
     }
@@ -90,9 +87,6 @@ internal fun ReaderSettingsSheet(
     }
     LaunchedEffect(preferences.readingRulerPosition) {
         rulerPositionDraft = preferences.readingRulerPosition
-    }
-    LaunchedEffect(preferences.verticalMargin) {
-        pageMarginVerticalDraft = preferences.verticalMargin.toFloat()
     }
     LaunchedEffect(preferences.sideMargin) {
         pageMarginSidesDraft = preferences.sideMargin.toFloat()
@@ -174,7 +168,6 @@ internal fun ReaderSettingsSheet(
                 }
             }
             if (showReadingControls) {
-                // displayLabel
                 SettingsSectionSpacer()
                 SettingsSection(title = stringResource(R.string.font)) {
                     SegmentedSettingGrid(
@@ -184,8 +177,6 @@ internal fun ReaderSettingsSheet(
                         onSelect = { choice -> onPreferencesChange(preferences.copy(fontChoice = choice)) },
                     )
                 }
-
-                // Text
                 SettingsSectionSpacer()
                 SettingsSlider(
                     label = stringResource(R.string.font_size),
@@ -212,8 +203,6 @@ internal fun ReaderSettingsSheet(
                     valueRange = 1.2f..2.4f,
                     steps = 11,
                 )
-
-                // Navigation
                 SettingsControlSpacer()
                 SettingsSection(title = stringResource(R.string.page_navigation)) {
                     SegmentedSettingGrid(
@@ -225,22 +214,6 @@ internal fun ReaderSettingsSheet(
                         },
                     )
                 }
-
-                // Margins
-                SettingsSectionSpacer()
-                SettingsSlider(
-                    label = stringResource(R.string.page_margin_vertical),
-                    valueLabel = "${pageMarginVerticalDraft.roundToInt().coerceIn(0, 25)}",
-                    value = pageMarginVerticalDraft,
-                    onValueChange = { value -> pageMarginVerticalDraft = value },
-                    onValueChangeFinished = {
-                        onPreferencesChange(
-                            preferences.copy(verticalMargin = pageMarginVerticalDraft.roundToInt().coerceIn(0, 25)),
-                        )
-                    },
-                    valueRange = 0f..25f,
-                    steps = 10,
-                )
                 SettingsControlSpacer()
                 SettingsSlider(
                     label = stringResource(R.string.page_margin_sides),
@@ -255,8 +228,6 @@ internal fun ReaderSettingsSheet(
                     valueRange = 0f..25f,
                     steps = 10,
                 )
-
-                // Additional
                 SettingsControlSpacer()
                 CollapsibleSettingsSection(
                     title = stringResource(R.string.additional_settings),
