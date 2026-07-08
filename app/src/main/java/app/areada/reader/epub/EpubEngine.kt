@@ -154,7 +154,7 @@ object EpubEngine {
         val palette = paletteOverride ?: preferences.themeMode.renderPalette()
         val fontSize = preferences.fontSizeSp.coerceIn(14, 30)
         val lineSpacing = preferences.lineSpacing.coerceIn(1.2f, 2.4f)
-        val sideMargin = preferences.sideMargin.coerceIn(0, 25)
+        val pageMargin = preferences.pageMargin.coerceIn(0, 25)
         val scrollThumbColor = palette.onSurfaceVariantHex
         val normalizedDocument = parseChapterDocument(chapter.file, baseUrl)
         AreadaCacheManager.withCacheLock {
@@ -199,7 +199,7 @@ object EpubEngine {
               word-wrap: break-word;
             }
             #content {
-                padding: 76px ${sideMargin}vw 132px;
+                padding: 76px ${pageMargin}vw 132px;
             }
             ::-webkit-scrollbar {
               width: 6px;

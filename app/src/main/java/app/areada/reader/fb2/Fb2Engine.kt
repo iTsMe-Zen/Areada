@@ -67,7 +67,7 @@ object Fb2Engine {
         val chapter = book.chapters.getOrNull(chapterIndex) ?: error("Chapter not found.")
         val palette = paletteOverride ?: preferences.themeMode.renderPalette()
         val fontSize = preferences.fontSizeSp.coerceIn(14, 30)
-        val sideMargin = preferences.sideMargin.coerceIn(0, 25)
+        val pageMargin = preferences.pageMargin.coerceIn(0, 25)
         val lineSpacing = preferences.lineSpacing.coerceIn(1.2f, 2.4f)
         val scrollThumbColor = palette.onSurfaceVariantHex
 
@@ -106,7 +106,7 @@ object Fb2Engine {
                     }
                     #content {
                         background: green;
-                        padding: 76px ${sideMargin}vw 132px;
+                        padding: 76px ${pageMargin}vw 132px;
                     }
                     ::-webkit-scrollbar {
                         width: 6px;

@@ -68,8 +68,8 @@ internal fun ReaderSettingsSheet(
     var lineSpacingDraft by rememberSaveable {
         mutableFloatStateOf(preferences.lineSpacing)
     }
-    var pageMarginSidesDraft by rememberSaveable {
-        mutableFloatStateOf(preferences.sideMargin.toFloat())
+    var pageMarginDraft by rememberSaveable {
+        mutableFloatStateOf(preferences.pageMargin.toFloat())
     }
     var rulerPositionDraft by rememberSaveable {
         mutableFloatStateOf(preferences.readingRulerPosition)
@@ -88,8 +88,8 @@ internal fun ReaderSettingsSheet(
     LaunchedEffect(preferences.readingRulerPosition) {
         rulerPositionDraft = preferences.readingRulerPosition
     }
-    LaunchedEffect(preferences.sideMargin) {
-        pageMarginSidesDraft = preferences.sideMargin.toFloat()
+    LaunchedEffect(preferences.pageMargin) {
+        pageMarginDraft = preferences.pageMargin.toFloat()
     }
     val localizedContext = LocalContext.current
 
@@ -217,12 +217,12 @@ internal fun ReaderSettingsSheet(
                 SettingsControlSpacer()
                 SettingsSlider(
                     label = stringResource(R.string.page_margin_sides),
-                    valueLabel = "${pageMarginSidesDraft.roundToInt().coerceIn(0, 25)}",
-                    value = pageMarginSidesDraft,
-                    onValueChange = { value -> pageMarginSidesDraft = value },
+                    valueLabel = "${pageMarginDraft.roundToInt().coerceIn(0, 25)}",
+                    value = pageMarginDraft,
+                    onValueChange = { value -> pageMarginDraft = value },
                     onValueChangeFinished = {
                         onPreferencesChange(
-                            preferences.copy(sideMargin = pageMarginSidesDraft.roundToInt().coerceIn(0, 25)),
+                            preferences.copy(pageMargin = pageMarginDraft.roundToInt().coerceIn(0, 25)),
                         )
                     },
                     valueRange = 0f..25f,

@@ -157,7 +157,7 @@ internal fun EpubReaderScreen(
         preferences.themeMode,
         preferences.fontChoice,
         preferences.fontSizeSp,
-        preferences.sideMargin,
+        preferences.pageMargin,
         preferences.lineSpacing,
         preferences.openPreviousChapterAtEnd,
     ) {
@@ -166,7 +166,7 @@ internal fun EpubReaderScreen(
             themeMode = preferences.themeMode,
             fontChoice = preferences.fontChoice,
             fontSizeSp = preferences.fontSizeSp,
-            sideMargin = preferences.sideMargin,
+            pageMargin = preferences.pageMargin,
             lineSpacingBucket = (preferences.lineSpacing * 100f).roundToInt(),
             scrollToEnd = preferences.openPreviousChapterAtEnd,
         )
