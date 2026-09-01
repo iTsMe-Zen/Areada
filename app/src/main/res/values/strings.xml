@@ -8,6 +8,7 @@
     <string name="font">Font</string>
     <string name="font_size">Font size</string>
     <string name="line_spacing">Line spacing</string>
+    <string name="page_margin_sides">Page margins</string>
     <string name="reading_ruler">Reading ruler</string>
     <string name="guide_icon">Guide Icon</string>
     <string name="open_previous_chapter_at_end">Open previous chapter at end</string>
@@ -23,6 +24,8 @@
     <string name="language_english">English</string>
     <string name="language_nepali">नेपाली</string>
     <string name="language_portuguese_brazil">Português</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_russian">Русский</string>
 
     <string name="theme_day">Day</string>
     <string name="theme_sepia">Sepia</string>

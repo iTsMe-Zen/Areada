@@ -154,6 +154,7 @@ object EpubEngine {
         val palette = paletteOverride ?: preferences.themeMode.renderPalette()
         val fontSize = preferences.fontSizeSp.coerceIn(14, 30)
         val lineSpacing = preferences.lineSpacing.coerceIn(1.2f, 2.4f)
+        val pageMargin = preferences.pageMargin.coerceIn(0, 25)
         val scrollThumbColor = palette.onSurfaceVariantHex
         val normalizedDocument = parseChapterDocument(chapter.file, baseUrl)
         AreadaCacheManager.withCacheLock {
@@ -192,11 +193,13 @@ object EpubEngine {
               line-height: $lineSpacing !important;
             }
             body {
-              padding: 76px max(18px, 5vw) 132px;
               word-break: break-word;
               overflow-wrap: break-word;
               overflow-wrap: anywhere;
               word-wrap: break-word;
+            }
+            #content {
+                padding: 76px ${pageMargin}vw 132px;
             }
             ::-webkit-scrollbar {
               width: 6px;
@@ -299,7 +302,15 @@ object EpubEngine {
         sourceDocument.select("script").remove()
 
         val renderedDocument = Jsoup.parse(
-            "<!DOCTYPE html><html xmlns=\"http://www.w3.org/1999/xhtml\"><head></head><body></body></html>",
+            """
+                <!DOCTYPE html>
+                <html xmlns=\"http://www.w3.org/1999/xhtml\">
+                <head></head>
+                <body>
+                    <div id="content"></div>
+                </body>
+                </html>
+            """.trimIndent(),
             baseUrl,
             Parser.xmlParser(),
         )
@@ -307,7 +318,7 @@ object EpubEngine {
         val sourceHead = sourceDocument.head()
         val sourceBody = sourceDocument.body()
         val renderedHtml = renderedDocument.selectFirst("html")
-        val renderedBody = renderedDocument.body()
+        val renderedContent = renderedDocument.body().selectFirst("#content")!!
         val renderedHead = renderedDocument.head()
 
         sourceHtml?.attributes()?.forEach { attribute ->
@@ -316,7 +327,7 @@ object EpubEngine {
             }
         }
         sourceBody.attributes().forEach { attribute ->
-            renderedBody.attr(attribute.key, attribute.value)
+            renderedContent.attr(attribute.key, attribute.value)
         }
 
         sourceHead.children()
@@ -332,7 +343,7 @@ object EpubEngine {
             }
 
         for (child in sourceBody.childNodesCopy()) {
-            renderedBody.appendChild(child.clone())
+            renderedContent.appendChild(child.clone())
         }
         return renderedDocument
     }

@@ -68,6 +68,9 @@ internal fun ReaderSettingsSheet(
     var lineSpacingDraft by rememberSaveable {
         mutableFloatStateOf(preferences.lineSpacing)
     }
+    var pageMarginDraft by rememberSaveable {
+        mutableFloatStateOf(preferences.pageMargin.toFloat())
+    }
     var rulerPositionDraft by rememberSaveable {
         mutableFloatStateOf(preferences.readingRulerPosition)
     }
@@ -84,6 +87,9 @@ internal fun ReaderSettingsSheet(
     }
     LaunchedEffect(preferences.readingRulerPosition) {
         rulerPositionDraft = preferences.readingRulerPosition
+    }
+    LaunchedEffect(preferences.pageMargin) {
+        pageMarginDraft = preferences.pageMargin.toFloat()
     }
     val localizedContext = LocalContext.current
 
@@ -182,8 +188,8 @@ internal fun ReaderSettingsSheet(
                             preferences.copy(fontSizeSp = fontSizeDraft.roundToInt().coerceIn(12, 40)),
                         )
                     },
-                        valueRange = 12f..40f,
-                        steps = 27,
+                    valueRange = 12f..40f,
+                    steps = 27,
                 )
                 SettingsControlSpacer()
                 SettingsSlider(
@@ -208,7 +214,21 @@ internal fun ReaderSettingsSheet(
                         },
                     )
                 }
-                SettingsSectionSpacer()
+                SettingsControlSpacer()
+                SettingsSlider(
+                    label = stringResource(R.string.page_margin_sides),
+                    valueLabel = "${pageMarginDraft.roundToInt().coerceIn(0, 25)}",
+                    value = pageMarginDraft,
+                    onValueChange = { value -> pageMarginDraft = value },
+                    onValueChangeFinished = {
+                        onPreferencesChange(
+                            preferences.copy(pageMargin = pageMarginDraft.roundToInt().coerceIn(0, 25)),
+                        )
+                    },
+                    valueRange = 0f..25f,
+                    steps = 10,
+                )
+                SettingsControlSpacer()
                 CollapsibleSettingsSection(
                     title = stringResource(R.string.additional_settings),
                     initialExpanded = false,
