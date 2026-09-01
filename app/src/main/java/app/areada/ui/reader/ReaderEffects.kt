@@ -178,9 +178,9 @@ internal fun ReaderStatusBarHidden(hidden: Boolean) {
             window.insetsController?.systemBarsBehavior =
                 WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             if (hidden) {
-                window.insetsController?.hide(WindowInsets.Type.statusBars())
+                window.insetsController?.hide(WindowInsets.Type.systemBars())
             } else {
-                window.insetsController?.show(WindowInsets.Type.statusBars())
+                window.insetsController?.show(WindowInsets.Type.systemBars())
             }
         } else {
             @Suppress("DEPRECATION")
@@ -188,11 +188,13 @@ internal fun ReaderStatusBarHidden(hidden: Boolean) {
                 previousSystemUiVisibility or
                     View.SYSTEM_UI_FLAG_FULLSCREEN or
                     View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
             } else {
                 previousSystemUiVisibility and
                     View.SYSTEM_UI_FLAG_FULLSCREEN.inv() and
-                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY.inv()
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY.inv() and
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION.inv()
             }
         }
 
@@ -202,7 +204,7 @@ internal fun ReaderStatusBarHidden(hidden: Boolean) {
 
         onDispose {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                window.insetsController?.show(WindowInsets.Type.statusBars())
+                window.insetsController?.show(WindowInsets.Type.systemBars())
             } else {
                 @Suppress("DEPRECATION")
                 decorView.systemUiVisibility = previousSystemUiVisibility
