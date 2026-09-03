@@ -72,6 +72,11 @@ internal fun resetWebViewZoom(webView: WebView) {
     }
 }
 
+@Suppress("DEPRECATION")
+internal fun scrollByWebView(webView: WebView, deltaX: Int, deltaY: Int) {
+    webView.scrollBy(deltaX, deltaY)
+}
+
 internal class NoteBridge(
     private val onNoteOpen: (String) -> Unit,
 ) {

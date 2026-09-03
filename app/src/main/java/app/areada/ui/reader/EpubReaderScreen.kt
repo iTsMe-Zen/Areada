@@ -38,7 +38,9 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import app.areada.R
+import app.areada.data.reader.ReaderNavigationMode
 import app.areada.data.reader.ReaderPreferences
+
 import app.areada.data.reader.ReadingBookmark
 import app.areada.data.reader.epubBookmarkId
 import app.areada.reader.epub.EpubEngine
@@ -124,6 +126,12 @@ internal fun EpubReaderScreen(
     }
     var ignoreScrollCallbacksUntil by remember(screen.document.uriString) {
         mutableStateOf(0L)
+    }
+    var scrollEventCounter by remember(screen.document.uriString) {
+        mutableIntStateOf(0)
+    }
+    var scrollEventPixels by remember(screen.document.uriString) {
+        mutableIntStateOf(0)
     }
     var renderedChapter by remember(screen.document.uriString, chapterIndex) {
         mutableStateOf<RenderedChapter?>(null)
@@ -275,7 +283,7 @@ internal fun EpubReaderScreen(
                 renderedChapter = chapter
             }
             .onFailure { throwable ->
-                chapterError = displayError(throwable, renderSectionErrorMessage)
+                chapterError = displayError(context, throwable, renderSectionErrorMessage)
             }
     }
 
@@ -322,7 +330,7 @@ internal fun EpubReaderScreen(
     }
     if (showGoToChapter) {
         GoToPositionDialog(
-            label = "Section",
+            label = stringResource(R.string.section),
             currentIndex = chapterIndex,
             total = screen.book.chapters.size,
             title = stringResource(R.string.go_to_section),
@@ -385,7 +393,7 @@ internal fun EpubReaderScreen(
                 renderedChapter == null -> LoadingState(label = stringResource(R.string.rendering_section))
                 else -> {
                     val chapter = renderedChapter ?: return@Box
-                    key(screen.document.uriString) {
+                    key(screen.document.uriString, renderCacheKey) {
                         val renderedIndex = chapterIndex
                             EpubWebView(
                                 chapter = chapter,
@@ -424,6 +432,8 @@ internal fun EpubReaderScreen(
                             onNoteOpen = { note ->
                                 noteText = note
                             },
+                            scrollEventId = scrollEventCounter,
+                            scrollEventPixels = scrollEventPixels,
                             searchQuery = chapterSearchQuery,
                             searchRequest = chapterSearchRequest,
                             searchBackwards = chapterSearchBackwards,
@@ -559,6 +569,21 @@ internal fun EpubReaderScreen(
                     modifier = Modifier
                         .align(Alignment.Center)
                         .padding(horizontal = 28.dp),
+                )
+            }
+
+            if (!showReaderChrome && preferences.navigationMode == ReaderNavigationMode.BUTTONS) {
+                DirectionalButtons(
+                    onPageNext = ::goToNextChapter,
+                    onPagePrevious = ::goToPreviousChapter,
+                    onScrollChange = { delta ->
+                        val pixelDelta = (delta * 1000f).roundToInt()
+                        scrollEventPixels = pixelDelta
+                        scrollEventCounter += 1
+                    },
+                    invertScrolling = preferences.invertScrolling,
+                    buttonLayout = preferences.buttonLayout,
+                    modifier = Modifier.align(Alignment.BottomCenter).zIndex(100f),
                 )
             }
         }

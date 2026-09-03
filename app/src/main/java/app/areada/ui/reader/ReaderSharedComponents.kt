@@ -593,6 +593,7 @@ internal fun buildResumeLabel(
         }
 
         DocumentType.TXT,
+        DocumentType.MARKDOWN,
         DocumentType.ZIP,
         DocumentType.ARCHIVE -> null
 

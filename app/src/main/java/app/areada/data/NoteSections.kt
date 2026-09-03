@@ -5,6 +5,7 @@ import java.util.Locale
 data class NoteSection(
     val title: String,
     val content: String,
+    val pinned: Boolean = false,
 )
 
 data class NoteSectionDocument(
@@ -122,6 +123,7 @@ fun sanitizeNoteSections(sections: List<NoteSection>): List<NoteSection> {
         sanitized += NoteSection(
             title = uniqueNoteSectionTitle(section.title, sanitized),
             content = section.content.normalizeNoteLineEndings(),
+            pinned = section.pinned,
         )
     }
     return sanitized.ifEmpty {
@@ -162,6 +164,28 @@ fun uniqueNoteSectionTitle(
 
 private fun String.normalizeNoteLineEndings(): String =
     replace("\r\n", "\n").replace('\r', '\n')
+
+fun moveNoteSectionUp(
+    sections: List<NoteSection>,
+    index: Int,
+): List<NoteSection> {
+    if (index <= 0 || index !in sections.indices) return sections
+    val mutable = sections.toMutableList()
+    val item = mutable.removeAt(index)
+    mutable.add(index - 1, item)
+    return mutable
+}
+
+fun moveNoteSectionDown(
+    sections: List<NoteSection>,
+    index: Int,
+): List<NoteSection> {
+    if (index < 0 || index >= sections.lastIndex || sections.isEmpty()) return sections
+    val mutable = sections.toMutableList()
+    val item = mutable.removeAt(index)
+    mutable.add(index + 1, item)
+    return mutable
+}
 
 const val DefaultNoteSectionTitle = "Note"
 const val DefaultRecoveredSectionTitle = "Section"

@@ -287,13 +287,14 @@ internal fun EpubChapter.matchesLocalHref(urlString: String): Boolean {
 }
 
 internal fun displayError(
+    context: Context,
     throwable: Throwable,
     fallback: String,
 ): String {
     val message = throwable.message.orEmpty()
     return when {
-        message.contains("Invalid or unsupported EPUB", ignoreCase = true) -> "Invalid or unsupported EPUB file."
-        message.contains("readable chapters", ignoreCase = true) -> "This EPUB does not contain readable chapters."
+        message.contains("Invalid or unsupported EPUB", ignoreCase = true) -> context.getString(R.string.invalid_epub)
+        message.contains("readable chapters", ignoreCase = true) -> context.getString(R.string.epub_no_chapters)
         message.contains("/data/", ignoreCase = true) ||
             message.contains("ENOENT", ignoreCase = true) ||
             message.contains("No such file", ignoreCase = true) ||

@@ -43,7 +43,12 @@ import app.areada.data.library.LibrarySortMode
 internal fun LibraryFileFilter.displayLabel(): String =
     when (this) {
         LibraryFileFilter.ALL -> stringResource(R.string.all)
-        else -> label
+        LibraryFileFilter.ARCHIVE -> stringResource(R.string.filter_archives)
+        LibraryFileFilter.EPUB -> stringResource(R.string.filter_epub)
+        LibraryFileFilter.FB2 -> stringResource(R.string.filter_fb2)
+        LibraryFileFilter.MARKDOWN -> stringResource(R.string.filter_markdown)
+        LibraryFileFilter.PDF -> stringResource(R.string.filter_pdf)
+        LibraryFileFilter.TXT -> stringResource(R.string.filter_txt)
     }
 
 @Composable
@@ -59,6 +64,7 @@ internal fun LibrarySortMode.displayLabel(): String {
         LibraryFileFilter.EPUB -> stringResource(R.string.empty_library_epub)
         LibraryFileFilter.PDF -> stringResource(R.string.empty_library_pdf)
         LibraryFileFilter.TXT -> stringResource(R.string.empty_library_txt)
+        LibraryFileFilter.MARKDOWN -> stringResource(R.string.empty_library_md)
         LibraryFileFilter.FB2 -> stringResource(R.string.empty_library_fb2)
         LibraryFileFilter.ARCHIVE -> stringResource(R.string.empty_library_archive)
     }

@@ -21,8 +21,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import app.areada.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,11 +35,12 @@ internal fun SwipeActionBox(
     actionContainerColor: Color = MaterialTheme.colorScheme.primary,
     actionContentColor: Color = MaterialTheme.colorScheme.onPrimary,
     onSwipeEndToStart: (() -> Unit)? = null,
-    endToStartLabel: String = "Select",
+    endToStartLabel: String? = null,
     endToStartContainerColor: Color = MaterialTheme.colorScheme.secondary,
     endToStartContentColor: Color = MaterialTheme.colorScheme.onSecondary,
     content: @Composable () -> Unit,
 ) {
+    val resolvedEndToStartLabel = endToStartLabel ?: stringResource(R.string.select)
     val endToStartEnabled = onSwipeEndToStart != null
     val currentOnSwipe = rememberUpdatedState(onSwipe)
     val currentOnSwipeEndToStart = rememberUpdatedState(onSwipeEndToStart)
@@ -112,7 +115,7 @@ internal fun SwipeActionBox(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
-                                text = endToStartLabel,
+                                text = resolvedEndToStartLabel,
                                 color = endToStartContentColor,
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.SemiBold,

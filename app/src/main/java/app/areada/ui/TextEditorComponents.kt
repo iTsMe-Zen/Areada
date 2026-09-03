@@ -4,26 +4,38 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.automirrored.outlined.Redo
 import androidx.compose.material.icons.automirrored.outlined.Undo
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,6 +53,9 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import app.areada.R
+import app.areada.data.NoteSection
+import app.areada.ui.home.ActionSheetItem
+import app.areada.ui.home.SwipeActionBox
 import java.util.Locale
 
 @Composable
@@ -121,17 +136,27 @@ internal fun NoteEditorSearchBar(
 
 @Composable
 internal fun NoteSectionBar(
-    sections: List<String>,
+    sections: List<NoteSection>,
     selectedIndex: Int,
     expanded: Boolean,
     backgroundColor: Color,
+    pinnedSectionTitles: Set<String>,
     onToggleExpanded: () -> Unit,
     onSelectSection: (Int) -> Unit,
     onAddSection: () -> Unit,
-    onRenameSection: () -> Unit,
+    onSectionActions: (Int) -> Unit,
 ) {
     val defaultNoteTitle = stringResource(R.string.note)
-    val selectedTitle = sections.getOrNull(selectedIndex).orEmpty().ifBlank { defaultNoteTitle }
+    val selectedTitle = sections.getOrNull(selectedIndex)?.title.orEmpty().ifBlank { defaultNoteTitle }
+    val displaySections = remember(sections, pinnedSectionTitles) {
+        val (pinned, unpinned) = sections.partition { it.title in pinnedSectionTitles }
+        pinned + unpinned
+    }
+    fun actualIndex(displayIdx: Int): Int {
+        if (displayIdx !in displaySections.indices) return displayIdx
+        val title = displaySections[displayIdx].title
+        return sections.indexOfFirst { it.title == title }.coerceAtLeast(0)
+    }
     val dropdownMaxHeight = (LocalConfiguration.current.screenHeightDp.dp * 0.45f)
         .coerceAtMost(320.dp)
         .coerceAtLeast(120.dp)
@@ -208,30 +233,6 @@ internal fun NoteSectionBar(
                         )
                     }
                 }
-                Surface(
-                    modifier = Modifier
-                        .width(86.dp)
-                        .heightIn(min = 40.dp)
-                        .clickable(onClick = onRenameSection),
-                    shape = RectangleShape,
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = stringResource(R.string.rename),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                        )
-                    }
-                }
             }
             if (expanded) {
                 LazyColumn(
@@ -241,38 +242,121 @@ internal fun NoteSectionBar(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     itemsIndexed(
-                        items = sections,
-                        key = { index, title -> "$index:$title" },
-                    ) { index, title ->
-                        val selected = index == selectedIndex
-                        Surface(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onSelectSection(index) },
-                            shape = RectangleShape,
-                            color = if (selected) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.surfaceVariant
-                            },
+                        items = displaySections,
+                        key = { index, section -> "${actualIndex(index)}:${section.title}" },
+                    ) { displayIdx, section ->
+                        val actualIdx = actualIndex(displayIdx)
+                        val selected = actualIdx == selectedIndex
+                        val title = section.title.ifBlank { defaultNoteTitle }
+                        SwipeActionBox(
+                            actionLabel = stringResource(R.string.actions),
+                            actionContainerColor = MaterialTheme.colorScheme.surface,
+                            actionContentColor = MaterialTheme.colorScheme.onSurface,
+                            onSwipe = { onSectionActions(actualIdx) },
                         ) {
-                            Text(
-                                text = title.ifBlank { defaultNoteTitle },
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold,
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onSelectSection(actualIdx) },
+                                shape = RectangleShape,
                                 color = if (selected) {
-                                    MaterialTheme.colorScheme.onPrimary
+                                    MaterialTheme.colorScheme.primary
                                 } else {
-                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                    MaterialTheme.colorScheme.surfaceVariant
                                 },
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                ) {
+                                    if (section.title in pinnedSectionTitles) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.PushPin,
+                                            contentDescription = null,
+                                            tint = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.height(16.dp),
+                                        )
+                                    }
+                                    Text(
+                                        text = title,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = if (selected) {
+                                            MaterialTheme.colorScheme.onPrimary
+                                        } else {
+                                            MaterialTheme.colorScheme.onSurfaceVariant
+                                        },
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                }
+                            }
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun NoteSectionActionSheet(
+    sectionTitle: String,
+    pinned: Boolean,
+    canMoveUp: Boolean,
+    canMoveDown: Boolean,
+    onDismiss: () -> Unit,
+    onRename: () -> Unit,
+    onMoveUp: () -> Unit,
+    onMoveDown: () -> Unit,
+    onTogglePin: () -> Unit,
+    onDelete: () -> Unit,
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = MaterialTheme.colorScheme.surface,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState(), overscrollEffect = null)
+                .navigationBarsPadding()
+                .padding(horizontal = 24.dp, vertical = 8.dp),
+        ) {
+            Text(
+                text = sectionTitle,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            ActionSheetItem(
+                label = stringResource(R.string.rename),
+                onClick = onRename,
+            )
+            if (canMoveUp) {
+                ActionSheetItem(
+                    label = stringResource(R.string.move_up),
+                    onClick = onMoveUp,
+                )
+            }
+            if (canMoveDown) {
+                ActionSheetItem(
+                    label = stringResource(R.string.move_down),
+                    onClick = onMoveDown,
+                )
+            }
+            ActionSheetItem(
+                label = if (pinned) stringResource(R.string.unpin) else stringResource(R.string.pin),
+                onClick = onTogglePin,
+            )
+            ActionSheetItem(
+                label = stringResource(R.string.delete),
+                onClick = onDelete,
+            )
+            Spacer(modifier = Modifier.height(12.dp))
         }
     }
 }

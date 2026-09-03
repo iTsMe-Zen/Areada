@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="app_name">Areada</string>
     <string name="settings">Настройки</string>
     <string name="additional_settings">Дополнительные настройки</string>
@@ -24,6 +24,7 @@
     <string name="language_nepali">नेपाली</string>
     <string name="language_portuguese_brazil">Português</string>
     <string name="language_russian">Русский</string>
+    <string name="language_spanish">Испанский</string>
 
     <string name="theme_day">Дневная</string>
     <string name="theme_sepia">Сепия</string>
@@ -82,8 +83,12 @@
     <string name="info">Информация</string>
     <string name="pin">Закрепить</string>
     <string name="unpin">Открепить</string>
+    <string name="pin_unpin">Закрепить/Открепить</string>
+    <string name="move">Переместить</string>
     <string name="move_up">Переместить вверх</string>
     <string name="move_down">Переместить вниз</string>
+    <string name="move_left">Переместить влево</string>
+    <string name="move_right">Переместить вправо</string>
     <string name="format">Формат</string>
     <string name="status">Статус</string>
     <string name="progress">Прогресс</string>
@@ -115,6 +120,7 @@
     <string name="insert_timestamp">Вставить отметку времени</string>
     <string name="write_note_hint">Напишите заметку...</string>
     <string name="remove">Удалить</string>
+    <string name="delete_section_question">Удалить раздел «%1$s»?</string>
     <string name="remove_question">Удалить?</string>
     <string name="discard_question">Отменить?</string>
     <string name="current">Текущий</string>
@@ -129,12 +135,13 @@
     <string name="empty_library_epub">Файлы EPUB не найдены.</string>
     <string name="empty_library_pdf">Файлы PDF не найдены.</string>
     <string name="empty_library_txt">Файлы TXT не найдены.</string>
+    <string name="empty_library_md">Файлы Markdown не найдены.</string>
     <string name="empty_library_fb2">Файлы FB2 не найдены.</string>
 
     <string name="empty_library_archive">Файлы архивов не найдены.</string>
     <string name="choose_folder_note">Пожалуйста, выберите папку с помощью [Выбрать папку]</string>
     <string name="quick_guide_title">Руководство</string>
-    <string name="home_tutorial_note">**Смахните вправо** [Выбрать папку], чтобы временно открыть файл.\n**Смахните вправо** [Управление папками], чтобы управлять папками.\n**Смахните вправо** [Книги/Папки] в коллекции, чтобы открыть меню [Действие].\n**Смахните влево** [Книги/Папки] в коллекции, чтобы выбрать.</string>
+    <string name="home_tutorial_note">**Смахните вправо** [Выбрать папку], чтобы временно открыть файл.\n**Смахните вправо** [Управление папками], чтобы управлять папками.\n**Смахните вправо** [Книги/Папки] в коллекции, чтобы открыть меню [Действие].\n**Смахните влево** [Книги/Папки] в коллекции, чтобы выбрать.\n**Смахните вправо** [Раздел заметки], чтобы открыть меню [Действие].</string>
     <string name="no_folder_selected_title">Папка не выбрана</string>
     <string name="no_folder_selected_body">Выберите папку, чтобы начать наполнять библиотеку.</string>
     <string name="no_books_found_title">Книги не найдены</string>
@@ -196,8 +203,33 @@
     <string name="resume_page">Продолжить страницу %1$d</string>
     <string name="resume_percent">Продолжить %1$d%%</string>
     <string name="vibrate_on_page_turn">Вибрация при перелистывании</string>
+    <string name="invert_scrolling">Инвертировать прокрутку</string>
+    <string name="button_layout">Раскладка кнопок</string>
     <string name="retry">Повторить</string>
     <string name="could_not_create_book_note">Не удалось создать заметку к книге.</string>
     <string name="could_not_open_book_note">Не удалось открыть заметку к книге.</string>
     <string name="choose_folder_before_book_note">Сначала выберите папку перед созданием заметки к книге.</string>
+
+    <string name="section">Раздел</string>
+    <string name="extract_text">Перенос строк PDF</string>
+    <string name="n_selected">Выбрано: %1$d</string>
+    <string name="invalid_epub">Недопустимый или неподдерживаемый файл EPUB.</string>
+    <string name="epub_no_chapters">Этот EPUB не содержит читаемых глав.</string>
+    <string name="folder_no_longer_available">Эта папка больше недоступна.</string>
+    <string name="unable_delete_folder">Не удалось удалить эту папку.</string>
+    <string name="unable_delete_book">Не удалось удалить эту книгу.</string>
+    <string name="unable_rename_folder">Не удалось переименовать эту папку.</string>
+    <string name="unable_rename_book">Не удалось переименовать эту книгу.</string>
+    <string name="unable_open_folder">Не удалось открыть эту папку.</string>
+    <string name="unable_open_file">Не удалось открыть этот файл.</string>
+    <string name="unable_create_note">Не удалось создать эту заметку.</string>
+    <string name="unable_discard_note">Не удалось отменить эту заметку.</string>
+    <string name="unable_rename_note">Не удалось переименовать эту заметку.</string>
+    <string name="filter_archives">Архивы</string>
+    <string name="filter_epub">EPUB</string>
+    <string name="filter_fb2">FB2</string>
+    <string name="filter_markdown">Markdown</string>
+    <string name="filter_pdf">PDF</string>
+    <string name="filter_txt">TXT</string>
+    <string name="language_zhcn">Китайский (упрощ.)</string>
 </resources>

@@ -42,13 +42,17 @@ class ReaderPreferencesTest {
     fun languageModeRestoresFromPersistedName() {
         assertEquals(ReaderLanguageMode.System, readerLanguageModeFromName("System"))
         assertEquals(ReaderLanguageMode.English, readerLanguageModeFromName("English"))
+        assertEquals(ReaderLanguageMode.Russian, readerLanguageModeFromName("Russian"))
+        assertEquals(ReaderLanguageMode.Spanish, readerLanguageModeFromName("Spanish"))
         assertEquals(ReaderLanguageMode.Nepali, readerLanguageModeFromName("Nepali"))
+        assertEquals(ReaderLanguageMode.PortugueseBrazil, readerLanguageModeFromName("PortugueseBrazil"))
+        assertEquals(ReaderLanguageMode.ChineseSimplified, readerLanguageModeFromName("ChineseSimplified"))
     }
 
     @Test
     fun languageModeFallsBackForUnknownName() {
         assertEquals(ReaderLanguageMode.System, readerLanguageModeFromName(""))
-        assertEquals(ReaderLanguageMode.System, readerLanguageModeFromName("Spanish"))
+        assertEquals(ReaderLanguageMode.System, readerLanguageModeFromName("UnknownLanguage"))
     }
 
     @Test

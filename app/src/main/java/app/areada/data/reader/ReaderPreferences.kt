@@ -38,13 +38,28 @@ enum class ReaderNavigationMode(val label: String) {
 fun readerNavigationModeFromName(name: String?): ReaderNavigationMode =
     ReaderNavigationMode.entries.firstOrNull { mode -> mode.name == name } ?: ReaderNavigationMode.SWIPE
 
+enum class ReaderButtonLayout(val label: String) {
+    DEFAULT("< v ^ >"),
+    INVERTED("> ^ v <"),
+    SYMMETRIC("v < > ^"),
+    VERTICAL("^ v < >"),
+    VERTICAL_FIRST("v ^ > <"),
+    PAGE_FIRST("< > ^ v"),
+}
+
+fun readerButtonLayoutFromName(name: String?): ReaderButtonLayout =
+    ReaderButtonLayout.entries.firstOrNull { layout -> layout.name == name } ?: ReaderButtonLayout.DEFAULT
+
 enum class ReaderLanguageMode(
     val localeTag: String?,
 ) {
     System(null),
     English("en"),
+    Russian("ru"),
+    Spanish("es"),
     Nepali("ne"),
     PortugueseBrazil("pt-BR"),
+    ChineseSimplified("zh-CN"),
 }
 
 fun readerLanguageModeFromName(name: String?): ReaderLanguageMode =
@@ -70,6 +85,8 @@ data class ReaderPreferences(
     val showGuideIcon: Boolean = true,
     val openPreviousChapterAtEnd: Boolean = false,
     val vibrateOnPageTurn: Boolean = false,
+    val invertScrolling: Boolean = true,
+    val buttonLayout: ReaderButtonLayout = ReaderButtonLayout.DEFAULT,
 )
 
 fun sanitizeReaderPreferences(preferences: ReaderPreferences): ReaderPreferences =

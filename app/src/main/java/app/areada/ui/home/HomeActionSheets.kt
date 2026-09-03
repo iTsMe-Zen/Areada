@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -62,6 +63,7 @@ internal fun DocumentListActionSheet(
     onMoveUp: () -> Unit,
     onMoveDown: () -> Unit,
     onRemove: () -> Unit,
+    onRename: (() -> Unit)? = null,
     bookStatus: BookStatus? = null,
     onMarkBookStatus: ((BookStatus) -> Unit)? = null,
 ) {
@@ -100,6 +102,12 @@ internal fun DocumentListActionSheet(
                             stringResource(R.string.mark_as_reading)
                         },
                         onClick = { onMarkBookStatus(nextStatus) },
+                    )
+                }
+                if (onRename != null) {
+                    ActionSheetItem(
+                        label = stringResource(R.string.rename),
+                        onClick = onRename,
                     )
                 }
                 ActionSheetItem(
@@ -235,12 +243,12 @@ internal fun BookInfoSheet(
             recent?.lastOpenedAt
                 ?.takeIf { timestamp -> timestamp > 0L }
                 ?.let { timestamp ->
-                    BookInfoRow(label = stringResource(R.string.last_opened), value = formatBookInfoTimestamp(timestamp))
+                    BookInfoRow(label = stringResource(R.string.last_opened), value = formatBookInfoTimestamp(timestamp, stringResource(R.string.unknown)))
                 }
             book.addedAt
                 .takeIf { timestamp -> timestamp > 0L }
                 ?.let { timestamp ->
-                    BookInfoRow(label = stringResource(R.string.added), value = formatBookInfoTimestamp(timestamp))
+                    BookInfoRow(label = stringResource(R.string.added), value = formatBookInfoTimestamp(timestamp, stringResource(R.string.unknown)))
                 }
             BookInfoRow(label = stringResource(R.string.file), value = book.fileName)
             if (book.pinned) {
@@ -312,8 +320,8 @@ internal fun bookInfoProgressLabel(progress: ReadingProgress?): String {
     return "$percent%"
 }
 
-internal fun formatBookInfoTimestamp(timestamp: Long): String =
-    formatBookInfoDateTime(timestamp)
+internal fun formatBookInfoTimestamp(timestamp: Long, fallback: String): String =
+    formatBookInfoDateTime(timestamp, fallback)
 
 @Composable
 internal fun ActionSheetItem(
@@ -365,7 +373,7 @@ internal fun BatchActionBar(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "$selectedCount selected",
+                    text = stringResource(R.string.n_selected, selectedCount),
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onPrimary,
@@ -413,8 +421,8 @@ internal fun BatchActionBar(
                     )
                 }
                 BatchActionIcon(
-                    icon = { Icon(Icons.Outlined.Bookmark, contentDescription = stringResource(R.string.pin), tint = MaterialTheme.colorScheme.onPrimary) },
-                    label = "Pin/Unpin",
+                    icon = { Icon(Icons.Outlined.PushPin, contentDescription = stringResource(R.string.pin), tint = MaterialTheme.colorScheme.onPrimary) },
+                    label = stringResource(R.string.pin_unpin),
                     onClick = onBatchPin,
                 )
             }

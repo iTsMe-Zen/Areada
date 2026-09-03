@@ -1,4 +1,4 @@
-package app.areada.data.reader
+﻿package app.areada.data.reader
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -82,6 +82,7 @@ object ReaderStateStore {
                         "vibrateOnPageTurn",
                         ReaderPreferences().vibrateOnPageTurn,
                     ),
+                    buttonLayout = readerButtonLayoutFromName(item.optString("buttonLayout")),
                 ),
             )
         }.getOrDefault(ReaderPreferences())
@@ -104,6 +105,7 @@ object ReaderStateStore {
             put("showGuideIcon", preferences.showGuideIcon)
             put("openPreviousChapterAtEnd", preferences.openPreviousChapterAtEnd)
             put("vibrateOnPageTurn", preferences.vibrateOnPageTurn)
+            put("buttonLayout", preferences.buttonLayout.name)
         }
 
         prefs(context)
@@ -301,6 +303,12 @@ object ReaderStateStore {
                             pdfPageIndex = item.optInt("pdfPageIndex").coerceAtLeast(0),
                             pdfPageCount = item.optInt("pdfPageCount").coerceAtLeast(0),
                             pdfZoomScale = item.optDouble("pdfZoomScale", 1.0).toFloat().coerceIn(1f, 5f),
+                            pdfExtractedTextEnabled = item.optBoolean("pdfExtractedTextEnabled", false),
+                            pdfExtractedTextPageIndex = item.optInt("pdfExtractedTextPageIndex").coerceAtLeast(0),
+                            pdfExtractedTextScrollMode = item.optBoolean("pdfExtractedTextScrollMode", false),
+                            pdfExtractedTextSectionIndex = item.optInt("pdfExtractedTextSectionIndex").coerceAtLeast(0),
+                            pdfExtractedTextSectionCount = item.optInt("pdfExtractedTextSectionCount").coerceAtLeast(0),
+                            pdfExtractedTextScrollFraction = item.optDouble("pdfExtractedTextScrollFraction", 0.0).toFloat().coerceIn(0f, 1f),
                             txtScrollFraction = item.optDouble("txtScrollFraction", 0.0).toFloat().coerceIn(0f, 1f),
                             updatedAt = item.optLong("updatedAt", 0L),
                         ),
@@ -328,6 +336,12 @@ object ReaderStateStore {
                         put("pdfPageIndex", progress.pdfPageIndex)
                         put("pdfPageCount", progress.pdfPageCount)
                         put("pdfZoomScale", progress.pdfZoomScale)
+                        put("pdfExtractedTextEnabled", progress.pdfExtractedTextEnabled)
+                        put("pdfExtractedTextPageIndex", progress.pdfExtractedTextPageIndex)
+                        put("pdfExtractedTextScrollMode", progress.pdfExtractedTextScrollMode)
+                        put("pdfExtractedTextSectionIndex", progress.pdfExtractedTextSectionIndex)
+                        put("pdfExtractedTextSectionCount", progress.pdfExtractedTextSectionCount)
+                        put("pdfExtractedTextScrollFraction", progress.pdfExtractedTextScrollFraction)
                         put("txtScrollFraction", progress.txtScrollFraction)
                         put("updatedAt", progress.updatedAt)
                     },
@@ -535,6 +549,9 @@ object ReaderStateStore {
                             epubScrollFraction = item.optDouble("epubScrollFraction", 0.0).toFloat().coerceIn(0f, 1f),
                             pdfPageIndex = item.optInt("pdfPageIndex").coerceAtLeast(0),
                             pdfPageCount = item.optInt("pdfPageCount").coerceAtLeast(0),
+                            pdfExtractedTextSectionIndex = item.optInt("pdfExtractedTextSectionIndex").coerceAtLeast(0),
+                            pdfExtractedTextSectionCount = item.optInt("pdfExtractedTextSectionCount").coerceAtLeast(0),
+                            pdfExtractedTextScrollFraction = item.optDouble("pdfExtractedTextScrollFraction", 0.0).toFloat().coerceIn(0f, 1f),
                             txtScrollFraction = item.optDouble("txtScrollFraction", 0.0).toFloat().coerceIn(0f, 1f),
                             createdAt = item.optLong("createdAt", 0L),
                             updatedAt = item.optLong("updatedAt", 0L),
@@ -564,6 +581,9 @@ object ReaderStateStore {
                     put("epubScrollFraction", bookmark.epubScrollFraction)
                     put("pdfPageIndex", bookmark.pdfPageIndex)
                     put("pdfPageCount", bookmark.pdfPageCount)
+                    put("pdfExtractedTextSectionIndex", bookmark.pdfExtractedTextSectionIndex)
+                    put("pdfExtractedTextSectionCount", bookmark.pdfExtractedTextSectionCount)
+                    put("pdfExtractedTextScrollFraction", bookmark.pdfExtractedTextScrollFraction)
                     put("txtScrollFraction", bookmark.txtScrollFraction)
                     put("createdAt", bookmark.createdAt)
                     put("updatedAt", bookmark.updatedAt)

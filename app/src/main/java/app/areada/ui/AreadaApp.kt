@@ -1,4 +1,4 @@
-package app.areada.ui
+﻿package app.areada.ui
 
 import android.content.Context
 import android.content.res.Configuration
@@ -51,6 +51,7 @@ import app.areada.ui.reader.ErrorBanner
 import app.areada.ui.reader.ExitPromptDialog
 import app.areada.ui.reader.LibraryScrollPosition
 import app.areada.ui.reader.LoadingOverlay
+import app.areada.ui.reader.MarkdownReaderScreen
 import app.areada.ui.reader.PdfReaderScreen
 import app.areada.ui.reader.ReaderComfortOverlay
 import app.areada.ui.reader.ReaderOrientationEffect
@@ -237,6 +238,7 @@ fun AreadaApp(
                         onRemoveRecent = { recent -> viewModel.removeRecent(context, recent) },
                         onMoveBookmark = { bookmark, offset -> viewModel.moveBookmark(context, bookmark, offset) },
                         onMoveRecent = { recent, offset -> viewModel.moveRecent(context, recent, offset) },
+                        onRenameBookmark = { bookmark, name -> viewModel.renameBookmark(context, bookmark, name) },
                         onSortModeChange = { sortMode -> viewModel.updateLibrarySortMode(context, sortMode) },
                         onFileFilterChange = { filter -> viewModel.updateLibraryFileFilter(context, filter) },
                         onHomeTabChange = { tabName -> viewModel.updateHomeTab(context, tabName) },
@@ -315,6 +317,36 @@ fun AreadaApp(
                         },
                     )
 
+                    is ReaderScreen.Markdown -> MarkdownReaderScreen(
+                        screen = screen,
+                        preferences = uiState.preferences,
+                        bookmarks = uiState.bookmarks,
+                        onBack = viewModel::closeReader,
+                        onPreferencesChange = { preferences ->
+                            viewModel.updatePreferences(context, preferences)
+                        },
+                        onOpenBookNote = { viewModel.openBookNote(context, screen.document) },
+                        onToggleBookmark = { chapterIndex, chapterCount, scrollFraction, chapterTitle ->
+                            viewModel.toggleEpubBookmark(
+                                context = context,
+                                document = screen.document,
+                                chapterIndex = chapterIndex,
+                                chapterCount = chapterCount,
+                                scrollFraction = scrollFraction,
+                                chapterTitle = chapterTitle,
+                            )
+                        },
+                        onSaveProgress = { chapterIndex, chapterCount, scrollFraction ->
+                            viewModel.saveEpubProgress(
+                                context = context,
+                                document = screen.document,
+                                chapterIndex = chapterIndex,
+                                chapterCount = chapterCount,
+                                scrollFraction = scrollFraction,
+                            )
+                        },
+                    )
+
                     is ReaderScreen.Pdf -> PdfReaderScreen(
                         screen = screen,
                         preferences = uiState.preferences,
@@ -332,6 +364,15 @@ fun AreadaApp(
                                 pageCount = pageCount,
                             )
                         },
+                        onToggleExtractedTextBookmark = { sectionIndex, sectionCount, scrollFraction ->
+                            viewModel.togglePdfExtractedTextBookmark(
+                                context = context,
+                                document = screen.document,
+                                sectionIndex = sectionIndex,
+                                sectionCount = sectionCount,
+                                scrollFraction = scrollFraction,
+                            )
+                        },
                         onSaveProgress = { pageIndex, pageCount, zoomScale ->
                             viewModel.savePdfProgress(
                                 context = context,
@@ -339,6 +380,15 @@ fun AreadaApp(
                                 pageIndex = pageIndex,
                                 pageCount = pageCount,
                                 zoomScale = zoomScale,
+                            )
+                        },
+                        onSaveExtractedTextState = { extractTextEnabled, extractedPageIndex, extractedScrollMode ->
+                            viewModel.savePdfExtractedTextState(
+                                context = context,
+                                document = screen.document,
+                                extractTextEnabled = extractTextEnabled,
+                                extractedPageIndex = extractedPageIndex,
+                                extractedScrollMode = extractedScrollMode,
                             )
                         },
                     )
@@ -447,6 +497,8 @@ private val SupportedOpenFileMimeTypes = arrayOf(
     "application/epub",
     "application/pdf",
     "text/plain",
+    "text/markdown",
+    "text/x-markdown",
     "application/x-fictionbook+xml",
     "application/fb2+xml",
     "application/zip",

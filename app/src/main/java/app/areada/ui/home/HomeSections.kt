@@ -157,7 +157,7 @@ internal fun BookmarkRow(
             typeLabel = if (bookmark.type == DocumentType.ARCHIVE) {
                 archiveFormatLabel(bookmark.uriString.substringAfterLast('/'))
             } else null,
-            progressLabel = bookmark.positionLabel,
+            progressLabel = bookmark.customName ?: bookmark.positionLabel,
             pinned = pinned,
             hasNote = hasNote,
             selected = selected,
@@ -228,10 +228,11 @@ internal fun SearchResultRow(
                         DocumentType.EPUB -> Icons.Outlined.ImportContacts
                         DocumentType.PDF -> Icons.Outlined.PictureAsPdf
                         DocumentType.TXT -> Icons.Outlined.Description
-                    DocumentType.FB2 -> Icons.AutoMirrored.Outlined.LibraryBooks
-                    DocumentType.ZIP -> Icons.AutoMirrored.Outlined.LibraryBooks
-                    DocumentType.ARCHIVE -> Icons.AutoMirrored.Outlined.LibraryBooks
-                    null -> Icons.AutoMirrored.Outlined.LibraryBooks
+                        DocumentType.MARKDOWN -> Icons.Outlined.Description
+                        DocumentType.FB2 -> Icons.AutoMirrored.Outlined.LibraryBooks
+                        DocumentType.ZIP -> Icons.AutoMirrored.Outlined.LibraryBooks
+                        DocumentType.ARCHIVE -> Icons.AutoMirrored.Outlined.LibraryBooks
+                        null -> Icons.AutoMirrored.Outlined.LibraryBooks
                     }
                 },
                 contentDescription = null,

@@ -71,11 +71,12 @@ enum class LibraryFileFilter(
     val documentTypes: Set<DocumentType>?,
 ) {
     ALL("All", null),
+    ARCHIVE("Archives", setOf(DocumentType.ZIP, DocumentType.ARCHIVE)),
     EPUB("EPUB", setOf(DocumentType.EPUB)),
+    FB2("FB2", setOf(DocumentType.FB2)),
+    MARKDOWN("Markdown", setOf(DocumentType.MARKDOWN)),
     PDF("PDF", setOf(DocumentType.PDF)),
     TXT("TXT", setOf(DocumentType.TXT)),
-    FB2("FB2", setOf(DocumentType.FB2)),
-    ARCHIVE("Archives", setOf(DocumentType.ZIP, DocumentType.ARCHIVE)),
 }
 
 data class LibraryFolderEntry(

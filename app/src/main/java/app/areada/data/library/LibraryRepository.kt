@@ -367,7 +367,8 @@ object LibraryRepository {
         document: ReaderDocument,
     ): TextDocumentContent =
         when (document.type) {
-            DocumentType.TXT -> TextDocumentContent(text = readText(context, document.uri))
+            DocumentType.TXT,
+            DocumentType.MARKDOWN -> TextDocumentContent(text = readText(context, document.uri))
             DocumentType.FB2 -> runCatching {
                 LocalTextExtractor.readFb2Document(context, document.uri)
             }.getOrElse {

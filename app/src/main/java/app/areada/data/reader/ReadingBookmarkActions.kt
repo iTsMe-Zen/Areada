@@ -1,4 +1,4 @@
-package app.areada.data.reader
+﻿package app.areada.data.reader
 
 import app.areada.data.library.moveListItem
 
@@ -60,6 +60,35 @@ internal object ReadingBookmarkActions {
         )
     }
 
+    fun createPdfExtractedTextBookmark(
+        document: ReaderDocument,
+        sectionIndex: Int,
+        sectionCount: Int,
+        scrollFraction: Float,
+        timestamp: Long = System.currentTimeMillis(),
+    ): ReadingBookmark {
+        val safeIndex = sectionIndex.coerceAtLeast(0)
+        val safeCount = sectionCount.coerceAtLeast(0)
+        val safeScroll = scrollFraction.coerceIn(0f, 1f)
+        val id = pdfExtractedTextBookmarkId(document.uriString, safeIndex, safeScroll)
+        return ReadingBookmark(
+            id = id,
+            uriString = document.uriString,
+            title = document.title,
+            type = document.type,
+            positionLabel = if (safeCount > 0) {
+                "Section ${safeIndex + 1} of $safeCount"
+            } else {
+                "Section ${safeIndex + 1}"
+            },
+            pdfExtractedTextSectionIndex = safeIndex,
+            pdfExtractedTextSectionCount = safeCount,
+            pdfExtractedTextScrollFraction = safeScroll,
+            createdAt = timestamp,
+            updatedAt = timestamp,
+        )
+    }
+
     fun createTextBookmark(
         document: ReaderDocument,
         scrollFraction: Float,
@@ -107,6 +136,10 @@ internal object ReadingBookmarkActions {
             epubScrollFraction = bookmark.epubScrollFraction,
             pdfPageIndex = bookmark.pdfPageIndex,
             pdfPageCount = bookmark.pdfPageCount,
+            pdfExtractedTextSectionIndex = bookmark.pdfExtractedTextSectionIndex,
+            pdfExtractedTextSectionCount = bookmark.pdfExtractedTextSectionCount,
+            pdfExtractedTextScrollFraction = bookmark.pdfExtractedTextScrollFraction,
+            pdfExtractedTextEnabled = bookmark.pdfExtractedTextSectionCount > 0,
             txtScrollFraction = bookmark.txtScrollFraction,
             updatedAt = bookmark.updatedAt,
         )
@@ -116,13 +149,15 @@ internal object ReadingBookmarkActions {
         document: ReaderDocument,
         timestamp: Long = System.currentTimeMillis(),
     ): ReadingBookmark {
-        val newId = when (bookmark.type) {
-            DocumentType.EPUB,
-            DocumentType.FB2 -> epubBookmarkId(document.uriString, bookmark.epubChapterIndex, bookmark.epubScrollFraction)
-            DocumentType.PDF -> pdfBookmarkId(document.uriString, bookmark.pdfPageIndex)
-            DocumentType.TXT,
-            DocumentType.ZIP,
-            DocumentType.ARCHIVE -> txtBookmarkId(document.uriString, bookmark.txtScrollFraction)
+        val newId = when {
+            bookmark.type == DocumentType.PDF && bookmark.pdfExtractedTextSectionCount > 0 ->
+                pdfExtractedTextBookmarkId(document.uriString, bookmark.pdfExtractedTextSectionIndex, bookmark.pdfExtractedTextScrollFraction)
+            bookmark.type == DocumentType.PDF ->
+                pdfBookmarkId(document.uriString, bookmark.pdfPageIndex)
+            bookmark.type == DocumentType.EPUB || bookmark.type == DocumentType.FB2 ->
+                epubBookmarkId(document.uriString, bookmark.epubChapterIndex, bookmark.epubScrollFraction)
+            else ->
+                txtBookmarkId(document.uriString, bookmark.txtScrollFraction)
         }
         return bookmark.copy(
             id = newId,
@@ -131,4 +166,13 @@ internal object ReadingBookmarkActions {
             updatedAt = timestamp,
         )
     }
+
+    fun renameBookmark(
+        bookmark: ReadingBookmark,
+        newName: String,
+        timestamp: Long = System.currentTimeMillis(),
+    ): ReadingBookmark = bookmark.copy(
+        customName = newName.ifBlank { null },
+        updatedAt = timestamp,
+    )
 }

@@ -1,0 +1,8 @@
+- Added Extract text mode for a better reading experience on PDF files.
+- Added swipe-right gesture on note sections to open the action menu (rename, reorder, pin, delete).
+- Added markdown (.md) file support.
+- Added Chinese, Russian and Spanish reader language options.
+- Added PDF reader scrubber for faster page navigation.
+- Added pinned note sections to keep important notes at the top.
+- Reconstructed bookmark section, now works as save state too.
+- Reworked buttons for page navigation.

@@ -77,6 +77,22 @@ object EpubEngine {
             book.archiveFile?.isFile == true &&
             book.chapters.isNotEmpty()
 
+    private fun getSourceLastModified(context: Context, uri: Uri): Long {
+        return try {
+            if (uri.scheme == "file") {
+                File(uri.path ?: "").lastModified()
+            } else {
+                context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                    val idx = cursor.getColumnIndex(android.provider.DocumentsContract.Document.COLUMN_LAST_MODIFIED)
+                    if (idx >= 0 && cursor.moveToFirst()) {
+                        val v = cursor.getLong(idx)
+                        if (v > 0) v else 0L
+                    } else 0L
+                } ?: 0L
+            }
+        } catch (_: Exception) { 0L }
+    }
+
     private fun parseBlocking(context: Context, uri: Uri, fallbackTitle: String): EpubBook {
         val root = File(
             context.cacheDir,
@@ -88,6 +104,13 @@ object EpubEngine {
                 val archiveFile = File(root, EpubArchiveFileName)
                 if ((!readyMarker.exists() || !archiveFile.isFile) && root.exists()) {
                     root.deleteRecursively()
+                }
+                // Invalidate cache if source file was modified (for EPUB creators)
+                if (archiveFile.isFile && readyMarker.isFile) {
+                    val srcModified = getSourceLastModified(context, uri)
+                    if (srcModified > 0 && srcModified > archiveFile.lastModified()) {
+                        root.deleteRecursively()
+                    }
                 }
                 if (!archiveFile.isFile) {
                     root.mkdirs()
@@ -213,16 +236,9 @@ object EpubEngine {
               box-sizing: border-box;
               max-width: 100%;
             }
-            body * {
-              text-decoration: none !important;
-              text-decoration-line: none !important;
-            }
-            p, div, span, li, td, th, blockquote, pre, em, strong, i, b, u, a, font, small, sup, sub, ins, section, article {
+            p, div, span, li, td, th, blockquote, pre, em, strong, i, b, a, font, small, sup, sub, section, article {
               font-family: inherit !important;
-              font-size: inherit !important;
               line-height: inherit !important;
-              text-decoration: none !important;
-              text-decoration-line: none !important;
             }
             h1 {
               font-size: ${fontSize + 8}px !important;
@@ -253,10 +269,13 @@ object EpubEngine {
             a * {
               color: inherit !important;
             }
-            u, ins {
-              text-decoration: none !important;
-              text-decoration-line: none !important;
-              border-bottom: 0 !important;
+            /* Keep epub underline/wavy intact for <u> and .book */
+            aside {
+              display: block;
+              margin: 1em 0;
+              padding: 12px;
+              background: ${palette.surfaceHex};
+              border-left: 3px solid ${palette.mutedHex};
             }
             table {
               display: block;

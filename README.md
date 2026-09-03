@@ -14,7 +14,7 @@ Areada supports EPUB, PDF, TXT, FB2, FBZ, FB2 ZIP, and a wide range of archive f
 
 ## Latest Release
 
-Latest version: **v1.1.2**
+Latest version: **v1.1.3**
 
 <p>
   <a href="https://github.com/iTsMe-Zen/Areada/releases/latest">
@@ -35,7 +35,8 @@ Latest version: **v1.1.2**
 - FB2
 - FBZ
 - FB2 ZIP
-- ZIP, 7z, gz, bz2, xz, tar, tar.gz / tgz, tar.bz2 / tbz2, and tar.xz / txz archives containing EPUB, PDF, TXT, or FB2
+- Markdown (.md)
+- ZIP, 7z, gz, bz2, xz, tar, tar.gz / tgz, tar.bz2 / tbz2, and tar.xz / txz archives containing EPUB, PDF, TXT, FB2, or Markdown
 
 FB2 support includes:
 
@@ -43,21 +44,21 @@ FB2 support includes:
 - `.fb2.zip`
 - `.fbz`
 
-Areada can open `.zip`, `.7z`, `.gz`, `.bz2`, `.xz`, `.tar`, `.tar.gz` / `.tgz`, `.tar.bz2` / `.tbz2`, and `.tar.xz` / `.txz` archives containing supported book files such as EPUB, PDF, TXT, or FB2. If an archive contains multiple supported books, Areada shows a chooser.
+Areada can open `.zip`, `.7z`, `.gz`, `.bz2`, `.xz`, `.tar`, `.tar.gz` / `.tgz`, `.tar.bz2` / `.tbz2`, and `.tar.xz` / `.txz` archives containing supported book files such as EPUB, PDF, TXT, FB2, or Markdown. If an archive contains multiple supported books, Areada shows a chooser.
 
 Encrypted, split, and nested archives are not supported.
 
 ## Features
 
-- **Local reading:** EPUB, PDF, TXT, FB2, FBZ, FB2 ZIP, and supported archive reading with saved progress
+- **Local reading:** EPUB, PDF, TXT, FB2, FBZ, FB2 ZIP, Markdown, and supported archive reading with saved progress
 - **Home tabs:** Compact Books, Reading, and Bookmarks tabs for cleaner library browsing
 - **Bookmarks:** Persistent local bookmarks for supported reading files
 - **Recent reading:** Quickly resume files from the Reading tab
-- **Search and filters:** Search folders, files, notes, bookmarks, and reading items with EPUB/PDF/TXT/FB2 filters
+- **Search and filters:** Search folders, files, notes, bookmarks, and reading items with EPUB/PDF/TXT/FB2/Markdown filters
 - **Folder-aware filtering:** Folders remain visible when they contain matching files or matching subfolders
 - **Sorting:** Sort by name, added date, recently opened, reading progress, and file type
-- **Navigation:** EPUB table of contents, stable EPUB section navigation, PDF page navigation, and quick bookmark access from Home
-- **PDF improvements:** Better rendering for existing PDF annotations, callouts, and highlights on supported Android versions
+- **Navigation:** EPUB table of contents, stable EPUB section navigation, PDF page navigation with outline-based sections and scrubber, and quick bookmark access from Home
+- **PDF improvements:** Better rendering for existing PDF annotations, callouts, and highlights on supported Android versions; PDF reflow for lightweight text reading, selectable text and search where available
 - **Links:** PDF internal/external links and EPUB external links, with confirmation before opening external links
 - **Reader controls:** Theme, font family, font size, reader orientation, page navigation mode (Swipe, Tap, Buttons), reading ruler/focus line, and pinch-to-zoom support where available
 - **Notes:** Create and edit local `.txt` notes with readable `# Heading` sections for organized note tabs

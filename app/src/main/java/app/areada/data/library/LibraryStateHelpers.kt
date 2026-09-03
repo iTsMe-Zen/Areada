@@ -158,6 +158,7 @@ internal fun isReadingProgressCompleted(progress: ReadingProgress): Boolean =
 
         DocumentType.TXT,
         DocumentType.FB2,
+        DocumentType.MARKDOWN,
         DocumentType.ZIP,
         DocumentType.ARCHIVE -> false
     }

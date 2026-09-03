@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="app_name">Areada</string>
     <string name="settings">Configuración</string>
     <string name="additional_settings">Configuración adicional</string>
@@ -22,6 +22,7 @@
     <string name="language_system">Sistema</string>
     <string name="language_english">English</string>
     <string name="language_spanish">Español</string>
+    <string name="language_russian">Ruso</string>
     <string name="language_nepali">नेपाली</string>
     <string name="language_portuguese_brazil">Português</string>
 
@@ -80,8 +81,12 @@
     <string name="info">Información</string>
     <string name="pin">Fijar</string>
     <string name="unpin">Desfijar</string>
+    <string name="pin_unpin">Fijar/Desfijar</string>
+    <string name="move">Mover</string>
     <string name="move_up">Mover hacia arriba</string>
     <string name="move_down">Mover hacia abajo</string>
+    <string name="move_left">Mover a la izquierda</string>
+    <string name="move_right">Mover a la derecha</string>
     <string name="format">Formato</string>
     <string name="status">Estado</string>
     <string name="progress">Progreso</string>
@@ -113,6 +118,7 @@
     <string name="insert_timestamp">Insertar marca de tiempo</string>
     <string name="write_note_hint">Escribir nota...</string>
     <string name="remove">Quitar</string>
+    <string name="delete_section_question">¿Eliminar sección «%1$s»?</string>
     <string name="remove_question">¿Quitar?</string>
     <string name="discard_question">¿Descartar?</string>
     <string name="current">Actual</string>
@@ -127,12 +133,13 @@
     <string name="empty_library_epub">No se encontraron archivos EPUB.</string>
     <string name="empty_library_pdf">No se encontraron archivos PDF.</string>
     <string name="empty_library_txt">No se encontraron archivos TXT.</string>
+    <string name="empty_library_md">No se encontraron archivos Markdown.</string>
     <string name="empty_library_fb2">No se encontraron archivos FB2.</string>
 
     <string name="empty_library_archive">No se encontraron archivos comprimidos.</string>
     <string name="choose_folder_note">Por favor, elige una carpeta desde [Elegir carpeta]</string>
     <string name="quick_guide_title">Guía</string>
-    <string name="home_tutorial_note">**Desliza a la derecha** [Elegir carpeta] para abrir un archivo temporalmente.\n**Desliza a la derecha** [Selección de carpeta] para gestionar carpetas.\n**Desliza a la derecha** [Libros/Carpetas] desde la colección para abrir el menú de [Acción].\n**Desliza a la izquierda** [Libros/Carpetas] desde la colección para hacer una selección.</string>
+    <string name="home_tutorial_note">**Desliza a la derecha** [Elegir carpeta] para abrir un archivo temporalmente.\n**Desliza a la derecha** [Selección de carpeta] para gestionar carpetas.\n**Desliza a la derecha** [Libros/Carpetas] desde la colección para abrir el menú de [Acción].\n**Desliza a la izquierda** [Libros/Carpetas] desde la colección para hacer una selección.\n**Desliza a la derecha** [Sección de nota] para abrir el menú de [Acción].</string>
     <string name="no_folder_selected_title">Ninguna carpeta seleccionada</string>
     <string name="no_folder_selected_body">Elige una carpeta para comenzar a armar tu biblioteca.</string>
     <string name="no_books_found_title">No se encontraron libros</string>
@@ -194,8 +201,33 @@
     <string name="resume_page">Reanudar página %1$d</string>
     <string name="resume_percent">Reanudar %1$d%%</string>
     <string name="vibrate_on_page_turn">Vibrar al cambiar de página</string>
+    <string name="invert_scrolling">Invertir desplazamiento</string>
+    <string name="button_layout">Diseño de botones</string>
     <string name="retry">Reintentar</string>
     <string name="could_not_create_book_note">No se pudo crear una nota del libro.</string>
     <string name="could_not_open_book_note">No se pudo abrir esa nota del libro.</string>
     <string name="choose_folder_before_book_note">Elige una carpeta antes de crear una nota del libro.</string>
+
+    <string name="section">Sección</string>
+    <string name="extract_text">Reflujo de PDF</string>
+    <string name="n_selected">%1$d seleccionados</string>
+    <string name="invalid_epub">Archivo EPUB no válido o no compatible.</string>
+    <string name="epub_no_chapters">Este EPUB no contiene capítulos legibles.</string>
+    <string name="folder_no_longer_available">Esa carpeta ya no está disponible.</string>
+    <string name="unable_delete_folder">No se pudo eliminar esa carpeta.</string>
+    <string name="unable_delete_book">No se pudo eliminar ese libro.</string>
+    <string name="unable_rename_folder">No se pudo renombrar esa carpeta.</string>
+    <string name="unable_rename_book">No se pudo renombrar ese libro.</string>
+    <string name="unable_open_folder">No se pudo abrir esa carpeta.</string>
+    <string name="unable_open_file">No se pudo abrir ese archivo.</string>
+    <string name="unable_create_note">No se pudo crear esa nota.</string>
+    <string name="unable_discard_note">No se pudo descartar esa nota.</string>
+    <string name="unable_rename_note">No se pudo renombrar esa nota.</string>
+    <string name="filter_archives">Archivos comprimidos</string>
+    <string name="filter_epub">EPUB</string>
+    <string name="filter_fb2">FB2</string>
+    <string name="filter_markdown">Markdown</string>
+    <string name="filter_pdf">PDF</string>
+    <string name="filter_txt">TXT</string>
+    <string name="language_zhcn">Chino simplificado</string>
 </resources>

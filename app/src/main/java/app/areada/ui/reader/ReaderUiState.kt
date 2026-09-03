@@ -1,4 +1,4 @@
-package app.areada.ui.reader
+﻿package app.areada.ui.reader
 
 import app.areada.data.reader.DocumentType
 import app.areada.data.BookStatus
@@ -19,6 +19,7 @@ import app.areada.data.reader.RecentDocument
 import app.areada.data.ZipBookEntry
 import app.areada.reader.epub.EpubBook
 import app.areada.reader.fb2.Fb2Book
+import app.areada.reader.markdown.MarkdownBook
 
 data class ReaderUiState(
     val isLoading: Boolean = false,
@@ -71,6 +72,9 @@ sealed interface ReaderScreen {
         val document: ReaderDocument,
         val initialPageIndex: Int,
         val initialZoomScale: Float,
+        val initialExtractedTextEnabled: Boolean = false,
+        val initialExtractedTextPageIndex: Int = 0,
+        val initialExtractedTextScrollMode: Boolean = false,
     ) : ReaderScreen
 
     data class Text(
@@ -81,5 +85,12 @@ sealed interface ReaderScreen {
         val editable: Boolean = true,
         val sectionedNote: Boolean = false,
         val initialNoteSectionTitle: String? = null,
+    ) : ReaderScreen
+
+    data class Markdown(
+        val document: ReaderDocument,
+        val book: MarkdownBook,
+        val initialChapterIndex: Int,
+        val initialScrollFraction: Float,
     ) : ReaderScreen
 }

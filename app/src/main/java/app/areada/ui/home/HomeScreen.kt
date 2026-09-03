@@ -26,8 +26,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.LibraryBooks
 import androidx.compose.material.icons.outlined.CreateNewFolder
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.ImportContacts
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.KeyboardArrowUp
+import androidx.compose.material.icons.outlined.PictureAsPdf
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
@@ -35,6 +41,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -93,6 +100,12 @@ import app.areada.ui.reader.LibraryScrollPosition
 import app.areada.ui.reader.NotePopup
 import kotlinx.coroutines.flow.collect
 
+private data class GroupHeader(
+    val title: String,
+    val count: Int,
+    val type: DocumentType?,
+)
+
 @Composable
 internal fun HomeScreen(
     roots: List<LibraryRoot>,
@@ -133,6 +146,7 @@ internal fun HomeScreen(
     onRemoveRecent: (RecentDocument) -> Unit,
     onMoveBookmark: (ReadingBookmark, Int) -> Unit,
     onMoveRecent: (RecentDocument, Int) -> Unit,
+    onRenameBookmark: (ReadingBookmark, String) -> Unit,
     onSortModeChange: (LibrarySortMode) -> Unit,
     onFileFilterChange: (LibraryFileFilter) -> Unit,
     onHomeTabChange: (String) -> Unit,
@@ -193,6 +207,18 @@ internal fun HomeScreen(
     }
     var bookmarkRemovalTarget by remember {
         mutableStateOf<ReadingBookmark?>(null)
+    }
+    var bookmarkGroupActionTarget by remember {
+        mutableStateOf<String?>(null)
+    }
+    var bookmarkGroupRemovalTarget by remember {
+        mutableStateOf<String?>(null)
+    }
+    var bookmarkRenameTarget by remember {
+        mutableStateOf<ReadingBookmark?>(null)
+    }
+    var bookmarkRenameText by rememberSaveable {
+        mutableStateOf("")
     }
     var recentRemovalTarget by remember {
         mutableStateOf<RecentDocument?>(null)
@@ -257,7 +283,7 @@ internal fun HomeScreen(
                 HomeTab.Reading -> onTogglePinDocument(key)
                 HomeTab.Bookmarks -> {
                     val bookmark = bookmarks.firstOrNull { "bm:${it.id}" == key }
-                    bookmark?.let { onTogglePinDocument(it.uriString) }
+                    bookmark?.let { onTogglePinDocument(it.id) }
                 }
                 HomeTab.Collection -> {
                     val folder = folders.firstOrNull { "folder:${it.id}" == key }
@@ -440,7 +466,7 @@ internal fun HomeScreen(
         val index = bookmarks.indexOfFirst { item -> item.id == bookmark.id }
         DocumentListActionSheet(
             title = bookmark.title,
-            pinned = bookmark.uriString in pinnedLibraryItemIds,
+            pinned = bookmark.id in pinnedLibraryItemIds,
             canMoveUp = index > 0,
             canMoveDown = index >= 0 && index < bookmarks.lastIndex,
             bookStatus = effectiveBookStatus(bookStatusByUri[bookmark.uriString], progressByUri[bookmark.uriString]),
@@ -450,7 +476,7 @@ internal fun HomeScreen(
             },
             onDismiss = { bookmarkActionTarget = null },
             onTogglePin = {
-                onTogglePinDocument(bookmark.uriString)
+                onTogglePinDocument(bookmark.id)
                 bookmarkActionTarget = null
             },
             onMoveUp = {
@@ -463,6 +489,11 @@ internal fun HomeScreen(
             },
             onRemove = {
                 bookmarkRemovalTarget = bookmark
+                bookmarkActionTarget = null
+            },
+            onRename = {
+                bookmarkRenameText = bookmark.customName ?: bookmark.positionLabel
+                bookmarkRenameTarget = bookmark
                 bookmarkActionTarget = null
             },
         )
@@ -486,6 +517,18 @@ internal fun HomeScreen(
             onYes = {
                 onRemoveRecent(recent)
                 recentRemovalTarget = null
+            },
+        )
+    }
+
+    bookmarkRenameTarget?.let { bookmark ->
+        RenameDialog(
+            name = bookmarkRenameText,
+            onNameChange = { bookmarkRenameText = it },
+            onDismiss = { bookmarkRenameTarget = null },
+            onConfirm = {
+                onRenameBookmark(bookmark, bookmarkRenameText)
+                bookmarkRenameTarget = null
             },
         )
     }
@@ -525,7 +568,7 @@ internal fun HomeScreen(
         bookmarks
             .filterBookmarksByLibraryFileFilter(fileFilter)
             .let { sortReadingBookmarks(it, sortMode) }
-            .sortedByDescending { it.uriString in pinnedLibraryItemIds }
+            .sortedByDescending { it.id in pinnedLibraryItemIds }
     }
     val visibleRecents = remember(recents, fileFilter, sortMode, progressByUri, pinnedLibraryItemIds) {
         recents
@@ -647,9 +690,28 @@ internal fun HomeScreen(
 
     val homeBackground = MaterialTheme.colorScheme.background
 
+    val groupedBookmarks = remember(visibleBookmarks) {
+        visibleBookmarks.take(20).groupBy { it.title }
+    }
+    val expandedBookmarkGroups = remember { mutableStateMapOf<String, Boolean>() }
+
     Scaffold(
         containerColor = homeBackground,
     ) { paddingValues ->
+    val flatBookmarkItems by remember(visibleBookmarks) {
+        derivedStateOf {
+            val result = mutableListOf<Any>()
+            groupedBookmarks.forEach { (bookTitle, bookBookmarks) ->
+                val isExpanded = expandedBookmarkGroups[bookTitle] ?: false
+                result.add(GroupHeader(bookTitle, bookBookmarks.size, bookBookmarks.firstOrNull()?.type))
+                if (isExpanded) {
+                    result.addAll(bookBookmarks)
+                }
+            }
+            result
+        }
+    }
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -936,33 +998,121 @@ internal fun HomeScreen(
                     }
                 } else {
                     items(
-                        items = visibleBookmarks.take(20),
-                        key = { bookmark -> "bookmark:${bookmark.id}" },
-                    ) { bookmark ->
-                        val bookmarkKey = "bm:${bookmark.id}"
-                        val isSelected = bookmarkKey in selectedItemIds
-                        BookmarkRow(
-                            bookmark = bookmark,
-                            pinned = bookmark.uriString in pinnedLibraryItemIds,
-                            hasNote = hasBookNote(bookmark.uriString, bookNoteLinksByUri),
-                            selected = isSelected,
-                            onClick = {
-                                if (isSelectionMode) {
-                                    selectedItemIds.remove(bookmarkKey)
-                                } else {
-                                    onOpenBookmark(bookmark)
+                        items = flatBookmarkItems,
+                        key = { item ->
+                            when (item) {
+                                is GroupHeader -> "group:${item.title}"
+                                is ReadingBookmark -> "bookmark:${item.id}"
+                                else -> "unknown"
+                            }
+                        },
+                    ) { item ->
+                        when (item) {
+                            is GroupHeader -> {
+                                val isExpanded = expandedBookmarkGroups[item.title] ?: false
+                                val groupBookmarks = groupedBookmarks[item.title] ?: emptyList()
+                                val groupKey = "group:${item.title}"
+                                val isGroupSelected = groupKey in selectedItemIds
+                                SwipeActionBox(
+                                    actionLabel = stringResource(R.string.actions),
+                                    onSwipe = { bookmarkGroupActionTarget = item.title },
+                                    onSwipeEndToStart = {
+                                        if (isGroupSelected) {
+                                            selectedItemIds.remove(groupKey)
+                                            groupBookmarks.forEach { bm ->
+                                                selectedItemIds.remove("bm:${bm.id}")
+                                            }
+                                        } else {
+                                            selectedItemIds[groupKey] = true
+                                            groupBookmarks.forEach { bm ->
+                                                selectedItemIds["bm:${bm.id}"] = true
+                                            }
+                                        }
+                                    },
+                                ) {
+                                    Surface(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                expandedBookmarkGroups[item.title] = !isExpanded
+                                            },
+                                        shape = RectangleShape,
+                                        color = MaterialTheme.colorScheme.surface,
+                                        tonalElevation = 0.dp,
+                                        shadowElevation = 0.dp,
+                                    ) {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        ) {
+                                            Icon(
+                                                imageVector = when (item.type) {
+                                                    DocumentType.EPUB -> Icons.Outlined.ImportContacts
+                                                    DocumentType.PDF -> Icons.Outlined.PictureAsPdf
+                                                    DocumentType.TXT -> Icons.Outlined.Description
+                                                    DocumentType.MARKDOWN -> Icons.Outlined.Description
+                                                    else -> Icons.AutoMirrored.Outlined.LibraryBooks
+                                                },
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.primary,
+                                            )
+                                            Text(
+                                                text = item.title,
+                                                modifier = Modifier.weight(1f),
+                                                style = MaterialTheme.typography.titleSmall,
+                                                fontWeight = FontWeight.SemiBold,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis,
+                                            )
+                                            Text(
+                                                text = "${item.count}",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            )
+                                            Icon(
+                                                imageVector = if (isExpanded) {
+                                                    Icons.Outlined.KeyboardArrowUp
+                                                } else {
+                                                    Icons.Outlined.KeyboardArrowDown
+                                                },
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            )
+                                        }
+                                    }
                                 }
-                            },
-                            onActions = { bookmarkActionTarget = bookmark },
-                            onSelect = {
-                                if (isSelected) {
-                                    selectedItemIds.remove(bookmarkKey)
-                                } else {
-                                    selectedItemIds[bookmarkKey] = true
-                                }
-                            },
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
+                            }
+                            is ReadingBookmark -> {
+                                val bookmark = item
+                                val bookmarkKey = "bm:${bookmark.id}"
+                                val isSelected = bookmarkKey in selectedItemIds
+                                BookmarkRow(
+                                    bookmark = bookmark,
+                                    pinned = bookmark.id in pinnedLibraryItemIds,
+                                    hasNote = hasBookNote(bookmark.uriString, bookNoteLinksByUri),
+                                    selected = isSelected,
+                                    onClick = {
+                                        if (isSelectionMode) {
+                                            selectedItemIds.remove(bookmarkKey)
+                                        } else {
+                                            onOpenBookmark(bookmark)
+                                        }
+                                    },
+                                    onActions = { bookmarkActionTarget = bookmark },
+                                    onSelect = {
+                                        if (isSelected) {
+                                            selectedItemIds.remove(bookmarkKey)
+                                        } else {
+                                            selectedItemIds[bookmarkKey] = true
+                                        }
+                                    },
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+                        }
                     }
                 }
             }
@@ -1189,6 +1339,44 @@ internal fun HomeScreen(
                 },
             )
         }
+    }
+
+    bookmarkGroupActionTarget?.let { groupTitle ->
+        val groupBookmarks = groupedBookmarks[groupTitle] ?: emptyList()
+        val anyPinned = groupBookmarks.any { it.id in pinnedLibraryItemIds }
+        DocumentListActionSheet(
+            title = groupTitle,
+            pinned = anyPinned,
+            canMoveUp = false,
+            canMoveDown = false,
+            onDismiss = { bookmarkGroupActionTarget = null },
+            onTogglePin = {
+                groupBookmarks.forEach { bm ->
+                    onTogglePinDocument(bm.id)
+                }
+                bookmarkGroupActionTarget = null
+            },
+            onMoveUp = {},
+            onMoveDown = {},
+            onRemove = {
+                bookmarkGroupRemovalTarget = groupTitle
+                bookmarkGroupActionTarget = null
+            },
+        )
+    }
+
+    bookmarkGroupRemovalTarget?.let { groupTitle ->
+        val groupBookmarks = groupedBookmarks[groupTitle] ?: emptyList()
+        CompactChoiceDialog(
+            question = stringResource(R.string.remove_question),
+            onDismiss = { bookmarkGroupRemovalTarget = null },
+            onYes = {
+                groupBookmarks.forEach { bm ->
+                    onRemoveBookmark(bm)
+                }
+                bookmarkGroupRemovalTarget = null
+            },
+        )
     }
 }
 }

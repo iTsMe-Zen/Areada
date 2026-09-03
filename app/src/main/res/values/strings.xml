@@ -23,6 +23,9 @@
     <string name="language_english">English</string>
     <string name="language_nepali">नेपाली</string>
     <string name="language_portuguese_brazil">Português</string>
+    <string name="language_russian">Russian</string>
+    <string name="language_spanish">Spanish</string>
+    <string name="language_zhcn">简体中文</string>
 
     <string name="theme_day">Day</string>
     <string name="theme_sepia">Sepia</string>
@@ -81,8 +84,12 @@
     <string name="info">Info</string>
     <string name="pin">Pin</string>
     <string name="unpin">Unpin</string>
+    <string name="pin_unpin">Pin/Unpin</string>
+    <string name="move">Move</string>
     <string name="move_up">Move up</string>
     <string name="move_down">Move down</string>
+    <string name="move_left">Move left</string>
+    <string name="move_right">Move right</string>
     <string name="format">Format</string>
     <string name="status">Status</string>
     <string name="progress">Progress</string>
@@ -114,6 +121,7 @@
     <string name="insert_timestamp">Insert timestamp</string>
     <string name="write_note_hint">Write note...</string>
     <string name="remove">Remove</string>
+    <string name="delete_section_question">Delete section \"%1$s\"?</string>
     <string name="remove_question">Remove?</string>
     <string name="discard_question">Discard?</string>
     <string name="current">Current</string>
@@ -124,16 +132,17 @@
     <string name="no_matches">No matches.</string>
     <string name="searching_selected_folders">Searching selected folders...</string>
     <string name="showing_first_40_results">Showing first 40 results.</string>
-    <string name="empty_library_all">No EPUB, PDF, TXT, FB2, or archive files here.</string>
+    <string name="empty_library_all">No EPUB, PDF, TXT, Markdown, FB2, or archive files here.</string>
     <string name="empty_library_epub">No EPUB files found.</string>
     <string name="empty_library_pdf">No PDF files found.</string>
     <string name="empty_library_txt">No TXT files found.</string>
+    <string name="empty_library_md">No Markdown files found.</string>
     <string name="empty_library_fb2">No FB2 files found.</string>
 
     <string name="empty_library_archive">No archive files found.</string>
     <string name="choose_folder_note">Please choose folder from [Choose Folder]</string>
     <string name="quick_guide_title">Guide</string>
-    <string name="home_tutorial_note">**Swipe right** [Choose Folder] to Open a file temporarily.\n**Swipe right** [Folder Selection] to Manage folders.\n**Swipe right** [Books/Folders] from collection to open [Action] Menu.\n**Swipe left** [Books/Folders] from collection to make selection.</string>
+    <string name="home_tutorial_note">**Swipe right** [Choose Folder] to Open a file temporarily.\n**Swipe right** [Folder Selection] to Manage folders.\n**Swipe right** [Books/Folders] from collection to open [Action] Menu.\n**Swipe left** [Books/Folders] from collection to make selection.\n**Swipe right** [Note section] to open [Action] menu.</string>
     <string name="no_folder_selected_title">No folder selected</string>
     <string name="no_folder_selected_body">Choose a folder to start building your library.</string>
     <string name="no_books_found_title">No books found</string>
@@ -195,8 +204,32 @@
     <string name="resume_page">Resume page %1$d</string>
     <string name="resume_percent">Resume %1$d%%</string>
     <string name="vibrate_on_page_turn">Vibrate on page turn</string>
+    <string name="invert_scrolling">Invert scrolling</string>
+    <string name="button_layout">Button layout</string>
     <string name="retry">Retry</string>
     <string name="could_not_create_book_note">Unable to create a Book Note.</string>
     <string name="could_not_open_book_note">Unable to open that Book Note.</string>
     <string name="choose_folder_before_book_note">Choose a folder before creating a Book Note.</string>
+
+    <string name="section">Section</string>
+    <string name="extract_text">Extract text</string>
+    <string name="n_selected">%1$d selected</string>
+    <string name="invalid_epub">Invalid or unsupported EPUB file.</string>
+    <string name="epub_no_chapters">This EPUB does not contain readable chapters.</string>
+    <string name="folder_no_longer_available">That folder is no longer available.</string>
+    <string name="unable_delete_folder">Unable to delete that folder.</string>
+    <string name="unable_delete_book">Unable to delete that book.</string>
+    <string name="unable_rename_folder">Unable to rename that folder.</string>
+    <string name="unable_rename_book">Unable to rename that book.</string>
+    <string name="unable_open_folder">Unable to open that folder.</string>
+    <string name="unable_open_file">Unable to open that file.</string>
+    <string name="unable_create_note">Unable to create that note.</string>
+    <string name="unable_discard_note">Unable to discard that note.</string>
+    <string name="unable_rename_note">Unable to rename that note.</string>
+    <string name="filter_archives">Archives</string>
+    <string name="filter_epub">EPUB</string>
+    <string name="filter_fb2">FB2</string>
+    <string name="filter_markdown">Markdown</string>
+    <string name="filter_pdf">PDF</string>
+    <string name="filter_txt">TXT</string>
 </resources>

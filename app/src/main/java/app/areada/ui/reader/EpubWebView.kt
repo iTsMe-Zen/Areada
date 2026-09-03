@@ -45,6 +45,8 @@ internal fun EpubWebView(
     onOpenLocalHref: (String) -> Boolean,
     onOpenExternalLink: (Uri) -> Unit,
     onNoteOpen: (String) -> Unit,
+    scrollEventId: Int = 0,
+    scrollEventPixels: Int = 0,
     searchQuery: String,
     searchRequest: Int,
     searchBackwards: Boolean,
@@ -62,6 +64,8 @@ internal fun EpubWebView(
     val latestOnOpenExternalLink by rememberUpdatedState(onOpenExternalLink)
     val latestOnOpenLocalHref by rememberUpdatedState(onOpenLocalHref)
     val latestOnSearchResult by rememberUpdatedState(onSearchResult)
+    val latestScrollEventId by rememberUpdatedState(scrollEventId)
+    val latestScrollEventPixels by rememberUpdatedState(scrollEventPixels)
     val chapterSignature = "${chapter.baseUrl}#${chapter.html.hashCode()}"
 
     AndroidView(
@@ -296,6 +300,13 @@ internal fun EpubWebView(
                 if (previousRequestId != request.id) {
                     webView.setTag(R.id.tag_epub_scroll_request_id, request.id)
                     applyEpubScrollRequest(webView, request.progress)
+                }
+            }
+            if (latestScrollEventId != 0) {
+                val previousEventId = webView.getTag(R.id.tag_epub_scroll_event_id) as? Int
+                if (previousEventId != latestScrollEventId) {
+                    webView.setTag(R.id.tag_epub_scroll_event_id, latestScrollEventId)
+                    webView.post { scrollByWebView(webView, 0, latestScrollEventPixels) }
                 }
             }
             applyEpubChapterSearch(

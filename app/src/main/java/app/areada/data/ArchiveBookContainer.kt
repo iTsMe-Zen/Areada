@@ -1,5 +1,6 @@
 package app.areada.data
 
+import android.annotation.SuppressLint
 import app.areada.data.reader.DocumentType
 import app.areada.data.reader.ReaderDocument
 import android.content.Context
@@ -495,6 +496,7 @@ object ArchiveBookContainer {
         }
     }
 
+    @SuppressLint("NewApi")
     @Suppress("DEPRECATION")
     private fun list7zEntries(
         context: Context,
@@ -532,6 +534,7 @@ object ArchiveBookContainer {
         }
     }
 
+    @SuppressLint("NewApi")
     @Suppress("DEPRECATION")
     private fun extract7zEntry(
         context: Context,

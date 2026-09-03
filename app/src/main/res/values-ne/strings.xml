@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Areada</string>
     <string name="settings">सेटिङहरू</string>
@@ -28,6 +28,8 @@
     <string name="language_english">English</string>
     <string name="language_nepali">नेपाली</string>
     <string name="language_portuguese_brazil">Português</string>
+    <string name="language_russian">Russian</string>
+    <string name="language_spanish">Spanish</string>
 
     <string name="theme_day">दिन</string>
     <string name="theme_sepia">सेपिया</string>
@@ -64,7 +66,10 @@
     <string name="actions">कार्यहरू</string>
     <string name="note">नोट</string>
     <string name="close">बन्द गर्नुहोस्</string>
+    <string name="select">छान्नुहोस्</string>
+    <string name="clear">खाली गर्नुहोस्</string>
     <string name="remove">हटाउनुहोस्</string>
+    <string name="delete_section_question">«%1$s» खण्ड मेट्ने?</string>
     <string name="remove_question">हटाउने?</string>
     <string name="current">हालको</string>
     <string name="no_folders_selected">कुनै फोल्डर छानिएको छैन।</string>
@@ -78,6 +83,7 @@
     <string name="empty_library_epub">EPUB फाइल भेटिएन।</string>
     <string name="empty_library_pdf">PDF फाइल भेटिएन।</string>
     <string name="empty_library_txt">TXT फाइल भेटिएन।</string>
+    <string name="empty_library_md">Markdown फाइल भेटिएन।</string>
     <string name="empty_library_fb2">FB2 फाइल भेटिएन।</string>
 
     <string name="empty_library_archive">archive फाइल भेटिएन।</string>
@@ -138,8 +144,12 @@
     <string name="info">जानकारी</string>
     <string name="pin">पिन</string>
     <string name="unpin">अनपिन</string>
+    <string name="pin_unpin">पिन/अनपिन</string>
+    <string name="move">सार्नुहोस्</string>
     <string name="move_up">माथि सार्नुहोस्</string>
     <string name="move_down">तल सार्नुहोस्</string>
+    <string name="move_left">बायाँ सार्नुहोस्</string>
+    <string name="move_right">दायाँ सार्नुहोस्</string>
     <string name="format">फर्म्याट</string>
     <string name="status">स्थिति</string>
     <string name="progress">प्रगति</string>
@@ -163,7 +173,7 @@
     <string name="insert_timestamp">समय थप्नुहोस्</string>
     <string name="write_note_hint">नोट लेख्नुहोस्...</string>
     <string name="quick_guide_title">मार्गदर्शन</string>
-    <string name="home_tutorial_note">**दायाँ स्वाइप गर्नुहोस्** [फोल्डर छान्नुहोस्] अस्थायी रूपमा फाइल खोल्न।\n**दायाँ स्वाइप गर्नुहोस्** [फोल्डर व्यवस्थापन] फोल्डर व्यवस्थापन गर्न।\n**दायाँ स्वाइप गर्नुहोस्** [पुस्तकहरू/फोल्डरहरू] सङ्ग्रहबाट [कार्य] मेनु खोल्न।\n**बाँया स्वाइप गर्नुहोस्** [पुस्तकहरू/फोल्डरहरू] सङ्ग्रहबाट चयन गर्न।</string>
+    <string name="home_tutorial_note">**दायाँ स्वाइप गर्नुहोस्** [फोल्डर छान्नुहोस्] अस्थायी रूपमा फाइल खोल्न।\n**दायाँ स्वाइप गर्नुहोस्** [फोल्डर व्यवस्थापन] फोल्डर व्यवस्थापन गर्न।\n**दायाँ स्वाइप गर्नुहोस्** [पुस्तकहरू/फोल्डरहरू] सङ्ग्रहबाट [कार्य] मेनु खोल्न।\n**बाँया स्वाइप गर्नुहोस्** [पुस्तकहरू/फोल्डरहरू] सङ्ग्रहबाट चयन गर्न।\n**दायाँ स्वाइप गर्नुहोस्** [नोट खण्ड] [कार्य] मेनु खोल्न।</string>
     <string name="no_folder_selected_title">फोल्डर छानिएको छैन</string>
     <string name="no_folder_selected_body">लाइब्रेरी सुरु गर्न फोल्डर छान्नुहोस्।</string>
     <string name="no_books_found_title">पुस्तक भेटिएन</string>
@@ -189,7 +199,39 @@
     <string name="could_not_save_note">नोट सेभ गर्न सकिएन।</string>
     <string name="could_not_save_note_body">फोल्डर अनुमति जाँचेर फेरि प्रयास गर्नुहोस्।</string>
     <string name="could_not_create_note">त्यो नोट बनाउन सकिएन।</string>
+    <string name="resume_chapter_of">अध्याय %1$d / %2$d बाट जारी राख्नुहोस्</string>
+    <string name="resume_chapter">अध्याय %1$d बाट जारी राख्नुहोस्</string>
+    <string name="resume_page_of">पृष्ठ %1$d / %2$d बाट जारी राख्नुहोस्</string>
+    <string name="resume_page">पृष्ठ %1$d बाट जारी राख्नुहोस्</string>
+    <string name="resume_percent">%1$d%% बाट जारी राख्नुहोस्</string>
+    <string name="vibrate_on_page_turn">पाना फेर्दा कम्पन गर्नुहोस्</string>
+    <string name="invert_scrolling">स्क्रोल उल्टाउनुहोस्</string>
+    <string name="button_layout">बटन लेआउट</string>
+    <string name="retry">फेरि प्रयास गर्नुहोस्</string>
     <string name="could_not_create_book_note">Book Note बनाउन सकिएन।</string>
     <string name="could_not_open_book_note">त्यो Book Note खोल्न सकिएन।</string>
     <string name="choose_folder_before_book_note">Book Note बनाउनुअघि फोल्डर छान्नुहोस्।</string>
+
+    <string name="section">खण्ड</string>
+    <string name="extract_text">PDF पुनर्प्रवाह</string>
+    <string name="n_selected">%1$d छानिएको</string>
+    <string name="invalid_epub">अमान्य वा असमर्थित EPUB फाइल।</string>
+    <string name="epub_no_chapters">यस EPUB मा पढ्न मिल्ने अध्याय छैन।</string>
+    <string name="folder_no_longer_available">त्यो फोल्डर अब उपलब्ध छैन।</string>
+    <string name="unable_delete_folder">त्यो फोल्डर मेट्न सकिएन।</string>
+    <string name="unable_delete_book">त्यो पुस्तक मेट्न सकिएन।</string>
+    <string name="unable_rename_folder">त्यो फोल्डरको नाम बदल्न सकिएन।</string>
+    <string name="unable_rename_book">त्यो पुस्तकको नाम बदल्न सकिएन।</string>
+    <string name="unable_open_folder">त्यो फोल्डर खोल्न सकिएन।</string>
+    <string name="unable_open_file">त्यो फाइल खोल्न सकिएन।</string>
+    <string name="unable_create_note">त्यो नोट बनाउन सकिएन।</string>
+    <string name="unable_discard_note">त्यो नोट छोड्न सकिएन।</string>
+    <string name="unable_rename_note">त्यो नोटको नाम बदल्न सकिएन।</string>
+    <string name="filter_archives">आर्काइभ</string>
+    <string name="filter_epub">EPUB</string>
+    <string name="filter_fb2">FB2</string>
+    <string name="filter_markdown">Markdown</string>
+    <string name="filter_pdf">PDF</string>
+    <string name="filter_txt">TXT</string>
+    <string name="language_zhcn">简体中文</string>
 </resources>

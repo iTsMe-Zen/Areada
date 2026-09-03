@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="app_name">Areada</string>
     <string name="settings">Configurações</string>
     <string name="additional_settings">Configurações adicionais</string>
@@ -23,6 +23,8 @@
     <string name="language_english">Inglês</string>
     <string name="language_nepali">नेपाली</string>
     <string name="language_portuguese_brazil">Português</string>
+    <string name="language_russian">Russian</string>
+    <string name="language_spanish">Spanish</string>
 
 
     <string name="theme_day">Dia</string>
@@ -69,6 +71,8 @@
     <string name="actions">Ações</string>
     <string name="note">Nota</string>
     <string name="close">Fechar</string>
+    <string name="select">Selecionar</string>
+    <string name="clear">Limpar</string>
     <string name="clear_search">Limpar pesquisa</string>
     <string name="dismiss">Dispensar</string>
     <string name="loading">Carregando</string>
@@ -80,8 +84,12 @@
     <string name="info">Informações</string>
     <string name="pin">Fixar</string>
     <string name="unpin">Desafixar</string>
+    <string name="pin_unpin">Fixar/Desafixar</string>
+    <string name="move">Mover</string>
     <string name="move_up">Mover para cima</string>
     <string name="move_down">Mover para baixo</string>
+    <string name="move_left">Mover para a esquerda</string>
+    <string name="move_right">Mover para a direita</string>
     <string name="format">Formato</string>
     <string name="status">Status</string>
     <string name="progress">Progresso</string>
@@ -113,6 +121,7 @@
     <string name="insert_timestamp">Inserir data e hora</string>
     <string name="write_note_hint">Escreva uma nota...</string>
     <string name="remove">Remover</string>
+    <string name="delete_section_question">Excluir seção \"%1$s\"?</string>
     <string name="remove_question">Remover?</string>
     <string name="discard_question">Descartar?</string>
     <string name="current">Atual</string>
@@ -127,12 +136,13 @@
     <string name="empty_library_epub">Nenhum arquivo EPUB encontrado.</string>
     <string name="empty_library_pdf">Nenhum arquivo PDF encontrado.</string>
     <string name="empty_library_txt">Nenhum arquivo TXT encontrado.</string>
+    <string name="empty_library_md">Nenhum arquivo Markdown encontrado.</string>
     <string name="empty_library_fb2">Nenhum arquivo FB2 encontrado.</string>
 
     <string name="empty_library_archive">Nenhum arquivo archive encontrado.</string>
     <string name="choose_folder_note">Escolha uma pasta em [Escolher pasta]</string>
     <string name="quick_guide_title">Guia</string>
-    <string name="home_tutorial_note">**Swipe right** [Choose Folder] to Open a file temporarily.\n**Swipe right** [Folder Selection] to Manage folders.\n**Swipe right** [Books/Folders] from collection to open [Action] Menu.\n**Swipe left** [Books/Folders] from collection to make selection.</string>
+    <string name="home_tutorial_note">**Deslize à direita** [Escolher pasta] para abrir um arquivo temporariamente.\n**Deslize à direita** [Seleção de pasta] para gerenciar pastas.\n**Deslize à direita** [Livros/Pastas] da coleção para abrir o menu de [Ação].\n**Deslize à esquerda** [Livros/Pastas] da coleção para fazer uma seleção.\n**Deslize à direita** [Seção de nota] para abrir o menu de [Ação].</string>
     <string name="no_folder_selected_title">Nenhuma pasta selecionada</string>
     <string name="no_folder_selected_body">Escolha uma pasta para começar a montar sua biblioteca.</string>
     <string name="no_books_found_title">Nenhum livro encontrado</string>
@@ -188,7 +198,39 @@
     <string name="could_not_save_note">Não foi possível salvar a nota.</string>
     <string name="could_not_save_note_body">Verifique a permissão da pasta e tente novamente.</string>
     <string name="could_not_create_note">Não foi possível criar essa nota.</string>
+    <string name="resume_chapter_of">Retomar capítulo %1$d de %2$d</string>
+    <string name="resume_chapter">Retomar capítulo %1$d</string>
+    <string name="resume_page_of">Retomar página %1$d de %2$d</string>
+    <string name="resume_page">Retomar página %1$d</string>
+    <string name="resume_percent">Retomar %1$d%%</string>
+    <string name="vibrate_on_page_turn">Vibrar ao mudar de página</string>
+    <string name="invert_scrolling">Inverter rolagem</string>
+    <string name="button_layout">Layout dos botões</string>
+    <string name="retry">Tentar novamente</string>
     <string name="could_not_create_book_note">Não foi possível criar uma Nota do Livro.</string>
     <string name="could_not_open_book_note">Não foi possível abrir essa Nota do Livro.</string>
     <string name="choose_folder_before_book_note">Escolha uma pasta antes de criar uma Nota do Livro.</string>
+
+    <string name="section">Seção</string>
+    <string name="extract_text">Refluxo de PDF</string>
+    <string name="n_selected">%1$d selecionados</string>
+    <string name="invalid_epub">Arquivo EPUB inválido ou incompatível.</string>
+    <string name="epub_no_chapters">Este EPUB não contém capítulos legíveis.</string>
+    <string name="folder_no_longer_available">Essa pasta não está mais disponível.</string>
+    <string name="unable_delete_folder">Não foi possível excluir essa pasta.</string>
+    <string name="unable_delete_book">Não foi possível excluir esse livro.</string>
+    <string name="unable_rename_folder">Não foi possível renomear essa pasta.</string>
+    <string name="unable_rename_book">Não foi possível renomear esse livro.</string>
+    <string name="unable_open_folder">Não foi possível abrir essa pasta.</string>
+    <string name="unable_open_file">Não foi possível abrir esse arquivo.</string>
+    <string name="unable_create_note">Não foi possível criar essa nota.</string>
+    <string name="unable_discard_note">Não foi possível descartar essa nota.</string>
+    <string name="unable_rename_note">Não foi possível renomear essa nota.</string>
+    <string name="filter_archives">Arquivos compactados</string>
+    <string name="filter_epub">EPUB</string>
+    <string name="filter_fb2">FB2</string>
+    <string name="filter_markdown">Markdown</string>
+    <string name="filter_pdf">PDF</string>
+    <string name="filter_txt">TXT</string>
+    <string name="language_zhcn">Chinês simplificado</string>
 </resources>

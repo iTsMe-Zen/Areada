@@ -9,6 +9,7 @@ enum class DocumentType {
     FB2,
     ZIP,
     ARCHIVE,
+    MARKDOWN,
 }
 
 data class ReaderDocument(

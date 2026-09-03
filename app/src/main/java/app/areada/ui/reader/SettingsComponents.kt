@@ -367,8 +367,11 @@ internal fun ReaderLanguageMode.displayLabel(): String =
     when (this) {
         ReaderLanguageMode.System -> stringResource(R.string.language_system)
         ReaderLanguageMode.English -> stringResource(R.string.language_english)
+        ReaderLanguageMode.Russian -> stringResource(R.string.language_russian)
+        ReaderLanguageMode.Spanish -> stringResource(R.string.language_spanish)
         ReaderLanguageMode.Nepali -> stringResource(R.string.language_nepali)
         ReaderLanguageMode.PortugueseBrazil -> stringResource(R.string.language_portuguese_brazil)
+        ReaderLanguageMode.ChineseSimplified -> stringResource(R.string.language_zhcn)
     }
 
 @Composable

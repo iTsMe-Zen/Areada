@@ -12,6 +12,8 @@ internal fun supportedTypeFromName(name: String): DocumentType? {
         lowerName.endsWith(".epub") -> DocumentType.EPUB
         lowerName.endsWith(".pdf") -> DocumentType.PDF
         lowerName.endsWith(".txt") -> DocumentType.TXT
+        lowerName.endsWith(".md") ||
+            lowerName.endsWith(".markdown") -> DocumentType.MARKDOWN
         lowerName.endsWith(".fb2") ||
             lowerName.endsWith(".fb2.zip") ||
             lowerName.endsWith(".fbz") -> DocumentType.FB2

@@ -54,12 +54,18 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.ui.zIndex
 import app.areada.R
 import app.areada.data.reader.DocumentType
 import app.areada.data.NoteSection
 import app.areada.data.addNoteSection
+import app.areada.data.moveNoteSectionDown
+import app.areada.data.moveNoteSectionUp
 import app.areada.data.parseNoteSections
+import app.areada.ui.NoteSectionActionSheet
 import app.areada.data.reader.ReaderPreferences
 import app.areada.data.reader.ReadingBookmark
 import app.areada.data.reader.ReaderThemeMode
@@ -123,6 +129,7 @@ internal fun TextReaderScreen(
     var showSaveChangesPrompt by rememberSaveable(screen.document.uriString) {
         mutableStateOf(false)
     }
+    var sectionDeletionTarget by remember { mutableStateOf<Int?>(null) }
     var renameText by rememberSaveable(screen.document.uriString) {
         mutableStateOf(screen.document.title)
     }
@@ -154,6 +161,15 @@ internal fun TextReaderScreen(
     }
     var renameSectionText by rememberSaveable(screen.document.uriString, sectionedNotesEnabled) {
         mutableStateOf("")
+    }
+    var showSectionActionSheet by rememberSaveable(screen.document.uriString, sectionedNotesEnabled) {
+        mutableStateOf(false)
+    }
+    var actionSheetSectionIndex by rememberSaveable(screen.document.uriString, sectionedNotesEnabled) {
+        mutableIntStateOf(-1)
+    }
+    val pinnedNoteSectionTitles = remember(screen.document.uriString) {
+        mutableStateOf(setOf<String>())
     }
     val initialEditorText = if (sectionedNotesEnabled) {
         initialNoteSections.getOrNull(initialNoteSectionIndex)?.content
@@ -695,6 +711,72 @@ internal fun TextReaderScreen(
             onConfirm = ::renameCurrentSection,
         )
     }
+    if (showSectionActionSheet && actionSheetSectionIndex in noteSections.indices) {
+        val section = noteSections[actionSheetSectionIndex]
+        NoteSectionActionSheet(
+            sectionTitle = section.title,
+            pinned = section.title in pinnedNoteSectionTitles.value,
+            canMoveUp = actionSheetSectionIndex > 0,
+            canMoveDown = actionSheetSectionIndex < noteSections.lastIndex,
+            onDismiss = {
+                showSectionActionSheet = false
+                actionSheetSectionIndex = -1
+            },
+            onRename = {
+                renameSectionText = section.title
+                showRenameSection = true
+                showSectionActionSheet = false
+            },
+            onMoveUp = {
+                val updated = moveNoteSectionUp(noteSections, actionSheetSectionIndex)
+                noteSections.clear()
+                noteSections.addAll(updated)
+                if (selectedNoteSectionIndex == actionSheetSectionIndex) {
+                    selectedNoteSectionIndex -= 1
+                } else if (selectedNoteSectionIndex == actionSheetSectionIndex - 1) {
+                    selectedNoteSectionIndex += 1
+                }
+                showSectionActionSheet = false
+            },
+            onMoveDown = {
+                val updated = moveNoteSectionDown(noteSections, actionSheetSectionIndex)
+                noteSections.clear()
+                noteSections.addAll(updated)
+                if (selectedNoteSectionIndex == actionSheetSectionIndex) {
+                    selectedNoteSectionIndex += 1
+                } else if (selectedNoteSectionIndex == actionSheetSectionIndex + 1) {
+                    selectedNoteSectionIndex -= 1
+                }
+                showSectionActionSheet = false
+            },
+            onTogglePin = {
+                val title = section.title
+                val updated = if (title in pinnedNoteSectionTitles.value) {
+                    pinnedNoteSectionTitles.value - title
+                } else {
+                    pinnedNoteSectionTitles.value + title
+                }
+                pinnedNoteSectionTitles.value = updated
+                showSectionActionSheet = false
+            },
+            onDelete = { sectionDeletionTarget = actionSheetSectionIndex },
+        )
+    }
+    sectionDeletionTarget?.let { idx ->
+        CompactChoiceDialog(
+            question = stringResource(R.string.delete_section_question, noteSections[idx].title),
+            onDismiss = { sectionDeletionTarget = null },
+            onYes = {
+                noteSections.removeAt(idx)
+                if (selectedNoteSectionIndex >= noteSections.size) {
+                    selectedNoteSectionIndex = noteSections.lastIndex.coerceAtLeast(0)
+                }
+                showSectionActionSheet = false
+                actionSheetSectionIndex = -1
+                sectionDeletionTarget = null
+            },
+        )
+    }
     if (showDiscardPrompt) {
         CompactChoiceDialog(
             question = stringResource(R.string.discard_question),
@@ -725,13 +807,11 @@ internal fun TextReaderScreen(
         },
     )
 
-    val keyboardHeightDp = rememberKeyboardHeightDp()
-
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
-            .padding(bottom = keyboardHeightDp),
+            .imePadding(),
     ) {
         TopAppBar(
             colors = TopAppBarDefaults.topAppBarColors(
@@ -827,19 +907,17 @@ internal fun TextReaderScreen(
         }
         if (sectionedNotesEnabled) {
             NoteSectionBar(
-                sections = noteSections.map { section -> section.title },
+                sections = noteSections.toList(),
                 selectedIndex = selectedNoteSectionIndex.coerceIn(0, noteSections.lastIndex.coerceAtLeast(0)),
                 expanded = showNoteSectionPicker,
                 backgroundColor = backgroundColor,
+                pinnedSectionTitles = pinnedNoteSectionTitles.value,
                 onToggleExpanded = { showNoteSectionPicker = !showNoteSectionPicker },
                 onSelectSection = ::switchNoteSection,
                 onAddSection = ::addSectionAndSwitch,
-                onRenameSection = {
-                    renameSectionText = noteSections
-                        .getOrNull(selectedNoteSectionIndex)
-                        ?.title
-                        .orEmpty()
-                    showRenameSection = true
+                onSectionActions = { index ->
+                    actionSheetSectionIndex = index
+                    showSectionActionSheet = true
                 },
             )
         }

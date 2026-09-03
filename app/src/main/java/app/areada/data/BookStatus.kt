@@ -37,7 +37,8 @@ fun readingProgressPercent(progress: ReadingProgress?): Int? {
         }
 
         DocumentType.TXT,
-        DocumentType.FB2 -> progress.txtScrollFraction.coerceIn(0f, 1f)
+        DocumentType.FB2,
+        DocumentType.MARKDOWN -> progress.txtScrollFraction.coerceIn(0f, 1f)
 
         DocumentType.ZIP,
         DocumentType.ARCHIVE -> return null

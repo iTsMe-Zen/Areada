@@ -1,4 +1,4 @@
-package app.areada.data.reader
+﻿package app.areada.data.reader
 
 data class ReadingProgress(
     val uriString: String,
@@ -9,6 +9,12 @@ data class ReadingProgress(
     val pdfPageIndex: Int = 0,
     val pdfPageCount: Int = 0,
     val pdfZoomScale: Float = 1f,
+    val pdfExtractedTextEnabled: Boolean = false,
+    val pdfExtractedTextPageIndex: Int = 0,
+    val pdfExtractedTextScrollMode: Boolean = false,
+    val pdfExtractedTextSectionIndex: Int = 0,
+    val pdfExtractedTextSectionCount: Int = 0,
+    val pdfExtractedTextScrollFraction: Float = 0f,
     val txtScrollFraction: Float = 0f,
     val updatedAt: Long = System.currentTimeMillis(),
 )

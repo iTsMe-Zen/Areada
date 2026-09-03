@@ -6,8 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.TransformableState
-import androidx.compose.foundation.gestures.transformable
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,9 +33,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.areada.R
 import app.areada.data.reader.ReaderNavigationMode
-import kotlin.math.abs
 import app.areada.reader.pdf.PdfLinkLayer
 import app.areada.reader.pdf.PdfLinkTarget
+import kotlin.math.abs
 
 @Composable
 internal fun ZoomablePage(
@@ -54,6 +53,7 @@ internal fun ZoomablePage(
     onSwipeNext: () -> Unit = {},
     linkLayer: PdfLinkLayer?,
     onPdfLink: (PdfLinkTarget) -> Unit,
+    onResetZoom: () -> Unit = {},
 ) {
     var scale by rememberSaveable(pageKey, resetToken) {
         mutableFloatStateOf(initialScale.coerceIn(1f, 5f))
@@ -93,16 +93,6 @@ internal fun ZoomablePage(
             )
         }
 
-        @Suppress("DEPRECATION")
-        val transformableState = remember(pageKey, resetToken) {
-            TransformableState { zoomChange, panChange, _ ->
-                val nextScale = (scale * zoomChange).coerceIn(1f, 5f)
-                scale = nextScale
-                offset = clampOffset(nextScale, offset + panChange)
-                currentOnScaleChange.value(nextScale)
-            }
-        }
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -112,7 +102,7 @@ internal fun ZoomablePage(
                     val totalWidth = size.width.toFloat()
 
                     awaitEachGesture {
-                        val down = awaitFirstDown(requireUnconsumed = false)
+                        val down = awaitFirstDown(requireUnconsumed = true)
                         val pointerId = down.id
                         var totalHorizontalDrag = 0f
                         var totalVerticalDrag = 0f
@@ -158,9 +148,21 @@ internal fun ZoomablePage(
                         if (lastTapTime > 0L && now - lastTapTime < 300_000_000L &&
                             (tapPos - lastTapPosition).getDistance() < 100f
                         ) {
-                            scale = 1f
-                            offset = Offset.Zero
-                            currentOnScaleChange.value(scale)
+                            val targetScale = if (scale < 1.5f) 2f else 1f
+                            if (targetScale > 1f) {
+                                val r = targetScale / scale
+                                offset = clampOffset(
+                                    targetScale,
+                                    Offset(
+                                        (tapPos.x - containerWidth / 2f) * (1f - r) + offset.x * r,
+                                        (tapPos.y - containerHeight / 2f) * (1f - r) + offset.y * r,
+                                    ),
+                                )
+                            } else {
+                                offset = Offset.Zero
+                            }
+                            scale = targetScale
+                            currentOnScaleChange.value(targetScale)
                             lastTapTime = 0L
                             return@awaitEachGesture
                         }
@@ -202,12 +204,22 @@ internal fun ZoomablePage(
                         }
                     }
                 }
-                .transformable(state = transformableState),
+                .pointerInput(pageKey, resetToken) {
+                    detectTransformGestures { centroid, pan, zoom, _ ->
+                        val currentScale = scale
+                        val currentOffset = offset
+                        val nextScale = (currentScale * zoom).coerceIn(1f, 5f)
+                        val r = nextScale / currentScale
+                        val newOffsetX = (centroid.x - containerWidth / 2f) * (1f - r) + pan.x + currentOffset.x * r
+                        val newOffsetY = (centroid.y - containerHeight / 2f) * (1f - r) + pan.y + currentOffset.y * r
+                        offset = clampOffset(nextScale, Offset(newOffsetX, newOffsetY))
+                        scale = nextScale
+                        currentOnScaleChange.value(nextScale)
+                    }
+                },
             contentAlignment = Alignment.Center,
         ) {
-            Image(
-                bitmap = bitmap.asImageBitmap(),
-                contentDescription = stringResource(R.string.pdf_page_description),
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .graphicsLayer(
@@ -215,9 +227,16 @@ internal fun ZoomablePage(
                         scaleY = scale,
                         translationX = offset.x,
                         translationY = offset.y,
-                ),
-                contentScale = ContentScale.FillWidth,
-            )
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Image(
+                    bitmap = bitmap.asImageBitmap(),
+                    contentDescription = stringResource(R.string.pdf_page_description),
+                    modifier = Modifier.fillMaxWidth(),
+                    contentScale = ContentScale.FillWidth,
+                )
+            }
         }
     }
 }

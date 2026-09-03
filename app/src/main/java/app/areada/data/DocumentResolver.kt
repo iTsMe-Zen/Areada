@@ -47,6 +47,10 @@ object DocumentResolver {
                 lowerName.endsWith(".fb2") ||
                 lowerName.endsWith(".fb2.zip") ||
                 lowerName.endsWith(".fbz") -> DocumentType.FB2
+            normalizedMime == "text/markdown" ||
+                normalizedMime == "text/x-markdown" ||
+                lowerName.endsWith(".md") ||
+                lowerName.endsWith(".markdown") -> DocumentType.MARKDOWN
             normalizedMime == "application/zip" ||
                 normalizedMime == "application/x-zip-compressed" ||
                 lowerName.endsWith(".zip") -> DocumentType.ZIP

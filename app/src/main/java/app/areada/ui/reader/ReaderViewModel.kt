@@ -1,4 +1,4 @@
-package app.areada.ui.reader
+﻿package app.areada.ui.reader
 
 import android.content.Context
 import android.content.Intent
@@ -48,6 +48,7 @@ import app.areada.data.library.sortLibraryFolders
 import app.areada.reader.epub.EpubBook
 import app.areada.reader.epub.EpubEngine
 import app.areada.reader.fb2.Fb2Engine
+import app.areada.reader.markdown.MarkdownEngine
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -306,7 +307,7 @@ class ReaderViewModel : ViewModel() {
                 _uiState.update { state ->
                     state.copy(
                         isLoading = false,
-                        errorMessage = displayError(throwable, "Unable to open that folder."),
+                        errorMessage = displayError(appContext, throwable, appContext.getString(R.string.unable_open_folder)),
                     )
                 }
             }
@@ -351,7 +352,7 @@ class ReaderViewModel : ViewModel() {
         val root = _uiState.value.libraryRoots.firstOrNull { it.treeUriString == entry.rootUriString }
         if (root == null) {
             _uiState.update { state ->
-                state.copy(errorMessage = "That folder is no longer available.")
+                state.copy(errorMessage = context.getString(R.string.folder_no_longer_available))
             }
             return
         }
@@ -747,6 +748,9 @@ class ReaderViewModel : ViewModel() {
                         document = document,
                         initialPageIndex = savedProgress?.pdfPageIndex?.coerceAtLeast(0) ?: 0,
                         initialZoomScale = savedProgress?.pdfZoomScale?.coerceIn(1f, 5f) ?: 1f,
+                        initialExtractedTextEnabled = savedProgress?.pdfExtractedTextEnabled ?: false,
+                        initialExtractedTextPageIndex = savedProgress?.pdfExtractedTextPageIndex?.coerceAtLeast(0) ?: 0,
+                        initialExtractedTextScrollMode = savedProgress?.pdfExtractedTextScrollMode ?: false,
                     )
 
                     DocumentType.TXT -> {
@@ -780,6 +784,18 @@ class ReaderViewModel : ViewModel() {
                             document = titledDoc,
                             book = fb2Book,
                             initialChapterIndex = savedProgress?.epubChapterIndex?.coerceIn(0, fb2Book.chapters.lastIndex) ?: 0,
+                            initialScrollFraction = savedProgress?.epubScrollFraction?.coerceIn(0f, 1f) ?: 0f,
+                        )
+                    }
+
+                    DocumentType.MARKDOWN -> {
+                        val markdownBook = withContext(Dispatchers.IO) {
+                            MarkdownEngine.parse(appContext, document.uri, document.title)
+                        }
+                        ReaderScreen.Markdown(
+                            document = document,
+                            book = markdownBook,
+                            initialChapterIndex = 0,
                             initialScrollFraction = savedProgress?.epubScrollFraction?.coerceIn(0f, 1f) ?: 0f,
                         )
                     }
@@ -841,7 +857,7 @@ class ReaderViewModel : ViewModel() {
                 _uiState.update { state ->
                     state.copy(
                         isLoading = false,
-                        errorMessage = displayError(throwable, "Unable to open that file."),
+                        errorMessage = displayError(appContext, throwable, appContext.getString(R.string.unable_open_file)),
                     )
                 }
             }
@@ -932,6 +948,23 @@ class ReaderViewModel : ViewModel() {
         }
     }
 
+    fun renameBookmark(
+        context: Context,
+        bookmark: ReadingBookmark,
+        newName: String,
+    ) {
+        val appContext = context.applicationContext
+        val updatedBookmarks = _uiState.value.bookmarks.map { bm ->
+            if (bm.id == bookmark.id) ReadingBookmarkActions.renameBookmark(bm, newName) else bm
+        }
+        _uiState.update { state ->
+            state.copy(bookmarks = updatedBookmarks)
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            ReaderStateStore.saveBookmarks(appContext, updatedBookmarks)
+        }
+    }
+
     fun openBookmark(
         context: Context,
         bookmark: ReadingBookmark,
@@ -982,6 +1015,24 @@ class ReaderViewModel : ViewModel() {
                 document = document,
                 pageIndex = pageIndex,
                 pageCount = pageCount,
+            ),
+        )
+    }
+
+    fun togglePdfExtractedTextBookmark(
+        context: Context,
+        document: ReaderDocument,
+        sectionIndex: Int,
+        sectionCount: Int,
+        scrollFraction: Float,
+    ) {
+        toggleBookmark(
+            context = context,
+            bookmark = ReadingBookmarkActions.createPdfExtractedTextBookmark(
+                document = document,
+                sectionIndex = sectionIndex,
+                sectionCount = sectionCount,
+                scrollFraction = scrollFraction,
             ),
         )
     }
@@ -1125,7 +1176,7 @@ class ReaderViewModel : ViewModel() {
                         currentBooks = emptyList(),
                         pinnedLibraryItemIds = updatedPinnedIds,
                         libraryAddedAtById = updatedAddedAt,
-                        errorMessage = displayError(throwable, "Unable to open that folder."),
+                        errorMessage = displayError(appContext, throwable, appContext.getString(R.string.unable_open_folder)),
                     )
                 }
                 markSearchIndexDirty(appContext, updatedRoots)
@@ -1221,7 +1272,7 @@ class ReaderViewModel : ViewModel() {
                 _uiState.update { state ->
                     state.copy(
                         isLoading = false,
-                        errorMessage = displayError(throwable, "Unable to create that note."),
+                        errorMessage = displayError(appContext, throwable, appContext.getString(R.string.unable_create_note)),
                     )
                 }
             }
@@ -1398,7 +1449,7 @@ class ReaderViewModel : ViewModel() {
             }.onFailure { throwable ->
                 bookNoteReturnScreen = null
                 _uiState.update { state ->
-                    state.copy(errorMessage = displayError(throwable, appContext.getString(R.string.could_not_open_book_note)))
+                    state.copy(errorMessage = displayError(appContext, throwable, appContext.getString(R.string.could_not_open_book_note)))
                 }
             }
         }
@@ -1613,7 +1664,7 @@ class ReaderViewModel : ViewModel() {
                 }
                 if (!deleted) {
                     _uiState.update {
-                        it.copy(isLoading = false, errorMessage = "Unable to delete that folder.")
+                        it.copy(isLoading = false, errorMessage = appContext.getString(R.string.unable_delete_folder))
                     }
                     return@launch
                 }
@@ -1625,7 +1676,7 @@ class ReaderViewModel : ViewModel() {
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = displayError(throwable, "Unable to delete that folder."),
+                        errorMessage = displayError(appContext, throwable, appContext.getString(R.string.unable_delete_folder)),
                     )
                 }
             }
@@ -1680,7 +1731,7 @@ class ReaderViewModel : ViewModel() {
                 }
                 if (!deleted) {
                     _uiState.update {
-                        it.copy(isLoading = false, errorMessage = "Unable to delete that book.")
+                        it.copy(isLoading = false, errorMessage = appContext.getString(R.string.unable_delete_book))
                     }
                     return@launch
                 }
@@ -1720,7 +1771,7 @@ class ReaderViewModel : ViewModel() {
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = displayError(throwable, "Unable to delete that book."),
+                        errorMessage = displayError(appContext, throwable, appContext.getString(R.string.unable_delete_book)),
                     )
                 }
             }
@@ -1742,7 +1793,7 @@ class ReaderViewModel : ViewModel() {
                 }
                 if (!renamed) {
                     _uiState.update {
-                        it.copy(isLoading = false, errorMessage = "Unable to rename that folder.")
+                        it.copy(isLoading = false, errorMessage = appContext.getString(R.string.unable_rename_folder))
                     }
                     return@launch
                 }
@@ -1754,7 +1805,7 @@ class ReaderViewModel : ViewModel() {
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = displayError(throwable, "Unable to rename that folder."),
+                        errorMessage = displayError(appContext, throwable, appContext.getString(R.string.unable_rename_folder)),
                     )
                 }
             }
@@ -1777,7 +1828,7 @@ class ReaderViewModel : ViewModel() {
                 }
                 if (!renamed) {
                     _uiState.update {
-                        it.copy(isLoading = false, errorMessage = "Unable to rename that book.")
+                        it.copy(isLoading = false, errorMessage = appContext.getString(R.string.unable_rename_book))
                     }
                     return@launch
                 }
@@ -1788,7 +1839,7 @@ class ReaderViewModel : ViewModel() {
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = displayError(throwable, "Unable to rename that book."),
+                        errorMessage = displayError(appContext, throwable, appContext.getString(R.string.unable_rename_book)),
                     )
                 }
             }
@@ -1822,6 +1873,7 @@ class ReaderViewModel : ViewModel() {
         pageCount: Int,
         zoomScale: Float,
     ) {
+        val existing = _uiState.value.progressByUri[document.uriString]
         saveProgress(
             context = context,
             progress = ReadingProgress(
@@ -1830,6 +1882,28 @@ class ReaderViewModel : ViewModel() {
                 pdfPageIndex = pageIndex.coerceAtLeast(0),
                 pdfPageCount = pageCount.coerceAtLeast(0),
                 pdfZoomScale = zoomScale.coerceIn(1f, 5f),
+                pdfExtractedTextEnabled = existing?.pdfExtractedTextEnabled ?: false,
+                pdfExtractedTextPageIndex = existing?.pdfExtractedTextPageIndex ?: 0,
+                pdfExtractedTextScrollMode = existing?.pdfExtractedTextScrollMode ?: false,
+                updatedAt = System.currentTimeMillis(),
+            ),
+        )
+    }
+
+    fun savePdfExtractedTextState(
+        context: Context,
+        document: ReaderDocument,
+        extractTextEnabled: Boolean,
+        extractedPageIndex: Int,
+        extractedScrollMode: Boolean = false,
+    ) {
+        val existing = _uiState.value.progressByUri[document.uriString] ?: return
+        saveProgress(
+            context = context,
+            progress = existing.copy(
+                pdfExtractedTextEnabled = extractTextEnabled,
+                pdfExtractedTextPageIndex = extractedPageIndex.coerceAtLeast(0),
+                pdfExtractedTextScrollMode = extractedScrollMode,
                 updatedAt = System.currentTimeMillis(),
             ),
         )
@@ -1955,7 +2029,7 @@ class ReaderViewModel : ViewModel() {
                 _uiState.update { state ->
                     state.copy(
                         currentScreen = ReaderScreen.Home,
-                        errorMessage = displayError(throwable, "Unable to discard that note."),
+                        errorMessage = displayError(appContext, throwable, appContext.getString(R.string.unable_discard_note)),
                     )
                 }
             }
@@ -2058,7 +2132,7 @@ class ReaderViewModel : ViewModel() {
                 markSearchIndexDirty(appContext, _uiState.value.libraryRoots)
             }.onFailure { throwable ->
                 _uiState.update { state ->
-                    state.copy(errorMessage = displayError(throwable, "Unable to rename that note."))
+                    state.copy(errorMessage = displayError(appContext, throwable, appContext.getString(R.string.unable_rename_note)))
                 }
             }
         }
@@ -2170,7 +2244,7 @@ class ReaderViewModel : ViewModel() {
                 _uiState.update { state ->
                     state.copy(
                         isLoading = false,
-                        errorMessage = displayError(throwable, "Unable to open that folder."),
+                        errorMessage = displayError(appContext, throwable, appContext.getString(R.string.unable_open_folder)),
                     )
                 }
             }

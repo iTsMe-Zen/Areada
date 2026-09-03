@@ -44,6 +44,7 @@ internal fun LibraryFileFilter.icon(): ImageVector =
         LibraryFileFilter.EPUB -> Icons.Outlined.ImportContacts
         LibraryFileFilter.PDF -> Icons.Outlined.PictureAsPdf
         LibraryFileFilter.TXT -> Icons.Outlined.Description
+        LibraryFileFilter.MARKDOWN -> Icons.Outlined.Description
         LibraryFileFilter.FB2 -> Icons.AutoMirrored.Outlined.LibraryBooks
         LibraryFileFilter.ARCHIVE -> Icons.AutoMirrored.Outlined.LibraryBooks
     }

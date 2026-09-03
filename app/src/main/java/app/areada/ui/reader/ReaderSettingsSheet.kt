@@ -1,4 +1,4 @@
-package app.areada.ui.reader
+﻿package app.areada.ui.reader
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -10,9 +10,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -38,6 +45,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.areada.R
+import app.areada.data.reader.ReaderButtonLayout
 import app.areada.data.reader.ReaderFontChoice
 import app.areada.data.reader.ReaderNavigationMode
 import app.areada.data.reader.ReaderOrientationMode
@@ -54,9 +62,14 @@ import kotlin.math.roundToInt
 internal fun ReaderSettingsSheet(
     preferences: ReaderPreferences,
     showReadingControls: Boolean = true,
-    showLanguageSelector: Boolean = false,
+    showLanguageSelector: Boolean = true,
     showGuideIconToggle: Boolean = false,
     showOpenPreviousChapterAtEnd: Boolean = false,
+    showExtractedTextToggle: Boolean = false,
+    pdfExtractedTextEnabled: Boolean = false,
+    pdfExtractedTextScrollMode: Boolean = false,
+    onExtractedTextToggle: ((Boolean) -> Unit)? = null,
+    onExtractedTextScrollToggle: ((Boolean) -> Unit)? = null,
     onBookNoteClick: (() -> Unit)? = null,
     onDismiss: () -> Unit,
     onPreferencesChange: (ReaderPreferences) -> Unit,
@@ -72,7 +85,7 @@ internal fun ReaderSettingsSheet(
         mutableFloatStateOf(preferences.readingRulerPosition)
     }
     var languageExpanded by rememberSaveable {
-        mutableStateOf(false)
+        mutableStateOf(true)
     }
     val maxSheetHeight = (LocalConfiguration.current.screenHeightDp.dp * 0.50f).coerceAtLeast(300.dp)
 
@@ -96,7 +109,27 @@ internal fun ReaderSettingsSheet(
     }
 
     ModalBottomSheet(
-        onDismissRequest = onDismiss,
+        onDismissRequest = {
+            val finalFontSize = fontSizeDraft.roundToInt().coerceIn(12, 40)
+            val finalLineSpacing = lineSpacingDraft.coerceIn(1.2f, 2.4f)
+            val finalRulerPos = sanitizeReadingRulerPosition(rulerPositionDraft)
+            var updated = preferences
+            var needsCommit = false
+            if (finalFontSize != preferences.fontSizeSp) {
+                updated = updated.copy(fontSizeSp = finalFontSize)
+                needsCommit = true
+            }
+            if (finalLineSpacing != preferences.lineSpacing) {
+                updated = updated.copy(lineSpacing = finalLineSpacing)
+                needsCommit = true
+            }
+            if (finalRulerPos != preferences.readingRulerPosition) {
+                updated = updated.copy(readingRulerPosition = finalRulerPos)
+                needsCommit = true
+            }
+            if (needsCommit) onPreferencesChange(updated)
+            onDismiss()
+        },
         sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.surface,
     ) {
@@ -208,7 +241,46 @@ internal fun ReaderSettingsSheet(
                         },
                     )
                 }
+                if (preferences.navigationMode == ReaderNavigationMode.BUTTONS) {
+                    SettingsControlSpacer()
+                    CollapsibleSettingsSection(
+                        title = stringResource(R.string.button_layout),
+                        initialExpanded = false,
+                    ) {
+                        SegmentedSettingGrid(
+                            items = ReaderButtonLayout.entries,
+                            selected = preferences.buttonLayout,
+                            label = { "" },
+                            icon = { layout ->
+                                {
+                                    ButtonLayoutIcon(layout)
+                                }
+                            },
+                            onSelect = { layout ->
+                                onPreferencesChange(preferences.copy(buttonLayout = layout))
+                            },
+                        )
+                        SettingsControlSpacer()
+                        SettingsBinaryRow(
+                            label = stringResource(R.string.invert_scrolling),
+                            checked = preferences.invertScrolling,
+                            onCheckedChange = { checked ->
+                                onPreferencesChange(preferences.copy(invertScrolling = checked))
+                            },
+                        )
+                    }
+                }
                 SettingsSectionSpacer()
+                if (showExtractedTextToggle) {
+                    SettingsBinaryRow(
+                        label = stringResource(R.string.extract_text),
+                        checked = pdfExtractedTextEnabled,
+                        onCheckedChange = { checked ->
+                            onExtractedTextToggle?.invoke(checked)
+                        },
+                    )
+                    SettingsSectionSpacer()
+                }
                 CollapsibleSettingsSection(
                     title = stringResource(R.string.additional_settings),
                     initialExpanded = false,
@@ -300,4 +372,57 @@ internal fun ReaderSettingsSheet(
         }
     }
 
+}
+
+@Composable
+private fun ButtonLayoutIcon(layout: ReaderButtonLayout) {
+    val iconColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val icons = when (layout) {
+        ReaderButtonLayout.DEFAULT -> listOf(
+            Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
+            Icons.Outlined.KeyboardArrowDown,
+            Icons.Outlined.KeyboardArrowUp,
+            Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+        )
+        ReaderButtonLayout.INVERTED -> listOf(
+            Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+            Icons.Outlined.KeyboardArrowUp,
+            Icons.Outlined.KeyboardArrowDown,
+            Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
+        )
+        ReaderButtonLayout.SYMMETRIC -> listOf(
+            Icons.Outlined.KeyboardArrowDown,
+            Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
+            Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+            Icons.Outlined.KeyboardArrowUp,
+        )
+        ReaderButtonLayout.VERTICAL -> listOf(
+            Icons.Outlined.KeyboardArrowUp,
+            Icons.Outlined.KeyboardArrowDown,
+            Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
+            Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+        )
+        ReaderButtonLayout.VERTICAL_FIRST -> listOf(
+            Icons.Outlined.KeyboardArrowDown,
+            Icons.Outlined.KeyboardArrowUp,
+            Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+            Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
+        )
+        ReaderButtonLayout.PAGE_FIRST -> listOf(
+            Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
+            Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+            Icons.Outlined.KeyboardArrowUp,
+            Icons.Outlined.KeyboardArrowDown,
+        )
+    }
+    Row(horizontalArrangement = Arrangement.spacedBy(1.dp)) {
+        icons.forEach { icon ->
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = iconColor,
+                modifier = Modifier.size(12.dp),
+            )
+        }
+    }
 }
