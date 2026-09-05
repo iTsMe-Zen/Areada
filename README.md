@@ -14,7 +14,7 @@ Areada supports EPUB, PDF, TXT, FB2, FBZ, FB2 ZIP, and a wide range of archive f
 
 ## Latest Release
 
-Latest version: **v1.1.3**
+Latest version: **v1.1.4**
 
 <p>
   <a href="https://github.com/iTsMe-Zen/Areada/releases/latest">
