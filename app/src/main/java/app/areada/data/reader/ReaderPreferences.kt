@@ -60,6 +60,7 @@ enum class ReaderLanguageMode(
     Nepali("ne"),
     PortugueseBrazil("pt-BR"),
     ChineseSimplified("zh-CN"),
+    Italian("it"),
 }
 
 fun readerLanguageModeFromName(name: String?): ReaderLanguageMode =

@@ -47,6 +47,7 @@ class ReaderPreferencesTest {
         assertEquals(ReaderLanguageMode.Nepali, readerLanguageModeFromName("Nepali"))
         assertEquals(ReaderLanguageMode.PortugueseBrazil, readerLanguageModeFromName("PortugueseBrazil"))
         assertEquals(ReaderLanguageMode.ChineseSimplified, readerLanguageModeFromName("ChineseSimplified"))
+        assertEquals(ReaderLanguageMode.Italian, readerLanguageModeFromName("Italian"))
     }
 
     @Test
