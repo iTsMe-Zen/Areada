@@ -54,6 +54,7 @@ object MarkdownEngine {
         val scrollScript = if (scrollToEnd) {
             "<script>window.scrollTo(0,document.body.scrollHeight)</script>"
         } else { "" }
+        val bodyTextAlign = if (preferences.disableJustification) "start" else "justify"
 
         val html = """
             <!DOCTYPE html>
@@ -71,7 +72,7 @@ object MarkdownEngine {
                         font-size: ${fontSize}px !important;
                         line-height: $lineSpacing !important;
                     }
-                    body { padding: 0 max(18px,5vw) 132px; text-align: justify; word-break: break-word; overflow-wrap: break-word; }
+                    body { padding: 0 max(18px,5vw) 132px; text-align: $bodyTextAlign; word-break: break-word; overflow-wrap: break-word; }
                     ::-webkit-scrollbar { width: 6px; height: 6px; }
                     ::-webkit-scrollbar-track { background: transparent; }
                     ::-webkit-scrollbar-thumb { background-color: $scrollThumbColor; border-radius: 999px; }

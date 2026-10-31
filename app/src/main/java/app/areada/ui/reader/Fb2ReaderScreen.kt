@@ -90,6 +90,7 @@ internal fun Fb2ReaderScreen(
         preferences.fontChoice,
         preferences.fontSizeSp,
         preferences.lineSpacing,
+        preferences.hyphenation,
         preferences.openPreviousChapterAtEnd,
     ) {
         EpubRenderCacheKey(
@@ -98,6 +99,8 @@ internal fun Fb2ReaderScreen(
             fontChoice = preferences.fontChoice,
             fontSizeSp = preferences.fontSizeSp,
             lineSpacingBucket = (preferences.lineSpacing * 100f).roundToInt(),
+            disableJustification = false,
+            hyphenation = preferences.hyphenation,
             scrollToEnd = preferences.openPreviousChapterAtEnd,
         )
     }
@@ -220,6 +223,7 @@ internal fun Fb2ReaderScreen(
         ReaderSettingsSheet(
             preferences = preferences,
             onBookNoteClick = onOpenBookNote,
+            showHyphenationToggle = screen.book.language != null,
             showOpenPreviousChapterAtEnd = true,
             onDismiss = { showSettings = false },
             onPreferencesChange = onPreferencesChange,

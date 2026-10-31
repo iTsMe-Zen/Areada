@@ -7,9 +7,12 @@ import app.areada.data.AreadaCacheManager
 import app.areada.data.reader.ReaderPreferences
 import app.areada.data.reader.ReaderRenderPalette
 import app.areada.data.reader.renderPalette
+import app.areada.reader.readerHyphenationCss
+import app.areada.reader.readerTextAlignScript
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
+import org.jsoup.nodes.DataNode
 import org.jsoup.nodes.Document as JsoupHtmlDocument
 import org.jsoup.nodes.Document.OutputSettings.Syntax
 import org.jsoup.nodes.Entities
@@ -33,6 +36,7 @@ private val CssImportRegex = Regex("""@import\s+(?:url\(\s*)?['"](.*?)['"](?:\s*
 
 data class EpubBook(
     val title: String,
+    val language: String? = null,
     val extractedRoot: File,
     val chapters: List<EpubChapter>,
     val archiveFile: File? = null,
@@ -142,6 +146,12 @@ object EpubEngine {
                         ?.trim()
                         ?.ifBlank { null }
                         ?: fallbackTitle
+                    val language = packageDocument
+                        .getElementsByTagNameNS("*", "language")
+                        .item(0)
+                        ?.textContent
+                        ?.trim()
+                        ?.ifBlank { null }
 
                     readyMarker.writeText("ready")
                     val now = System.currentTimeMillis()
@@ -150,6 +160,7 @@ object EpubEngine {
                     readyMarker.setLastModified(now)
                     EpubBook(
                         title = title,
+                        language = language,
                         extractedRoot = root,
                         chapters = chapters,
                         archiveFile = archiveFile,
@@ -185,6 +196,7 @@ object EpubEngine {
         val renderedDocument = buildRenderedDocument(
             sourceDocument = normalizedDocument,
             baseUrl = baseUrl,
+            fallbackLanguage = book.language,
         )
 
         renderedDocument.outputSettings()
@@ -199,7 +211,7 @@ object EpubEngine {
             .attr("content", "width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes")
         head.prependElement("meta")
             .attr("charset", "utf-8")
-        head.appendElement("style").appendText(
+        val readerStyles =
             """
             html {
               -webkit-text-size-adjust: none !important;
@@ -295,11 +307,16 @@ object EpubEngine {
               border-top: 1px solid ${palette.mutedHex};
               margin: 1.5rem 0;
             }
-            """.trimIndent(),
-        )
+            """.trimIndent() + "\n" + readerHyphenationCss(preferences)
+        // DataNode keeps script/style text unescaped; appendText would turn `&` and `>` into entities.
+        head.appendElement("style").appendChild(DataNode(readerStyles))
+        val textAlignScript = readerTextAlignScript(preferences)
+        if (textAlignScript.isNotEmpty()) {
+            renderedDocument.body().appendElement("script").appendChild(DataNode(textAlignScript))
+        }
         if (scrollToEnd) {
-            renderedDocument.body().appendElement("script").appendText(
-                "window.scrollTo(0,document.body.scrollHeight)",
+            renderedDocument.body().appendElement("script").appendChild(
+                DataNode("window.scrollTo(0,document.body.scrollHeight)"),
             )
         }
         val html = renderedDocument.outerHtml()
@@ -314,6 +331,7 @@ object EpubEngine {
     private fun buildRenderedDocument(
         sourceDocument: JsoupHtmlDocument,
         baseUrl: String,
+        fallbackLanguage: String?,
     ): JsoupHtmlDocument {
         sourceDocument.select("script").remove()
 
@@ -333,6 +351,12 @@ object EpubEngine {
             if (attribute.key.lowercase(Locale.ROOT) != "xmlns") {
                 renderedHtml?.attr(attribute.key, attribute.value)
             }
+        }
+        // WebView loads the chapter as HTML, where `lang` matters and `xml:lang` is ignored.
+        if (renderedHtml != null && renderedHtml.attr("lang").isBlank()) {
+            renderedHtml.attr("xml:lang")
+                .ifBlank { fallbackLanguage }
+                ?.let { language -> renderedHtml.attr("lang", language) }
         }
         sourceBody.attributes().forEach { attribute ->
             renderedBody.attr(attribute.key, attribute.value)

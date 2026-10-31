@@ -65,6 +65,8 @@ internal fun ReaderSettingsSheet(
     showLanguageSelector: Boolean = true,
     showGuideIconToggle: Boolean = false,
     showOpenPreviousChapterAtEnd: Boolean = false,
+    showJustificationToggle: Boolean = false,
+    showHyphenationToggle: Boolean = false,
     showExtractedTextToggle: Boolean = false,
     pdfExtractedTextEnabled: Boolean = false,
     pdfExtractedTextScrollMode: Boolean = false,
@@ -230,6 +232,24 @@ internal fun ReaderSettingsSheet(
                     valueRange = 1.2f..2.4f,
                     steps = 11,
                 )
+                if (showJustificationToggle) {
+                    SettingsControlSpacer()
+                    SettingsBinaryRow(
+                        label = stringResource(R.string.disable_justification),
+                        checked = preferences.disableJustification,
+                        onCheckedChange = { checked ->
+                            onPreferencesChange(preferences.copy(disableJustification = checked))
+                        },
+                    )
+                }
+                if (showHyphenationToggle) {
+                    SettingsControlSpacer()
+                    SettingsBinaryRow(
+                        label = stringResource(R.string.hyphenation),
+                        checked = preferences.hyphenation,
+                        onCheckedChange = { checked -> onPreferencesChange(preferences.copy(hyphenation = checked)) },
+                    )
+                }
                 SettingsControlSpacer()
                 SettingsSection(title = stringResource(R.string.page_navigation)) {
                     SegmentedSettingGrid(

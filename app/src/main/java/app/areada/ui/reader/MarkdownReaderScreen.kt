@@ -137,6 +137,7 @@ internal fun MarkdownReaderScreen(
         ReaderSettingsSheet(
             preferences = preferences,
             onBookNoteClick = onOpenBookNote,
+            showJustificationToggle = true,
             onDismiss = { showSettings = false },
             onPreferencesChange = onPreferencesChange,
         )

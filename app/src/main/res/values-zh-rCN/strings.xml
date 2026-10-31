@@ -9,6 +9,8 @@
     <string name="font">字体</string>
     <string name="font_size">字体大小</string>
     <string name="line_spacing">行间距</string>
+    <string name="disable_justification">不使用两端对齐</string>
+    <string name="hyphenation">断字</string>
     <string name="reading_ruler">阅读标尺</string>
     <string name="guide_icon">指南图标</string>
     <string name="open_previous_chapter_at_end">打开上一章时跳转到末尾</string>

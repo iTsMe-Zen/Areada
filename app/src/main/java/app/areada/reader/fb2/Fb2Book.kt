@@ -3,6 +3,7 @@ package app.areada.reader.fb2
 data class Fb2Book(
     val title: String?,
     val author: String?,
+    val language: String? = null,
     val chapters: List<Fb2Chapter>,
     val images: Map<String, String> = emptyMap(),
 )

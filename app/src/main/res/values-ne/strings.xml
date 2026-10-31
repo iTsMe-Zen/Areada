@@ -9,6 +9,8 @@
     <string name="font">फन्ट</string>
     <string name="font_size">फन्ट आकार</string>
     <string name="line_spacing">लाइन दूरी</string>
+    <string name="disable_justification">पाठ दुवै छेउ नमिलाउनुहोस्</string>
+    <string name="hyphenation">शब्द विभाजन</string>
     <string name="reading_ruler">पढ्ने रुलर</string>
     <string name="guide_icon">गाइड आइकन</string>
     <string name="open_previous_chapter_at_end">अघिल्लो अध्याय अन्तमा खोल्नुहोस्</string>

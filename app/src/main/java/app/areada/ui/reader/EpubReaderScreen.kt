@@ -166,6 +166,8 @@ internal fun EpubReaderScreen(
         preferences.fontChoice,
         preferences.fontSizeSp,
         preferences.lineSpacing,
+        preferences.disableJustification,
+        preferences.hyphenation,
         preferences.openPreviousChapterAtEnd,
     ) {
         EpubRenderCacheKey(
@@ -174,6 +176,8 @@ internal fun EpubReaderScreen(
             fontChoice = preferences.fontChoice,
             fontSizeSp = preferences.fontSizeSp,
             lineSpacingBucket = (preferences.lineSpacing * 100f).roundToInt(),
+            disableJustification = preferences.disableJustification,
+            hyphenation = preferences.hyphenation,
             scrollToEnd = preferences.openPreviousChapterAtEnd,
         )
     }
@@ -323,6 +327,8 @@ internal fun EpubReaderScreen(
         ReaderSettingsSheet(
             preferences = preferences,
             onBookNoteClick = onOpenBookNote,
+            showJustificationToggle = true,
+            showHyphenationToggle = true,
             showOpenPreviousChapterAtEnd = true,
             onDismiss = { showSettings = false },
             onPreferencesChange = onPreferencesChange,

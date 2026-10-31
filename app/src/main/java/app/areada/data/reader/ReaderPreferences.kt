@@ -77,6 +77,8 @@ data class ReaderPreferences(
     val navigationMode: ReaderNavigationMode = ReaderNavigationMode.SWIPE,
     val fontSizeSp: Int = 18,
     val lineSpacing: Float = 1.7f,
+    val disableJustification: Boolean = false,
+    val hyphenation: Boolean = false,
     val keepScreenOn: Boolean = false,
     val volumeButtonsTurnPages: Boolean = false,
     val invertVolumeButtons: Boolean = false,

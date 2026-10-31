@@ -8,6 +8,8 @@
     <string name="font">Fuente</string>
     <string name="font_size">Tamaño de fuente</string>
     <string name="line_spacing">Interlineado</string>
+    <string name="disable_justification">No justificar el texto</string>
+    <string name="hyphenation">Separación silábica</string>
     <string name="reading_ruler">Regla de lectura</string>
     <string name="guide_icon">Icono de guía</string>
     <string name="open_previous_chapter_at_end">Abrir capítulo anterior al final</string>

@@ -8,6 +8,8 @@
     <string name="font">Шрифт</string>
     <string name="font_size">Размер шрифта</string>
     <string name="line_spacing">Межстрочный интервал</string>
+    <string name="disable_justification">Не растягивать по ширине</string>
+    <string name="hyphenation">Переносы слов</string>
     <string name="reading_ruler">Прогресс на экране</string>
     <string name="guide_icon">Значок подсказки</string>
     <string name="open_previous_chapter_at_end">Открывать предыдущую главу с конца</string>

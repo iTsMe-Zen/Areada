@@ -346,6 +346,8 @@ internal data class EpubRenderCacheKey(
     val fontChoice: ReaderFontChoice,
     val fontSizeSp: Int,
     val lineSpacingBucket: Int,
+    val disableJustification: Boolean,
+    val hyphenation: Boolean,
     val scrollToEnd: Boolean,
 )
 
@@ -360,6 +362,8 @@ internal fun trimEpubRenderCache(
                 key.fontChoice == centerKey.fontChoice &&
                 key.fontSizeSp == centerKey.fontSizeSp &&
                 key.lineSpacingBucket == centerKey.lineSpacingBucket &&
+                key.disableJustification == centerKey.disableJustification &&
+                key.hyphenation == centerKey.hyphenation &&
                 key.chapterIndex in keepRange
         }
         .forEach { key -> cache.remove(key) }

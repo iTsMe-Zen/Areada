@@ -56,6 +56,11 @@ object ReaderStateStore {
                     fontSizeSp = item.optInt("fontSizeSp", ReaderPreferences().fontSizeSp),
                     lineSpacing = item.optDouble("lineSpacing", ReaderPreferences().lineSpacing.toDouble())
                         .toFloat(),
+                    disableJustification = item.optBoolean(
+                        "disableJustification",
+                        ReaderPreferences().disableJustification,
+                    ),
+                    hyphenation = item.optBoolean("hyphenation", ReaderPreferences().hyphenation),
                     keepScreenOn = item.optBoolean("keepScreenOn", ReaderPreferences().keepScreenOn),
                     volumeButtonsTurnPages = item.optBoolean(
                         "volumeButtonsTurnPages",
@@ -97,6 +102,8 @@ object ReaderStateStore {
             put("navigationMode", preferences.navigationMode.name)
             put("fontSizeSp", preferences.fontSizeSp)
             put("lineSpacing", preferences.lineSpacing.toDouble())
+            put("disableJustification", preferences.disableJustification)
+            put("hyphenation", preferences.hyphenation)
             put("keepScreenOn", preferences.keepScreenOn)
             put("volumeButtonsTurnPages", preferences.volumeButtonsTurnPages)
             put("invertVolumeButtons", preferences.invertVolumeButtons)

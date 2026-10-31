@@ -4,6 +4,7 @@ import app.areada.data.reader.ReaderPreferences
 import app.areada.data.reader.ReaderRenderPalette
 import app.areada.data.reader.renderPalette
 import app.areada.reader.epub.RenderedChapter
+import app.areada.reader.readerHyphenationCss
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.w3c.dom.Document
@@ -11,6 +12,8 @@ import org.w3c.dom.Element
 import org.w3c.dom.Node
 import java.util.Locale
 import javax.xml.parsers.DocumentBuilderFactory
+
+private val LanguageTagRegex = Regex("[A-Za-z]{2,3}(-[A-Za-z0-9]+)*")
 
 object Fb2Engine {
 
@@ -35,6 +38,7 @@ object Fb2Engine {
         val title = firstElementText(doc, "book-title")?.trim()?.ifBlank { null }
             ?: fallbackTitle
         val author = firstAuthorName(doc)
+        val language = bookLanguage(doc)
         val images = extractBinaryImages(doc)
         val sections = extractSections(doc)
 
@@ -54,7 +58,7 @@ object Fb2Engine {
             }
         }
 
-        Fb2Book(title = title, author = author, chapters = chapters, images = images)
+        Fb2Book(title = title, author = author, language = language, chapters = chapters, images = images)
     }
 
     fun render(
@@ -76,10 +80,13 @@ object Fb2Engine {
         } else {
             ""
         }
+        val langAttribute = book.language
+            ?.let { language -> " lang=\"$language\"" }
+            .orEmpty()
 
         val html = """
             <!DOCTYPE html>
-            <html>
+            <html$langAttribute>
             <head>
                 <meta charset="utf-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
@@ -168,6 +175,7 @@ object Fb2Engine {
                         border-top: 1px solid ${palette.mutedHex};
                         margin: 1.5rem 0;
                     }
+                    ${readerHyphenationCss(preferences)}
                 </style>
             </head>
             <body>
@@ -465,6 +473,19 @@ object Fb2Engine {
             if (node.nodeName.substringAfter(':').equals(tagName, ignoreCase = true)) {
                 val text = node.textContent.orEmpty().compactWhitespace()
                 if (text.isNotBlank()) return text
+            }
+        }
+        return null
+    }
+
+    private fun bookLanguage(document: Document): String? {
+        val nodes = document.getElementsByTagName("*")
+        for (i in 0 until nodes.length) {
+            val node = nodes.item(i)
+            if (node.nodeName.substringAfter(':').equals("title-info", ignoreCase = true)) {
+                return childElementText(node, "lang")
+                    ?.replace('_', '-')
+                    ?.takeIf { it.matches(LanguageTagRegex) }
             }
         }
         return null
